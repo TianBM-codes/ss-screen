@@ -2,10 +2,6 @@
 
 from __future__ import annotations
 
-import numpy as np
-import pytest
-from monty.serialization import loadfn
-
 from ssscreen.pair.envmatch import (
     StructureGroup,
     find_unique_envs,
@@ -123,9 +119,14 @@ def test_group_missing_env_never_matches(cese2_condensed):
 def test_structure_group_getitem_works():
     """Regression for the upstream ``__getitem___`` typo (3 trailing underscores)."""
     g = StructureGroup(
-        entry_idx=[0, 1], A_elements=[["Ca"]], compositions=["CaS", "CaSe"],
-        group_size=2, X_element=["S", "Se"], mp_ids=["mp-1", "mp-2"],
-        group_repr="...", band_gaps=[0.0, 0.3],
+        entry_idx=[0, 1],
+        A_elements=[["Ca"]],
+        compositions=["CaS", "CaSe"],
+        group_size=2,
+        X_element=["S", "Se"],
+        mp_ids=["mp-1", "mp-2"],
+        group_repr="...",
+        band_gaps=[0.0, 0.3],
     )
     assert g["group_size"] == 2
     assert g["mp_ids"] == ["mp-1", "mp-2"]
@@ -133,8 +134,13 @@ def test_structure_group_getitem_works():
 
 def test_structure_group_to_dict_roundtrip():
     g = StructureGroup(
-        entry_idx=[0], A_elements=[["Ca"]], compositions=["CaS"],
-        group_size=1, X_element=["S"], mp_ids=["mp-1"], group_repr="x",
+        entry_idx=[0],
+        A_elements=[["Ca"]],
+        compositions=["CaS"],
+        group_size=1,
+        X_element=["S"],
+        mp_ids=["mp-1"],
+        group_repr="x",
     )
     d = g.to_dict()
     assert d["group_size"] == 1

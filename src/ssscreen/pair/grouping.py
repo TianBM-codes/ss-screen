@@ -13,7 +13,7 @@ number of elements.
 
 from __future__ import annotations
 
-from typing import Iterable
+from collections.abc import Iterable
 
 import pandas as pd
 from pymatgen.core import Composition
@@ -98,9 +98,7 @@ def group_by_composition_template(
             all_fixed_parts.setdefault(key, []).append(entry)
 
     if min_group_size > 1:
-        all_fixed_parts = {
-            k: v for k, v in all_fixed_parts.items() if len(v) >= min_group_size
-        }
+        all_fixed_parts = {k: v for k, v in all_fixed_parts.items() if len(v) >= min_group_size}
     return all_fixed_parts
 
 

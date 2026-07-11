@@ -14,13 +14,12 @@ The final stage. Two distinct rules from the source notebooks:
 from __future__ import annotations
 
 import itertools
-from typing import Iterable, Sequence
+from collections.abc import Iterable, Sequence
 
 import pandas as pd
 
 from ..config import PairThresholds
 from .envmatch import StructureGroup
-
 
 # Type alias: a member's gap entry is ``[gap_eV: float, is_direct: bool]``.
 GapEntry = tuple[float, bool] | list

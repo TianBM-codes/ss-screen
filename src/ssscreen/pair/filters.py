@@ -7,14 +7,11 @@ unit-testable. Mirrors ``valence-filter.ipynb`` (cell 11) and
 
 from __future__ import annotations
 
-from typing import Iterable, Sequence
-
 import pandas as pd
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core import Structure
 from tqdm.auto import tqdm
 
-from ..config import Thresholds
 from .envmatch import StructureGroup
 
 

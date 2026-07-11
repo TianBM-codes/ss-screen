@@ -43,23 +43,38 @@ def cli() -> None:
 # valence-filter
 # ---------------------------------------------------------------------------
 @cli.command("valence-filter")
-@click.option("--df-mp", "df_mp", type=click.Path(exists=True, path_type=Path),
-              help="Pickled MP dataset DataFrame (e.g. mp.df).")
-@click.option("--df-wbm", "df_wbm", type=click.Path(exists=True, path_type=Path),
-              help="Pickled WBM dataset DataFrame (e.g. wbm-dataset.df).")
-@click.option("--output", "output", type=click.Path(path_type=Path), required=True,
-              help="Where to write the JSON list of valid material IDs.")
+@click.option(
+    "--df-mp",
+    "df_mp",
+    type=click.Path(exists=True, path_type=Path),
+    help="Pickled MP dataset DataFrame (e.g. mp.df).",
+)
+@click.option(
+    "--df-wbm",
+    "df_wbm",
+    type=click.Path(exists=True, path_type=Path),
+    help="Pickled WBM dataset DataFrame (e.g. wbm-dataset.df).",
+)
+@click.option(
+    "--output",
+    "output",
+    type=click.Path(path_type=Path),
+    required=True,
+    help="Where to write the JSON list of valid material IDs.",
+)
 @click.option("--no-verbose", is_flag=True, default=False, help="Disable the progress bar.")
-def valence_filter_cmd(df_mp: Path | None, df_wbm: Path | None, output: Path,
-                       no_verbose: bool) -> None:
+def valence_filter_cmd(
+    df_mp: Path | None, df_wbm: Path | None, output: Path, no_verbose: bool
+) -> None:
     """Pre-filter metallic / mixed-valence structures via bond-valence analysis.
 
     Loads one or both pickled DataFrames (indexed by material ID, with a
     ``structure`` column of pymatgen Structures) and writes the IDs whose
     oxidation states BVAnalyzer can assign.
     """
-    from ..pair.filters import valence_filter
     from monty.serialization import dumpfn
+
+    from ..pair.filters import valence_filter
 
     frames = []
     if df_mp:
@@ -116,26 +131,76 @@ def condense_cmd(inputs: tuple[Path, ...], output_dir: Path, overwrite: bool) ->
 @cli.command("group")
 @click.option("--df-mp", "df_mp", type=click.Path(exists=True, path_type=Path))
 @click.option("--df-wbm", "df_wbm", type=click.Path(exists=True, path_type=Path))
-@click.option("--valence-ids", "valence_ids", type=click.Path(exists=True, path_type=Path),
-              help="Optional JSON list of valence-valid IDs (from `valence-filter`).")
-@click.option("--nelems", type=int, default=2, show_default=True,
-              help="Number of elements in the reduced composition (2 or 3).")
-@click.option("--condensed-dirs", "condensed_dirs", multiple=True, required=True,
-              type=click.Path(exists=True, file_okay=False),
-              help="Directories of robocrys condensed JSONs (repeatable).")
-@click.option("--max-bandgap", type=float, default=1.0, show_default=True,
-              help="Keep materials with PBE band gap below this (eV).")
-@click.option("--max-e-hull", "max_e_hull", type=float, default=0.0, show_default=True,
-              help="Keep materials with energy above hull at most this (eV/atom).")
-@click.option("--max-natoms", type=int, default=None,
-              help="Primitive-cell atom cap for the *output* structures (default 30 binary / 45 ternary).")
-@click.option("--excluded-elements", "excluded_elements", multiple=True, default=[],
-              help="Extra elements to exclude (added to the default list).")
-@click.option("--output", "output", type=click.Path(path_type=Path), required=True,
-              help="Output group JSON (array of StructureGroup records).")
+@click.option(
+    "--valence-ids",
+    "valence_ids",
+    type=click.Path(exists=True, path_type=Path),
+    help="Optional JSON list of valence-valid IDs (from `valence-filter`).",
+)
+@click.option(
+    "--nelems",
+    type=int,
+    default=2,
+    show_default=True,
+    help="Number of elements in the reduced composition (2 or 3).",
+)
+@click.option(
+    "--condensed-dirs",
+    "condensed_dirs",
+    multiple=True,
+    required=True,
+    type=click.Path(exists=True, file_okay=False),
+    help="Directories of robocrys condensed JSONs (repeatable).",
+)
+@click.option(
+    "--max-bandgap",
+    type=float,
+    default=1.0,
+    show_default=True,
+    help="Keep materials with PBE band gap below this (eV).",
+)
+@click.option(
+    "--max-e-hull",
+    "max_e_hull",
+    type=float,
+    default=0.0,
+    show_default=True,
+    help="Keep materials with energy above hull at most this (eV/atom).",
+)
+@click.option(
+    "--max-natoms",
+    type=int,
+    default=None,
+    help="Primitive-cell atom cap for the *output* structures (default 30 binary / 45 ternary).",
+)
+@click.option(
+    "--excluded-elements",
+    "excluded_elements",
+    multiple=True,
+    default=[],
+    help="Extra elements to exclude (added to the default list).",
+)
+@click.option(
+    "--output",
+    "output",
+    type=click.Path(path_type=Path),
+    required=True,
+    help="Output group JSON (array of StructureGroup records).",
+)
 @click.option("--no-verbose", is_flag=True, default=False)
-def group_cmd(df_mp, df_wbm, valence_ids, nelems, condensed_dirs, max_bandgap,
-              max_e_hull, max_natoms, excluded_elements, output, no_verbose):
+def group_cmd(
+    df_mp,
+    df_wbm,
+    valence_ids,
+    nelems,
+    condensed_dirs,
+    max_bandgap,
+    max_e_hull,
+    max_natoms,
+    excluded_elements,
+    output,
+    no_verbose,
+):
     """Group materials by composition template + environment fingerprint."""
     from tqdm.auto import tqdm
 
@@ -152,6 +217,7 @@ def group_cmd(df_mp, df_wbm, valence_ids, nelems, condensed_dirs, max_bandgap,
     # Optional valence pre-filter.
     if valence_ids:
         from monty.serialization import loadfn
+
         valid = loadfn(str(valence_ids))
         df_all = df_all.loc[valid]
 
@@ -160,10 +226,12 @@ def group_cmd(df_mp, df_wbm, valence_ids, nelems, condensed_dirs, max_bandgap,
     sel = t.selection
     if max_bandgap != sel.max_bandgap or max_e_hull != sel.max_e_hull:
         from dataclasses import replace
+
         t = replace(t, selection=replace(sel, max_bandgap=max_bandgap, max_e_hull=max_e_hull))
     excluded = coerce_excluded(excluded_elements) if excluded_elements else t.excluded_elements
     if max_natoms is not None:
         from dataclasses import replace
+
         t = replace(t, max_natoms=max_natoms)
 
     # Stage 1: select by nelems, gap, hull.
@@ -173,7 +241,9 @@ def group_cmd(df_mp, df_wbm, valence_ids, nelems, condensed_dirs, max_bandgap,
         & (df_all["band_gap"] < max_bandgap),
         :,
     ]
-    click.echo(f"Selected {len(df_t)} materials (nelems={nelems}, gap<{max_bandgap}, e_hull<={max_e_hull})")
+    click.echo(
+        f"Selected {len(df_t)} materials (nelems={nelems}, gap<{max_bandgap}, e_hull<={max_e_hull})"
+    )
 
     # Stage 2: composition-template grouping.
     templates = group_by_composition_template(df_t, nelems=nelems)
@@ -182,8 +252,9 @@ def group_cmd(df_mp, df_wbm, valence_ids, nelems, condensed_dirs, max_bandgap,
     # Stage 3: environment grouping within each template.
     loader = CondenseLoader(list(condensed_dirs))
     all_groups = []
-    iterator = tqdm(templates.items(), disable=no_verbose, desc="env grouping",
-                    total=len(templates))
+    iterator = tqdm(
+        templates.items(), disable=no_verbose, desc="env grouping", total=len(templates)
+    )
     for key, entries in iterator:
         # entries: list of [mp_id, x_elem, band_gap]
         mp_ids = [e[0] for e in entries]
@@ -195,6 +266,7 @@ def group_cmd(df_mp, df_wbm, valence_ids, nelems, condensed_dirs, max_bandgap,
 
     # Keep groups with X-element diversity.
     import numpy as np
+
     all_groups = [g for g in all_groups if len(np.unique(g.X_element)) > 1]
     click.echo(f"{len(all_groups)} groups after X-diversity filter")
 
@@ -226,10 +298,20 @@ def group_cmd(df_mp, df_wbm, valence_ids, nelems, condensed_dirs, max_bandgap,
 # pair
 # ---------------------------------------------------------------------------
 @cli.command("pair")
-@click.option("--groups", "groups_path", type=click.Path(exists=True, path_type=Path),
-              required=True, help="Group JSON from `ss-screen group`.")
-@click.option("--gaps", "gaps_path", type=click.Path(exists=True, path_type=Path),
-              required=True, help="mbj_gaps_*_pmg_info.csv with computed gaps.")
+@click.option(
+    "--groups",
+    "groups_path",
+    type=click.Path(exists=True, path_type=Path),
+    required=True,
+    help="Group JSON from `ss-screen group`.",
+)
+@click.option(
+    "--gaps",
+    "gaps_path",
+    type=click.Path(exists=True, path_type=Path),
+    required=True,
+    help="mbj_gaps_*_pmg_info.csv with computed gaps.",
+)
 @click.option("--low-gap", "low_gap", type=float, default=0.15, show_default=True)
 @click.option("--direct-min", "direct_min", type=float, default=0.15, show_default=True)
 @click.option("--direct-max", "direct_max", type=float, default=1.5, show_default=True)
@@ -237,10 +319,18 @@ def group_cmd(df_mp, df_wbm, valence_ids, nelems, condensed_dirs, max_bandgap,
 @click.option("--pair-any-above", "pair_any_above", type=float, default=0.2, show_default=True)
 @click.option("--pair-both-below", "pair_both_below", type=float, default=0.8, show_default=True)
 @click.option("--output", "output", type=click.Path(path_type=Path), required=True)
-def pair_cmd(groups_path, gaps_path, low_gap, direct_min, direct_max,
-             pair_any_below, pair_any_above, pair_both_below, output):
+def pair_cmd(
+    groups_path,
+    gaps_path,
+    low_gap,
+    direct_min,
+    direct_max,
+    pair_any_below,
+    pair_any_above,
+    pair_both_below,
+    output,
+):
     """Enumerate promising alloying pairs from computed gaps."""
-    from dataclasses import replace as dc_replace
     from ..config import PairThresholds
     from ..pair.pairing import attach_gaps_and_compress, gaps_valid
 
@@ -248,8 +338,11 @@ def pair_cmd(groups_path, gaps_path, low_gap, direct_min, direct_max,
     gap_map = read_mbj_gaps(gaps_path)
 
     t = PairThresholds(
-        low_gap=low_gap, direct_min=direct_min, direct_max=direct_max,
-        pair_any_below=pair_any_below, pair_any_above=pair_any_above,
+        low_gap=low_gap,
+        direct_min=direct_min,
+        direct_max=direct_max,
+        pair_any_below=pair_any_below,
+        pair_any_above=pair_any_above,
         pair_both_below=pair_both_below,
     )
 

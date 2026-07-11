@@ -3,15 +3,15 @@
 from __future__ import annotations
 
 import pandas as pd
+import pytest
 from pymatgen.core import Composition
-
+from ssscreen.config import composition_permutations
+from ssscreen.pair.envmatch import StructureGroup
 from ssscreen.pair.grouping import (
     _template_key,
     attach_band_gaps,
     group_by_composition_template,
 )
-from ssscreen.pair.envmatch import StructureGroup
-from ssscreen.config import composition_permutations
 
 
 def _df(rows):
@@ -35,7 +35,6 @@ def _df(rows):
 # ---------------------------------------------------------------------------
 def test_template_key_binary():
     comp = Composition("CaS").get_reduced_composition_and_factor()[0]
-    elems = list(comp.keys())
     # perm [0,1] -> Ca fixed, S is X -> "CaX1"
     assert _template_key(comp, [0, 1]) == "CaX1"
     # perm [1,0] -> S fixed, Ca is X -> "S1X1" (S amount is 1)
@@ -44,7 +43,6 @@ def test_template_key_binary():
 
 def test_template_key_ternary():
     comp = Composition("CaSnO3").get_reduced_composition_and_factor()[0]
-    elems = list(comp.keys())
     # perm [0,1,2] -> Ca,Sn fixed, O is X -> "CaSnX3"
     assert _template_key(comp, [0, 1, 2]) == "CaSnX3"
     # perm [0,2,1] -> Ca,O fixed, Sn is X -> "CaO3X1"
@@ -94,11 +92,13 @@ def test_min_group_size_filter():
 
 
 def test_ternary_grouping():
-    df = _df([
-        ("mp-1", "CaSnO", 0.0),
-        ("mp-2", "CaPbO", 0.3),
-        ("mp-3", "SrSnO", 0.5),
-    ])
+    df = _df(
+        [
+            ("mp-1", "CaSnO", 0.0),
+            ("mp-2", "CaPbO", 0.3),
+            ("mp-3", "SrSnO", 0.5),
+        ]
+    )
     out = group_by_composition_template(df, nelems=3)
     # CaO1 fixed, Sn/Pb vary -> "CaOX1"
     assert "CaOX1" in out
@@ -112,12 +112,13 @@ def test_ternary_grouping():
 def test_attach_band_gaps():
     entries = [["mp-1", "S", 0.0], ["mp-2", "Se", 0.3]]
     g = StructureGroup(
-        entry_idx=[0, 1], A_elements=[["Ca"]], compositions=["CaS", "CaSe"],
-        group_size=2, X_element=["S", "Se"], mp_ids=["mp-1", "mp-2"],
+        entry_idx=[0, 1],
+        A_elements=[["Ca"]],
+        compositions=["CaS", "CaSe"],
+        group_size=2,
+        X_element=["S", "Se"],
+        mp_ids=["mp-1", "mp-2"],
         group_repr="x",
     )
     attach_band_gaps([g], entries)
     assert g.band_gaps == [0.0, 0.3]
-
-
-import pytest  # noqa: E402 (kept at bottom for clarity of test layout)

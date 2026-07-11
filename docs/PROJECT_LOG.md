@@ -9,6 +9,28 @@
 
 ---
 
+## 2026-07-12 — Baseline commit and Stage 0 CLI CI cleanup
+
+**Goal of this session:** Commit the current repository as a baseline, then start implementing the long-term CLI roadmap.
+
+**Done:**
+- Created baseline commit `d71aa25` (`Establish ss-screen baseline`) before making new implementation changes.
+- Marked Stage 0 complete in `plans/2026-07-12-cli-long-term-screening-roadmap-v1.md`.
+- Added a core GitHub Actions workflow in `.github/workflows/ci.yml` that installs the dev group and runs `ruff`, `black --check`, and `pytest` without optional DFT extras.
+- Moved developer tools from the package `dev` extra into the `uv` `[dependency-groups].dev` section in `pyproject.toml`.
+- Added `tests/test_project_config.py` so the dependency layout and CI workflow stay aligned with the core-only test path.
+- Ran ruff cleanup and formatting on touched Python files.
+
+**Decisions / changes to plan:**
+- Stage 0 should keep default CI focused on the core CLI and tests; optional `condense`, `dft`, MLP, MP, and phonon dependencies stay outside the default CI path.
+- The next implementation slice should move to Stage 1 / Stage 1a: normalized dataset inputs and composition-only screening artifacts before structure matching.
+
+**Next up:**
+- Implement the Stage 1 composition-screening/dataframe builder command surface with small fixtures and schema tests.
+- Keep the Chinese user guide synchronized with the staged CLI artifact names once the Stage 1 outputs are stable.
+
+**Blockers / upstream issues:** Local `uv` resolution still depends on network/cache availability in this environment; verification used the existing conda `work` Python plus `ruff`. Local `black` is not installed there, but CI installs it through the `uv` dev group.
+
 ## 2026-07-12 — Long-term CLI screening roadmap
 
 **Goal of this session:** Generate a comprehensive long-term CLI plan for reproducing notebook-like screening results through staged command-line artifacts.

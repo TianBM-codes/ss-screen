@@ -42,7 +42,14 @@ dft = [
     "sumo",
     "doped",
 ]
-dev = ["pytest>=7", "ruff", "black"]
+
+[dependency-groups]
+dev = [
+    "pytest>=7",
+    "ruff",
+    "black",
+    "tomli>=2; python_version < '3.11'",
+]
 
 [project.scripts]
 ss-screen = "ssscreen.cli.app:cli"

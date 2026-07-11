@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pandas as pd
-
 from ssscreen.config import PairThresholds
 from ssscreen.pair.envmatch import StructureGroup
 from ssscreen.pair.pairing import (
@@ -103,8 +101,14 @@ def test_pairs_to_dataframe_schema():
     pairs = enumerate_pairs(g, [[0.0, True], [0.3, True]], t)
     df = pairs_to_dataframe(pairs)
     assert list(df.columns) == [
-        "comp_a", "comp_b", "gap_a", "gap_b",
-        "mp_id_a", "mp_id_b", "gap_direct_a", "gap_direct_b",
+        "comp_a",
+        "comp_b",
+        "gap_a",
+        "gap_b",
+        "mp_id_a",
+        "mp_id_b",
+        "gap_direct_a",
+        "gap_direct_b",
     ]
 
 

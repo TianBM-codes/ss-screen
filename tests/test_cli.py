@@ -6,9 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 from click.testing import CliRunner
-
 from ssscreen.cli.app import cli
-
 
 CLI_FIXTURES = Path(__file__).parent / "data" / "cli"
 

@@ -21,8 +21,8 @@ Fixes vs. upstream:
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
-from typing import Iterable, Sequence
 
 import numpy as np
 from pymatgen.core import Composition, Species
@@ -84,7 +84,7 @@ def group_similar_structures(
     envs: Sequence[Sequence],
     comp_template: str,
     mp_ids: Sequence[str],
-) -> list["StructureGroup"]:
+) -> list[StructureGroup]:
     """Collapse a set of structures into environment-fingerprint groups.
 
     Parameters
@@ -113,9 +113,7 @@ def group_similar_structures(
     comps: list = []
     xelems: list = []
 
-    spectator_elements = [
-        x.symbol for x in Composition(comp_template).keys() if x.symbol != "X"
-    ]
+    spectator_elements = [x.symbol for x in Composition(comp_template).keys() if x.symbol != "X"]
 
     for comp, item in envs:
         # Missing condensed info: assign a unique random descriptor so this

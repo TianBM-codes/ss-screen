@@ -10,9 +10,8 @@ Default values reproduce the research workspace defaults
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
-from typing import Sequence
-
 
 # ---------------------------------------------------------------------------
 # Element exclusion
@@ -23,15 +22,40 @@ from typing import Sequence
 # Source: pair-screening/screening-binary.ipynb cell 29.
 _DEFAULT_EXCLUDED = [
     # radioactive / toxic
-    "U", "Th", "Po", "Tl", "Hg",
-    "Np", "Pu", "Pa", "Pr",
+    "U",
+    "Th",
+    "Po",
+    "Tl",
+    "Hg",
+    "Np",
+    "Pu",
+    "Pa",
+    "Pr",
     # transition metals (excluded in the binary screen)
-    "Ti", "Fe", "Co", "Ni", "Mn", "Cr", "V",
+    "Ti",
+    "Fe",
+    "Co",
+    "Ni",
+    "Mn",
+    "Cr",
+    "V",
     # non-metals that distort the chemistry
     "H",
     # lanthanides
-    "La", "Ce", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm",
-    "Yb", "Lu",
+    "La",
+    "Ce",
+    "Nd",
+    "Pm",
+    "Sm",
+    "Eu",
+    "Gd",
+    "Tb",
+    "Dy",
+    "Ho",
+    "Er",
+    "Tm",
+    "Yb",
+    "Lu",
 ]
 
 #: Frozen set used by :func:`ssscreen.pair.filters.apply_element_exclusion`.
@@ -141,7 +165,7 @@ class Thresholds:
     excluded_elements: frozenset[str] = DEFAULT_EXCLUDED_ELEMENTS
 
     @staticmethod
-    def default(nelems: int = 2) -> "Thresholds":
+    def default(nelems: int = 2) -> Thresholds:
         """Research defaults for the given element count."""
         max_natoms = 30 if nelems == 2 else 45
         return Thresholds(
@@ -149,7 +173,7 @@ class Thresholds:
             max_natoms=max_natoms,
         )
 
-    def with_nelems(self, nelems: int) -> "Thresholds":
+    def with_nelems(self, nelems: int) -> Thresholds:
         """Return a copy with ``nelems`` (and the matching natoms cap) set."""
         return replace(
             self,

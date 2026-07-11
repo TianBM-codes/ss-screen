@@ -8,9 +8,9 @@ the core package and default tests do not need it installed.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Sequence
 
 from monty.serialization import dumpfn, loadfn
 from pymatgen.core import Structure
@@ -31,7 +31,9 @@ def expand_input_paths(inputs: Sequence[str | Path]) -> list[Path]:
     for item in inputs:
         path = Path(item)
         if path.is_dir():
-            paths.extend(sorted(p for p in path.iterdir() if p.is_file() and not p.name.startswith(".")))
+            paths.extend(
+                sorted(p for p in path.iterdir() if p.is_file() and not p.name.startswith("."))
+            )
         else:
             paths.append(path)
     return paths

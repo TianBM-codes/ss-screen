@@ -11,11 +11,11 @@ Consolidates the small loaders scattered across the notebooks:
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Iterable, Sequence
 
 import pandas as pd
-from monty.serialization import dumpfn, loadfn
+from monty.serialization import loadfn
 
 from ..pair.envmatch import StructureGroup
 
