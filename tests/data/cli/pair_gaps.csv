@@ -1,0 +1,3 @@
+,formula,material_id,direct,transition,band_gap
+0,CaS,mp-low,False,,0.0
+1,CaSe,mp-mid,True,,0.3

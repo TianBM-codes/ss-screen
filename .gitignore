@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+*.so
+
+# Virtual envs
+.venv/
+venv/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+*~
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local data / secrets — never commit
+*.df
+*.pickle
+*.pkl
+.env
+.envrc
+# Large AiiDA dumps and archives (reference only, live outside this repo anyway)
+*.aiida
+*.tar.gz
+
+# Keep tiny test fixtures under tests/data even if they match patterns above
+!tests/data/**

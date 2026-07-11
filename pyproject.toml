@@ -1,0 +1,70 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ss-screen"
+version = "0.1.0"
+description = "Screen materials pairs that form solid-solutions (alloys) with tunable band gaps."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "HC project" }]
+keywords = ["materials-science", "solid-solution", "band-gap", "screening", "pymatgen"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "License :: OSI Approved :: MIT License",
+]
+dependencies = [
+    "pymatgen>=2024.0",
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "monty>=2024.0",
+    "click>=8.0",
+    "tqdm>=4.0",
+]
+
+[project.optional-dependencies]
+# robocrys is only required for the `condense` workflow (M2), not for the
+# pair-screening core which consumes pre-condensed JSON.
+condense = ["robocrys>=0.2"]
+# AiiDA-driven DFT verification + defect ranking (M3/M4).
+dft = [
+    "aiida",
+    "aiida-vasp",
+    "aiida-grouppathx",
+    "mace-torch",
+    "icet",
+    "sumo",
+    "doped",
+]
+dev = ["pytest>=7", "ruff", "black"]
+
+[project.scripts]
+ss-screen = "ssscreen.cli.app:cli"
+
+[project.urls]
+Documentation = "https://github.com/bonan/HC/ss-screen/docs/PROJECT_PLAN.md"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ssscreen"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B"]
+ignore = ["E501"]  # line length handled by formatter
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

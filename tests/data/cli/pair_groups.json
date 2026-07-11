@@ -1,0 +1,11 @@
+[
+  {
+    "entry_idx": [0, 1, 2],
+    "A_elements": [["Ca"], ["Ca"], ["Ca"]],
+    "compositions": ["CaTe", "CaS", "CaSe"],
+    "X_element": ["Te", "S", "Se"],
+    "mp_ids": ["mp-missing", "mp-low", "mp-mid"],
+    "band_gaps": [0.4, 0.0, 0.3],
+    "group_size": 3
+  }
+]
