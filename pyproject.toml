@@ -31,7 +31,20 @@ dependencies = [
 [project.optional-dependencies]
 # robocrys is only required for the `condense` workflow (M2), not for the
 # pair-screening core which consumes pre-condensed JSON.
-condense = ["robocrys>=0.2"]
+condense = [
+    "robocrys>=0.2",
+    # robocrys/matminer still import pkg_resources; setuptools 81+ removes it.
+    "setuptools<81",
+    # matminer 0.8 imports pymatgen private names removed by modern pymatgen.
+    "matminer>=0.10.1",
+]
+# Official Materials Project live API backend. The default MP loader uses the
+# separately installed/local `mp_offline` package for network-isolated runs.
+mp = ["mp-api>=0.41"]
+# WBM extxyz loading.
+wbm = ["ase>=3.22"]
+# Optimized SQS generation backend for Stage 6.
+sqs = ["ase>=3.22", "icet>=3.2"]
 # AiiDA-driven DFT verification + defect ranking (M3/M4).
 dft = [
     "aiida",

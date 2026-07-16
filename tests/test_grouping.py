@@ -5,6 +5,7 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 from pymatgen.core import Composition
+
 from ssscreen.config import composition_permutations
 from ssscreen.pair.envmatch import StructureGroup
 from ssscreen.pair.grouping import (

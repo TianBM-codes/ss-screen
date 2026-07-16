@@ -14,6 +14,7 @@ number of elements.
 from __future__ import annotations
 
 from collections.abc import Iterable
+from typing import Any
 
 import pandas as pd
 from pymatgen.core import Composition
@@ -100,6 +101,85 @@ def group_by_composition_template(
     if min_group_size > 1:
         all_fixed_parts = {k: v for k, v in all_fixed_parts.items() if len(v) >= min_group_size}
     return all_fixed_parts
+
+
+def screen_composition_candidates(
+    df: pd.DataFrame,
+    *,
+    nelems: int,
+    max_bandgap: float,
+    max_e_hull: float,
+    excluded_elements: set[str] | frozenset[str],
+    min_group_size: int = 2,
+    min_x_elements: int = 2,
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    """Select and write composition-template candidates before structure matching."""
+    hull_col = "e_hull" if "e_hull" in df.columns else "energy_above_hull"
+    selected = df.loc[
+        (df["nelems"] == nelems) & (df[hull_col] <= max_e_hull) & (df["band_gap"] < max_bandgap),
+        :,
+    ].copy()
+    selected = selected.loc[
+        ~selected["reduced_composition"].apply(
+            lambda comp: any(str(el) in excluded_elements for el in comp.elements)
+        ),
+        :,
+    ]
+
+    templates = group_by_composition_template(
+        selected,
+        nelems=nelems,
+        min_group_size=min_group_size,
+    )
+    templates = {
+        template: entries
+        for template, entries in templates.items()
+        if len({entry[1] for entry in entries}) >= min_x_elements
+    }
+
+    records = []
+    for template, entries in templates.items():
+        for material_id, x_element, band_gap in entries:
+            row = selected.loc[material_id]
+            composition = row["reduced_composition"]
+            records.append(
+                {
+                    "template": template,
+                    "material_id": material_id,
+                    "x_element": x_element,
+                    "formula": row.get("formula", composition.reduced_formula),
+                    "composition": composition.reduced_formula,
+                    "band_gap": band_gap,
+                    "e_hull": row[hull_col],
+                    "source": row.get("source", ""),
+                }
+            )
+
+    candidates = pd.DataFrame.from_records(
+        records,
+        columns=[
+            "template",
+            "material_id",
+            "x_element",
+            "formula",
+            "composition",
+            "band_gap",
+            "e_hull",
+            "source",
+        ],
+    )
+    summary = {
+        "input_rows": int(len(df)),
+        "selected_rows": int(len(selected)),
+        "template_count": int(len(templates)),
+        "candidate_rows": int(len(candidates)),
+        "nelems": int(nelems),
+        "max_bandgap": float(max_bandgap),
+        "max_e_hull": float(max_e_hull),
+        "min_group_size": int(min_group_size),
+        "min_x_elements": int(min_x_elements),
+    }
+    return candidates, summary
 
 
 def attach_band_gaps(

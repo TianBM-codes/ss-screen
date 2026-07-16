@@ -116,15 +116,23 @@ ss-screen/
 ## 4. Dependency strategy
 
 **Core** (pair-screening works standalone):
-`pymatgen`, `ase`, `robocrys` (robocrystallographer), `pandas`, `numpy`, `monty`,
-`click`, `tqdm`, `joblib`. Data source via `mp_api` (and the custom `mp_offline`
-if available).
+`pymatgen`, `pandas`, `numpy`, `monty`, `click`, `tqdm`. The core CLI consumes
+pre-built data artifacts and pre-condensed structure JSONs without requiring
+heavy workflow dependencies.
 
-**Extra `dft`** (AiiDA-driven verification + defects):
-`aiida`, `aiida-vasp`, `aiida-abacus`, `aiida-grouppathx`, `mace-torch`, `icet`,
-`sumo`, `doped`, `pymatgen-analysis` (phase diagrams).
+**Extras**:
+- `mp`: official Materials Project live API backend (`mp-api`). The offline MP
+  backend uses a separately installed/local `mp_offline` package and database.
+- `wbm`: WBM extxyz loading (`ase`).
+- `condense`: robocrys condensation (`robocrys`, compatible `matminer` /
+  `setuptools` pins).
+- `sqs`: optimized SQS generation (`ase`, `icet`).
+- `dft`: AiiDA-driven verification + defects (`aiida`, `aiida-vasp`,
+  `aiida-grouppathx`, `mace-torch`, `sumo`, `doped`). Add ABACUS and other
+  calculator integrations here when their workflow modules land.
 
-Install: `pip install ss-screen` (core) or `pip install "ss-screen[dft]"`.
+Install: `pip install ss-screen` (core) or install targeted extras such as
+`pip install "ss-screen[mp,condense,sqs]"`.
 
 ## 5. Migration milestones (long-running roadmap)
 

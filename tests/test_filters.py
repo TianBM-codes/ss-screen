@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pandas as pd
 from pymatgen.core import Lattice, Structure
+
 from ssscreen.pair.envmatch import StructureGroup
 from ssscreen.pair.filters import (
     apply_element_exclusion,

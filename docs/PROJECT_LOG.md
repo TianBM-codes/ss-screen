@@ -7,7 +7,434 @@
 
 **Read first at the start of every session:** `AGENTS.md` → this file → `PROJECT_PLAN.md`.
 
+## 2026-07-16 — Review remediation for staged CLI
+
+**Goal of this session:** Address multi-agent review findings against the staged CLI implementation.
+
+**Done:**
+- Fixed `condense_paths()` in `src/ssscreen/data/condense.py` so unreadable input files are recorded as failed manifest/index rows instead of being silently dropped.
+- Fixed `gap-export` in `src/ssscreen/pair/gap_export.py` so atom-count gating and exported structure JSON use the same primitive/calculation structure.
+- Updated gap-result validation and feedback in `src/ssscreen/pair/gap_export.py` and `src/ssscreen/pair/gap_feedback.py` to accept CSV/JSON records, tolerate blank failed rows, and report gap shifts/directness changes in method comparisons.
+- Added `src/ssscreen/data/wbm.py` and `ss-screen dataset wbm` for WBM extxyz normalization.
+- Hardened `src/ssscreen/stability/sqs.py` and CLI validation so SQS target fractions must be in `[0, 1]`.
+- Updated `README.md`, `docs/PROJECT_PLAN.md`, and the CLI roadmap to reflect the current extras, WBM loader, JSON gap files, and review remediations.
+
+**Decisions / changes to plan:**
+- Core dependencies remain small; WBM loading, condensation, MP live API, and SQS each live behind targeted extras.
+- Historical `mp-offline` notes remain below, but this ss-screen entry is the current project handoff point.
+
+**Next up:** Run full verification, then continue with Stage 7 MLP relaxation adapters or Stage 12 Chinese user guide work.
+
+**Blockers / upstream issues:** No read-only reference files were modified.
+
+## 2026-07-14 — mp-offline thermo review Task 2 corrections
+
+**Goal of this session:** Correct thermo resume compatibility, row-count metadata, and fallback identity behavior in the shared `mp-offline` development checkout.
+
+**Done:**
+- Updated `mp-offline/mp-offline-develop/src/mp_offline/dump.py` to reject resumes when the saved JSON-canonical normalized summary query differs, seed compatible thermo resumes from the existing `thermo_entry` count, and use stable material-plus-canonical-scheme fallback thermo identities.
+- Retained and documented the public one-shot `ThermoRester.search()` download behavior; no private pagination or streaming redesign was added.
+- Added regression coverage in `mp-offline/mp-offline-develop/tests/test_dump_resume.py` and `tests/test_thermo_entries.py`.
+- Recorded TDD and verification evidence in `/tmp/mp-offline-20260714-task2.md`; focused and full test suites completed with exit code zero.
+
+**Decisions / changes to plan:**
+- Same-material, same-canonical-scheme rows with no API thermo ID deduplicate even when mutable payload fields change; distinct schemes remain separate identities.
+
+**Next up:** Continue only with explicitly requested thermo-cache plan tasks.
+
+**Blockers / upstream issues:** No live Materials Project request, staging, or commit was performed.
+
+## 2026-07-14 — mp-offline thermo review Task 1 corrections
+
+**Goal of this session:** Implement Task 1 from the thermo review corrections plan in the shared `mp-offline` development checkout.
+
+**Done:**
+- Updated `mp-offline/mp-offline-develop/src/mp_offline/dump.py` so `--run-type` semantics use only scalar `energy_type`, persisted thermo schemes are canonicalized, and every downloaded row is checked against the selected cache scheme before it can be written.
+- Updated `mp-offline/mp-offline-develop/src/mp_offline/client.py` and `src/mp_offline/cli.py` to reject scheme requests that conflict with the cache profile and reject orphaned `--run-type` options.
+- Added focused regression coverage in `mp-offline/mp-offline-develop/tests/test_thermo_entries.py`, `tests/test_client.py`, and `tests/test_cli.py`.
+- Recorded TDD and verification evidence in `/tmp/mp-offline-20260714-task1.md`; focused tests passed (`35 passed`).
+
+**Decisions / changes to plan:**
+- A returned thermo row outside the selected scheme raises before any batch persistence rather than being silently ignored.
+
+**Next up:** Continue only with explicitly requested thermo-cache plan tasks.
+
+**Blockers / upstream issues:** `uv run` cannot resolve the declared Python support range with `mp-api==0.46.4`, and `ruff` is absent from the existing virtualenv. No live Materials Project request, staging, or commit was performed.
+
+## 2026-07-13 — mp-offline thermo implementation review
+
+**Goal of this session:** Run independent reviews of thermo download compatibility, theory separation, and the local query/CLI surface.
+
+**Done:**
+- Launched three read-only reviewers against `mp-offline/mp-offline-develop`.
+- Identified P1 gaps in returned-scheme validation, authoritative run-type semantics, summary resume compatibility, and thermo resume/identity behavior.
+- Identified P2 usability/provenance gaps around wrong-scheme local queries and native `r2SCAN` normalization.
+
+**Decisions / changes to plan:**
+- No implementation changes were made during this review pass; the findings require a focused correction plan before further claims of theory-safe caching.
+
+**Next up:**
+- Decide the authoritative meaning of `--run-type`, then implement the P1 correction set with tests.
+
+**Blockers / upstream issues:** No live Materials Project request or archive/database modification.
+
+## 2026-07-13 — mp-offline Task 4 theory-aware local thermo queries
+
+**Goal of this session:** Expose an explicit-scheme local thermo query and CLI command in the shared `mp-offline` development checkout.
+
+**Done:**
+- Added `MPOffline.query_thermo()` in `mp-offline/mp-offline-develop/src/mp_offline/client.py`, constrained to `MaterialThermoEntry` and using Task 1/3 canonical scheme and exact run-type matching helpers.
+- Added `mp-offline list-thermo --thermo-type ...` with repeated material/run filters and a validated `thermo_entry` projection in `mp-offline/mp-offline-develop/src/mp_offline/cli.py`.
+- Added focused regression tests in `mp-offline/mp-offline-develop/tests/test_client.py` and `mp-offline/mp-offline-develop/tests/test_cli.py`.
+- Recorded TDD evidence in `/tmp/mp-offline-task-4-report.md`: RED `5 failed, 10 passed`; GREEN focused `15 passed`; full suite `61 passed`.
+
+**Decisions / changes to plan:**
+- Kept the implementation table-specific; no generic table abstraction was introduced.
+
+**Next up:** Continue only with explicitly requested thermo-cache tasks.
+
+**Blockers / upstream issues:** No live Materials Project request or cache/archive modification. No files were staged or committed.
+
+## 2026-07-13 — mp-offline Task 3 thermo identity and exact filtering
+
+**Goal of this session:** Preserve distinct current Materials Project thermo documents and make thermo run-type selection/resume metadata exact and canonical in the shared development checkout.
+
+**Done:**
+- Updated `mp-offline/mp-offline-develop/src/mp_offline/dump.py` to derive `payload-sha256:` fallback thermo IDs from canonical raw JSON, map before deduplication, use exact normalized run-type labels, and sort/deduplicate run types in `thermo_profile`.
+- Added Task 3 regression coverage in `mp-offline/mp-offline-develop/tests/test_thermo_entries.py` for pure versus mixed GGA labels, exact mixed scheme selection, distinct no-ID payload persistence, and reordered/duplicated profile selections.
+- Recorded TDD evidence in `/tmp/mp-offline-task-3-report.md`: RED `3 failed, 8 passed`; GREEN `11 passed`; full suite `56 passed`.
+
+**Decisions / changes to plan:**
+- Existing `thermo_entry.thermo_id` schema accepts the deterministic textual hash key, so Task 3 required no schema or migration change.
+
+**Next up:** Continue only with explicitly requested thermo-cache tasks.
+
+**Blockers / upstream issues:** `ruff` is unavailable in the existing test virtual environment; no dependencies were installed. No files were staged or committed.
+
+## 2026-07-13 — mp-offline Task 2 thermo resume safety
+
+**Goal of this session:** Repair Task 2 thermo downloading/profile-safe resume behavior in the shared `mp-offline` development checkout.
+
+**Done:**
+- Updated `mp-offline/mp-offline-develop/src/mp_offline/dump.py` to use only public thermo chunking arguments, enforce public thermo selection invariants, persist profiles/failures, and reject mismatched resumes before summary writes.
+- Updated `mp-offline/mp-offline-develop/src/mp_offline/migration.py` metadata defaults and added focused regression coverage in `mp-offline/mp-offline-develop/tests/`.
+- Recorded RED/GREEN evidence in `/tmp/mp-offline-task-2-report.md`; focused result: `12 passed`.
+
+**Decisions / changes to plan:**
+- A supplied `thermo_types` value enables thermo inclusion at the public `create_offline_db` boundary; `GGA_GGA+U_R2SCAN` remains one valid scheme.
+
+**Next up:** Continue only with explicitly requested thermo theory-separation tasks.
+
+**Blockers / upstream issues:** `uv run` cannot resolve the declared Python support range with `mp-api==0.46.4`; focused tests used the existing checkout virtual environment. No files were staged or committed.
+
+## 2026-07-13 — mp-offline Task 1 thermo profile validation
+
+**Goal of this session:** Implement the first thermo theory-separation task in the shared `mp-offline` development checkout.
+
+**Done:**
+- Added enum-backed `normalize_thermo_types` and `thermo_profile` in `mp-offline/mp-offline-develop/src/mp_offline/dump.py`.
+- Updated `mp-offline/mp-offline-develop/src/mp_offline/cli.py` so `--thermo-type` implies thermo download and `--include-thermo` requires a scheme.
+- Added focused validator and CLI tests in `mp-offline/mp-offline-develop/tests/`.
+- Recorded RED/GREEN evidence in `/tmp/mp-offline-task-1-report.md`.
+
+**Decisions / changes to plan:**
+- Normalize against installed `ThermoType` values and exclude `UNKNOWN`; defer pagination, resume comparison, and exact run-type filtering to later tasks.
+
+**Next up:** Implement Task 2 downloader contract and profile-safe resume behavior.
+
+**Blockers / upstream issues:** No live Materials Project request or archive/database modification. No files were staged or committed.
+
 ---
+
+## 2026-07-13 — Stage 6 stability SQS input artifacts
+
+**Goal of this session:** Start the optional stability workflow by generating reusable alloy/SQS input artifacts from final pair results.
+
+**Done:**
+- Added `src/ssscreen/stability/sqs.py` with deterministic random-substitution alloy structure generation and JSONL manifest writing.
+- Installed `icet==3.2` into `.venv` and added an `icet` SQS backend using `generate_sqs_from_supercells`.
+- Added `ss-screen stability sqs-generate` in `src/ssscreen/cli/app.py`.
+- Added tests in `tests/test_stability_sqs.py` and CLI coverage in `tests/test_cli.py`.
+- Updated `README.md` and `plans/2026-07-12-cli-long-term-screening-roadmap-v1.md` with the Stage 6 command and artifact boundary.
+
+**Decisions / changes to plan:**
+- `stability sqs-generate` now supports `--backend random` for dependency-light fixtures and `--backend icet` for optimized SQS generation.
+- The JSONL manifest is the reusable task queue for future MLP relaxation and stability-analysis backends.
+
+**Next up:** Implement Stage 7 MLP relaxation manifest/result adapters, keeping actual GPU-heavy relaxation outside default CI.
+
+**Blockers / upstream issues:** No read-only reference files were modified.
+
+## 2026-07-13 — thermo theory-separation review
+
+**Goal of this session:** Audit whether the `mp-offline` thermo cache can safely select, record, and expose one Materials Project thermodynamic theory scheme.
+
+**Done:**
+- Ran three independent read-only reviews of downloader/CLI behavior, schema/provenance, and local consumer APIs.
+- Found that the current installed `mp-api==0.46.4` thermo search does not accept the downloader's private `_page` argument, so the implemented thermo download path is not compatible with that API contract.
+- Found that resume can append entries from a different scheme while replacing global metadata, run-type matching is fuzzy, and public client/CLI query paths expose only summary records.
+
+**Decisions / changes to plan:**
+- Proposed a strict single-thermo-scheme cache policy: one explicitly selected `thermo_type` per database, where MP's `GGA_GGA+U_R2SCAN` is a valid scheme in its own right.
+- Require exact normalized matching, immutable per-download provenance, and public `query_thermo` access before considering thermo data theory-safe.
+
+**Next up:**
+- Obtain user approval for the strict scheme-separation policy, then implement with TDD.
+
+**Blockers / upstream issues:** No live Materials Project request was run. No archive/database files were modified.
+
+## 2026-07-13 — Stage 5 external gap feedback and comparison
+
+**Goal of this session:** Continue the staged CLI by feeding externally calculated band gaps back into final pair generation and comparing multiple theory levels.
+
+**Done:**
+- Added `src/ssscreen/pair/gap_feedback.py` for validated external gap-result ingestion, method selection, coverage reporting, and final pair CSV generation.
+- Extended `ss-screen pair` in `src/ssscreen/cli/app.py` with `--gap-results`, `--method`, and `--summary` while preserving the legacy `--gaps` path.
+- Added `ss-screen gap-compare` for method-specific pair CSVs and JSON comparison reports across external gap methods.
+- Added Stage 5 tests in `tests/test_gap_feedback.py` and `tests/test_cli.py`.
+- Updated `README.md` and `plans/2026-07-12-cli-long-term-screening-roadmap-v1.md` with the new Stage 5 command flow.
+
+**Decisions / changes to plan:**
+- External gap results are used as a transient high-level gap map during pair enumeration; the original PBE/database `StructureGroup.band_gaps` are not overwritten.
+- Multiple methods in gap-result files require explicit method selection for single-method final pair generation; `gap-compare` owns cross-method comparison.
+
+**Next up:** Start the optional Stage 6 SQS/stability artifact generator.
+
+**Blockers / upstream issues:** No read-only reference files were modified.
+
+## 2026-07-13 — mp-api offline cache surface audit
+
+**Goal of this session:** Identify Materials Project API routes beyond summaries and thermo entries that can be represented in an offline cache.
+
+**Done:**
+- Inspected the installed `mp-api==0.46.4` route registry and document primary keys without making a live API request.
+- Classified material, task, relationship, molecule, and large-artifact routes for future offline-cache support.
+- Identified a generic versioned document cache plus a content-addressed artifact store as the forward-compatible extension path; retain dedicated tables only for high-value query models such as summaries and thermo entries.
+
+**Decisions / changes to plan:**
+- Keep `thermo_entry` separate because it models stable one-to-many material thermodynamic entries.
+- Do not treat `MPRester.local_dataset_cache` as an application offline database; it is client-side caching for the package's dataset/delta-table mechanisms.
+
+**Next up:**
+- Select the first property caches needed by downstream screening, likely robocrys, electronic-structure metadata, and elasticity/dielectric/magnetism.
+
+**Blockers / upstream issues:** Browser access to the official documentation was unavailable in this environment; the audit is based on the locally installed `mp-api==0.46.4` source. No live authenticated query was run, and archive/database files were not modified.
+
+## 2026-07-13 — mp-offline thermo entries cache
+
+**Goal of this session:** Expand `mp-offline` to cache Materials Project thermo entries separately from summary documents and support thermo/run-type selection.
+
+**Done:**
+- Added `mp-offline/mp-offline-develop/src/mp_offline/model.py` support for a `thermo_entry` table storing thermo docs, entries, energy type, entry types, and raw JSON payloads.
+- Extended `mp-offline/mp-offline-develop/src/mp_offline/dump.py` with thermo search normalization, chunked thermo downloads, thermo row writes, local run-type filtering, and thermo metadata.
+- Extended `mp-offline/mp-offline-develop/src/mp_offline/cli.py` with `--include-thermo`, repeated `--thermo-type`, and repeated `--run-type`.
+- Added tests in `mp-offline/mp-offline-develop/tests/test_thermo_entries.py` and extended API contract/download/CLI tests.
+- Updated `mp-offline/mp-offline-develop/README.md` with summary-vs-thermo behavior and examples.
+- Verified with `MPLCONFIGDIR=/tmp/mpl-cache /tmp/mp-offline-thermo-venv/bin/python -m pytest -q` (`40 passed`).
+
+**Decisions / changes to plan:**
+- Do not pass `thermo_types` into `summary.search`; current `mp-api==0.46.4` exposes `thermo_types` on `ThermoRester.search`, not `SummaryRester.search`.
+- Store thermo documents as separate cache records because one material summary can be associated with multiple phase-diagram entries/schemes.
+- Treat `run_type` as a local filter over `energy_type`, `entry_types`, and `entries` keys.
+
+**Next up:**
+- Consider adding client/CLI query helpers for the `thermo_entry` table if downstream screening needs direct thermo-cache queries.
+
+**Blockers / upstream issues:** No live Materials Project API query was run. Existing archive/database files were not modified.
+
+## 2026-07-13 — Stage 3 structure matching command
+
+**Goal of this session:** Add the explicit Stage 3 structure-matching command that consumes Stage 1 composition candidates and Stage 2 condensed JSON archives.
+
+**Done:**
+- Added `src/ssscreen/pair/structure_match.py` with `match_structure_candidates()`.
+- Added `ss-screen structure-match --candidates ... --condensed-dir ... --output ... [--summary ...]`.
+- Added tests in `tests/test_structure_match.py` covering environment grouping, X-element diversity, band-gap attachment, and missing condensed descriptions.
+- Added CLI regression coverage in `tests/test_cli.py`.
+- Updated `README.md` and `plans/2026-07-12-cli-long-term-screening-roadmap-v1.md`.
+
+**Decisions / changes to plan:**
+- `ss-screen structure-match` is the new staged path for Stage 3.
+- The older `ss-screen group` command remains available as a legacy all-in-one path for now.
+- Stage 3 summaries report candidate/template counts, missing descriptions, raw groups, final groups, grouped members, and the X-element diversity threshold.
+
+**Next up:**
+- Implement Stage 3a: export the union of matched group member structures/metadata for external high-level band-gap calculations.
+
+**Blockers / upstream issues:** No read-only reference files were modified.
+
+## 2026-07-12 — mp-offline MP API compatibility updates implemented
+
+**Goal of this session:** Implement the `mp-offline` downloader/provenance updates needed for current `mp-api` compatibility.
+
+**Done:**
+- Updated `mp-offline/mp-offline-develop/src/mp_offline/dump.py` with normalized Materials Project summary kwargs, required field merging, chunked page iteration, incremental SQLite writes, idempotent material-id skipping, resume support, and richer download metadata.
+- Updated `mp-offline/mp-offline-develop/src/mp_offline/migration.py` with expanded provenance metadata defaults for old and new caches.
+- Updated `mp-offline/mp-offline-develop/src/mp_offline/cli.py` with `dump` options for fields, filters, GNoMe inclusion, chunking, resume, endpoint, database version, and `MP_API_KEY`.
+- Added tests for download option normalization, resumable dumps, CLI dump options, and the installed `mp-api` contract.
+- Updated `mp-offline/mp-offline-develop/README.md`, `pyproject.toml`, and the compatibility plan checklist.
+- Verified with `MPLCONFIGDIR=/tmp/mpl-cache /tmp/mp-offline-develop-venv/bin/python -m pytest -q` (`33 passed`).
+
+**Decisions / changes to plan:**
+- Did not promote additional fields such as `density`, `volume`, `efermi`, or `has_props` because current workflow searches found no offline query requirement; they remain available in `json_data`.
+- Set `mp_api>=0.46.4` and added contract tests instead of adding an upper bound.
+
+**Next up:**
+- Optional final code review/commit if the user wants this branch prepared for integration.
+
+**Blockers / upstream issues:** No live Materials Project API query was run. The old archive and both `data/default.db` files were not modified; timestamps remained `2024-06-04 21:05:39.178801411 +0800`.
+
+## 2026-07-12 — mp-offline MP API compatibility update plan
+
+**Goal of this session:** Generate an implementation plan for `mp-offline` updates needed after the latest `mp-api` / Materials Project API audit.
+
+**Done:**
+- Added `mp-offline/mp-offline-develop/docs/superpowers/plans/2026-07-12-mp-offline-mp-api-compatibility-updates.md`.
+- Covered downloader option normalization, chunked/resumable writes, provenance metadata, CLI controls, dependency contract tests, candidate promoted columns, and documentation/verification.
+- Ran a placeholder scan on the new plan.
+
+**Decisions / changes to plan:**
+- Prioritize downloader/provenance compatibility before promoting additional schema columns.
+- Keep implementation tests mocked/offline unless the user explicitly authorizes live Materials Project queries.
+
+**Next up:**
+- Execute the compatibility update plan, preferably with subagent-driven development.
+
+**Blockers / upstream issues:** The `create-plan` validation script referenced by the planning skill is not present in this repository, so validation was manual.
+
+## 2026-07-12 — mp-api 0.46.4 compatibility follow-up
+
+**Goal of this session:** Inspect latest `mp-api` / Materials Project API behavior and identify updates needed for `mp-offline`.
+
+**Done:**
+- Verified the dedicated development environment is using `mp-api==0.46.4`, `emmet-core==0.87.1`, and `pymatgen==2026.5.4`.
+- Reviewed current `MPRester` and `SummaryRester.search` signatures, including `db_version`, `local_dataset_cache`, `include_gnome`, `fields`, `all_fields`, `chunk_size`, and `num_chunks`.
+- Ran read-only sub-agent audits of `mp-offline/mp-offline-develop` and the installed `mp-api` package surface.
+- Identified follow-up updates needed around downloader chunking/resume behavior, credential documentation, required field handling, richer provenance metadata, and dependency compatibility bounds.
+
+**Decisions / changes to plan:**
+- Treat the existing schema migration work as compatible with current `mp-api`, but prioritize downloader/provenance improvements before adding more promoted columns.
+- Keep old archive and database files untouched.
+
+**Next up:**
+- Implement a resumable/downloader-focused compatibility pass for `mp-offline/mp-offline-develop`.
+
+**Blockers / upstream issues:** No live authenticated Materials Project query was run.
+
+## 2026-07-12 — mp-offline migration system implemented
+
+**Goal of this session:** Execute the `mp-offline` schema migration plan using subagent-driven development.
+
+**Done:**
+- Created branch `codex/mp-offline-schema-migration` in `mp-offline/mp-offline-develop`.
+- Added `mp-offline/mp-offline-develop/src/mp_offline/migration.py` with `inspect_db()`, `migrate_db()`, schema versioning, metadata finalization, and v0-to-v1 `band_gap` backfill.
+- Promoted `MaterialSummary.band_gap` and added `CacheMetadata` in `mp-offline/mp-offline-develop/src/mp_offline/model.py`.
+- Updated `mp-offline/mp-offline-develop/src/mp_offline/dump.py` so promoted fields remain in raw `json_data` and fresh dumps are finalized through migration metadata.
+- Updated `mp-offline/mp-offline-develop/src/mp_offline/client.py` with database inspection and a simple query wrapper.
+- Updated `mp-offline/mp-offline-develop/src/mp_offline/cli.py` with `inspect`, `migrate`, safe repeated `--where` filters, and no `eval`.
+- Added pytest coverage under `mp-offline/mp-offline-develop/tests/` for model mapping, migration idempotency, missing-path safety, client queries, CLI filters, and dump metadata.
+- Updated `mp-offline/mp-offline-develop/README.md`, `pyproject.toml`, and the local design/plan docs under `mp-offline/mp-offline-develop/docs/superpowers/`.
+
+**Decisions / changes to plan:**
+- Kept `json_data` as the raw forward-compatible payload; explicit columns are indexed projections.
+- Fixed final-review gaps by adding the full metadata contract and preventing `inspect_db()` / `migrate_db()` from creating empty SQLite files for missing paths.
+- Did not commit changes, following the project rule that commits happen only when explicitly requested.
+
+**Next up:**
+- Optionally implement resumable Materials Project downloads using the new metadata table.
+- Decide whether to stage/commit the `mp-offline` development branch changes.
+
+**Blockers / upstream issues:** No live Materials Project API query was run. The old archive and both `data/default.db` files were not modified; final verification kept their timestamp at `2024-06-04 21:05:39.178801411 +0800`.
+
+## 2026-07-12 — Stage 2 condensed JSON archive generation
+
+**Goal of this session:** Implement Stage 2 archive generation and metadata management while preserving the per-material JSON storage layout used by `../mp-condense`.
+
+**Done:**
+- Added `docs/superpowers/plans/2026-07-12-stage-2-condense-archive.md`.
+- Extended `src/ssscreen/data/condense.py` with DataFrame-driven condensation, atomic per-material JSON writes, JSONL manifest output, CSV index output, archive indexing, and archive validation.
+- Extended `ss-screen condense` with `--df`, `--structure-column`, `--material-id-column`, `--limit`, `--manifest`, `--index`, and `--stop-on-error`.
+- Added `ss-screen condense-index --condensed-dir ... --output ...`.
+- Added `ss-screen condense-validate --condensed-dir ... --output ...`.
+- Added `tests/test_condense_archive.py` and CLI regression tests for the new command surface.
+- Installed the condense runtime into `.venv` and ran a real one-structure NaCl condensation smoke test at `/tmp/ss-screen-real-condense`, producing `condensed/smoke-nacl.json`, `manifest.jsonl`, `index.csv`, and a valid validation report.
+- Updated the `condense` optional dependency constraints in `pyproject.toml` so modern installs use `matminer>=0.10.1` and `setuptools<81`, avoiding the robocrys/matminer runtime import failures seen with the default resolver choices.
+- Updated `README.md` and `plans/2026-07-12-cli-long-term-screening-roadmap-v1.md`.
+
+**Decisions / changes to plan:**
+- Keep `condensed/{material_id}.json` as the primary artifact because concurrent workers can independently read, skip, and write files.
+- Use JSONL manifest and CSV index sidecars for searchability/auditability instead of replacing the archive with one monolithic file.
+- Marked Stage 2 and Stage 2a complete for the first reusable archive-management slice; optional merge/summarize/Parquet index can come later.
+
+**Next up:**
+- Refactor `ss-screen group` into the explicit Stage 3 structure-matching command, preferably consuming the Stage 1 composition-candidate CSV and Stage 2 condensed archive.
+- Add attrition/missing-description reporting for Stage 3.
+
+**Blockers / upstream issues:** The reference archive `../mp-condense/condensed` was read only for shape/scale checks (`145164` JSON files, about `1.4G`) and was not modified. The conda `work` environment still has an incompatible sklearn/numpy ABI for robocrys; use the project `.venv` for condense runtime checks.
+
+## 2026-07-12 — mp-offline migration design and plan
+
+**Goal of this session:** Review `mp-offline` development checkout and prepare a migration-system implementation plan.
+
+**Done:**
+- Used `/home/bonan/work/HC/ss-screen/mp-offline/mp-offline-develop` as the development base.
+- Ran three parallel read-only sub-agent reviews covering usability, Materials Project downloading, and database API/schema migration.
+- Added `mp-offline/mp-offline-develop/docs/superpowers/specs/2026-07-12-mp-offline-schema-migration-design.md`.
+- Added `mp-offline/mp-offline-develop/docs/superpowers/plans/2026-07-12-mp-offline-schema-migration.md`.
+
+**Decisions / changes to plan:**
+- Treat explicit schema columns as indexed projections while preserving `json_data` as the raw forward-compatible payload.
+- Implement migration and `band_gap` promotion before attempting resumable downloader changes.
+
+**Next up:**
+- Execute the migration implementation plan, preferably using subagent-driven task execution with TDD.
+
+**Blockers / upstream issues:** No live Materials Project API query was run. The old archive and old database were not modified.
+
+## 2026-07-12 — mp-offline compatibility audit
+
+**Goal of this session:** Explore `mp-offline` and check compatibility with the latest installed Materials Project API without modifying the old archive.
+
+**Done:**
+- Located the private package at `mp-offline/mp-offline/` and inspected its metadata, README, SQLAlchemy model, dump path, client path, and CLI.
+- Created a dedicated throwaway environment at `/tmp/mp-offline-latest-api-venv` and installed editable `mp_offline` against `mp-api==0.46.4`.
+- Verified the bundled archive `mp-offline/mp-offline/data/default.db` is readable and contains 155,361 rows.
+- Confirmed current `mp_api.client.routes.materials.summary.SummaryRester.search` still supports `energy_above_hull`, `band_gap`, `fields`, and `use_document_model=False` workflows needed by `mp_offline`.
+
+**Decisions / changes to plan:**
+- No source or archive changes were made to `mp-offline`; the compatibility result is an audit only.
+- `mp_offline` remains usable for the historical screening workflow, but fields not mapped as SQL columns, notably `band_gap`, are stored in `json_data` and cannot be queried as `MaterialSummary.band_gap`.
+
+**Next up:**
+- If `mp_offline` is maintained further, update its README examples and consider mapping `band_gap` into `MaterialSummary` for SQL filtering.
+- Prefer `ss-screen`'s direct `mp-api` loader for new data acquisition unless offline cache behavior is explicitly needed.
+
+**Blockers / upstream issues:** No `MP_API_KEY` was present in the shell, so no live authenticated Materials Project query was run.
+
+## 2026-07-12 — Stage 1 offline MP loader and composition screen start
+
+**Goal of this session:** Start Stage 1 implementation with network-isolated MP data loading and separate composition screening from structure matching.
+
+**Done:**
+- Added `src/ssscreen/data/mp.py` with MP summary normalization, an offline `mp_offline` loader, and an explicit live API loader.
+- Added `ss-screen dataset mp --output mp.df`, defaulting to `mp_offline` for network-isolated use.
+- Added `ss-screen dataset mp --backend api --output mp.df`, using `MPRester()` without passing an explicit API key so `~/.pmgrc.yaml` / standard mp-api config can provide credentials when live access is desired.
+- Added `screen_composition_candidates()` in `src/ssscreen/pair/grouping.py`.
+- Added `ss-screen composition-screen --df ... --output ... [--summary ...]` to produce a machine-readable composition-candidate CSV and optional JSON summary before robocrys/envmatch structure matching.
+- Added tests for MP normalization, offline loader injection, no-explicit-key API loader injection, `dataset mp`, and `composition-screen`.
+- Updated `README.md` and `plans/2026-07-12-cli-long-term-screening-roadmap-v1.md` with the new command surface and current Stage 1 status.
+
+**Decisions / changes to plan:**
+- `mp_offline` is the default MP backend. The official Materials Project API remains an explicit `--backend api` path.
+- `mp-api` is now an optional `mp` extra for the live API backend, keeping default CI free of live MP/network requirements.
+- Stage 1 is partially complete: MP loading and composition screening are implemented; WBM loading remains.
+- Stage 1a is marked complete for the first reusable CLI artifact because composition candidates can now be generated without condensed structure JSON.
+
+**Next up:**
+- Implement `src/ssscreen/data/wbm.py` and `ss-screen dataset wbm`.
+- Refactor `ss-screen group` to optionally consume the composition-candidate CSV from `composition-screen`, so Stage 3 no longer repeats Stage 1a internally.
+
+**Blockers / upstream issues:** Live Materials Project querying was not run in CI-style verification because it requires network access and user credentials; tests mock the `MPRester` boundary. The offline path was tested through a fake `mp_offline` client boundary rather than the full local SQLite database. Local untracked `mp-offline/` was added to `.gitignore` so lint does not scan a private/reference package accidentally.
 
 ## 2026-07-12 — Baseline commit and Stage 0 CLI CI cleanup
 

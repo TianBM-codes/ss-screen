@@ -34,6 +34,7 @@ htmlcov/
 *.pkl
 .env
 .envrc
+mp-offline/
 # Large AiiDA dumps and archives (reference only, live outside this repo anyway)
 *.aiida
 *.tar.gz
