@@ -1,0 +1,4381 @@
+{
+  "schema_version": 1,
+  "snapshot_date": "2026-07-21",
+  "redistribution_basis": "user-confirmed-2026-07-21",
+  "policy": {
+    "canonical_implementation": "src/ssscreen",
+    "notebook_outputs": "preserved",
+    "byte_identical_duplicates": "manifest-alias",
+    "large_data": "external",
+    "secrets": "redacted"
+  },
+  "source_roots": [
+    {
+      "source_name": "pair-screening",
+      "destination": "pair-screening",
+      "git_head": "040836e3f376737b602d650d4dedf907a1dfaa8b",
+      "git_dirty": true
+    },
+    {
+      "source_name": "mp-condense",
+      "destination": "mp-condense",
+      "git_head": null,
+      "git_dirty": null
+    },
+    {
+      "source_name": "wbm-dataset",
+      "destination": "wbm-dataset",
+      "git_head": "45633d98dc5414fe5de0a80c54280f1fbb53e829",
+      "git_dirty": true
+    },
+    {
+      "source_name": "screen-mbj",
+      "destination": "screen-mbj",
+      "git_head": null,
+      "git_dirty": null
+    },
+    {
+      "source_name": "screen-promising",
+      "destination": "screen-promising",
+      "git_head": null,
+      "git_dirty": null
+    },
+    {
+      "source_name": "screen-antiperovskite",
+      "destination": "screen-antiperovskite",
+      "git_head": null,
+      "git_dirty": null
+    },
+    {
+      "source_name": "rocksalt",
+      "destination": "prototypes/rocksalt",
+      "git_head": null,
+      "git_dirty": null
+    },
+    {
+      "source_name": "zincblend",
+      "destination": "prototypes/zincblend",
+      "git_head": null,
+      "git_dirty": null
+    },
+    {
+      "source_name": "Chalcopyrite ",
+      "destination": "prototypes/chalcopyrite",
+      "git_head": null,
+      "git_dirty": null
+    },
+    {
+      "source_name": "simple-defects",
+      "destination": "simple-defects",
+      "git_head": null,
+      "git_dirty": null
+    },
+    {
+      "source_name": "old-screen-202411",
+      "destination": "old-screen-202411",
+      "git_head": null,
+      "git_dirty": null
+    }
+  ],
+  "counts": {
+    "alias": 35,
+    "excluded": 101,
+    "redacted": 2,
+    "stored": 78
+  },
+  "artifacts": [
+    {
+      "source_path": "Chalcopyrite /.ipynb_checkpoints/cssnsb2-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "prototypes/chalcopyrite",
+      "scientific_roles": [
+        "prototype-study"
+      ],
+      "status": "stored",
+      "source_sha256": "69c5f20370f4fb272aa7faba1ce80d695b8aafa0f75b93ec22d6f37ab719309a",
+      "source_size_bytes": 9884,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/prototypes/chalcopyrite/revisions/cssnsb2-checkpoint.ipynb",
+      "curated_sha256": "69c5f20370f4fb272aa7faba1ce80d695b8aafa0f75b93ec22d6f37ab719309a",
+      "curated_size_bytes": 9884
+    },
+    {
+      "source_path": "Chalcopyrite /CdSnSb2.cif",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "structure or calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "Chalcopyrite /cssnsb2.ipynb",
+      "artifact_kind": "notebook",
+      "family": "prototypes/chalcopyrite",
+      "scientific_roles": [
+        "prototype-study"
+      ],
+      "status": "stored",
+      "source_sha256": "ccda97b5bd6ad955d184a14796df13023fd5abe534f7d88d17a74bd8ddb6d11c",
+      "source_size_bytes": 793506,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/prototypes/chalcopyrite/notebooks/cssnsb2.ipynb",
+      "curated_sha256": "ccda97b5bd6ad955d184a14796df13023fd5abe534f7d88d17a74bd8ddb6d11c",
+      "curated_size_bytes": 793506
+    },
+    {
+      "source_path": "mp-condense/.ipynb_checkpoints/condense-checkpoint.py",
+      "artifact_kind": "python-source",
+      "family": "mp-condense",
+      "scientific_roles": [
+        "robocrys-condensation"
+      ],
+      "status": "stored",
+      "source_sha256": "70de38fbae982f41a056c3b4db52ae6bcb80949baf3d63e34422fc66f8e9ff17",
+      "source_size_bytes": 1954,
+      "outputs_preserved": false,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project structures",
+        "robocrys"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/mp-condense/revisions/condense-checkpoint.py",
+      "curated_sha256": "70de38fbae982f41a056c3b4db52ae6bcb80949baf3d63e34422fc66f8e9ff17",
+      "curated_size_bytes": 1954
+    },
+    {
+      "source_path": "mp-condense/combined_condensed.py",
+      "artifact_kind": "python-source",
+      "family": "mp-condense",
+      "scientific_roles": [
+        "robocrys-condensation"
+      ],
+      "status": "stored",
+      "source_sha256": "8f44cf5d8ad25a9e81e24b6e4ceae34908c2af5f7c39fdde0d99dc2f299f22d1",
+      "source_size_bytes": 244,
+      "outputs_preserved": false,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project structures",
+        "robocrys"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/mp-condense/source/combined_condensed.py",
+      "curated_sha256": "8f44cf5d8ad25a9e81e24b6e4ceae34908c2af5f7c39fdde0d99dc2f299f22d1",
+      "curated_size_bytes": 244
+    },
+    {
+      "source_path": "mp-condense/condense.py",
+      "artifact_kind": "python-source",
+      "family": "mp-condense",
+      "scientific_roles": [
+        "robocrys-condensation"
+      ],
+      "status": "stored",
+      "source_sha256": "57f5c9102ca2365c0d9b99395fab018d792979afd8ee0559bb8421f34f3510e8",
+      "source_size_bytes": 1957,
+      "outputs_preserved": false,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project structures",
+        "robocrys"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/mp-condense/source/condense.py",
+      "curated_sha256": "57f5c9102ca2365c0d9b99395fab018d792979afd8ee0559bb8421f34f3510e8",
+      "curated_size_bytes": 1957
+    },
+    {
+      "source_path": "mp-condense/condense_one.py",
+      "artifact_kind": "python-source",
+      "family": "mp-condense",
+      "scientific_roles": [
+        "robocrys-condensation"
+      ],
+      "status": "stored",
+      "source_sha256": "bf77c9520556f8b7f33e543ea3841ce2a3f472f6b772031eaa15e1a58fd75f9c",
+      "source_size_bytes": 691,
+      "outputs_preserved": false,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project structures",
+        "robocrys"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/mp-condense/source/condense_one.py",
+      "curated_sha256": "bf77c9520556f8b7f33e543ea3841ce2a3f472f6b772031eaa15e1a58fd75f9c",
+      "curated_size_bytes": 691
+    },
+    {
+      "source_path": "mp-condense/condensed/",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "generated condensed-structure archive",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "mp-condense/condensed_combined_20241031.json",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "mp-condense/jobs",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "non-source artifact outside approved curation scope",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "mp-condense/log",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "non-source artifact outside approved curation scope",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "mp-condense/structures/",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "generated structure archive",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "old-screen-202411/.ipynb_checkpoints/group_with_gaps-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "old-screen-202411",
+      "scientific_roles": [
+        "historical-baseline"
+      ],
+      "status": "alias",
+      "source_sha256": "4919e97f0391ea97051ff60d229d2e0c8b14fea31acbad30084bea9eced8d59a",
+      "source_size_bytes": 71635,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project/WBM tables",
+        "robocrys condensed JSON archives"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "old-screen-202411/group_with_gaps.ipynb"
+    },
+    {
+      "source_path": "old-screen-202411/.ipynb_checkpoints/screening-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "old-screen-202411",
+      "scientific_roles": [
+        "historical-baseline"
+      ],
+      "status": "alias",
+      "source_sha256": "94e20442309af5031f45f1fe015fada664e8b0885d82bdcda1648c3f6ac55e40",
+      "source_size_bytes": 358667,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project/WBM tables",
+        "robocrys condensed JSON archives"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "pair-screening/screening-tenary.ipynb"
+    },
+    {
+      "source_path": "old-screen-202411/binary_mbj_calc_structures_2024_11_13.json",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "old-screen-202411/demo.ipynb",
+      "artifact_kind": "notebook",
+      "family": "old-screen-202411",
+      "scientific_roles": [
+        "historical-baseline"
+      ],
+      "status": "stored",
+      "source_sha256": "865b87c20bed8f3f73e64c55a64bf568f84f5032dbaf6c2e56b67f7276e73cb3",
+      "source_size_bytes": 13759,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project/WBM tables",
+        "robocrys condensed JSON archives"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/old-screen-202411/notebooks/demo.ipynb",
+      "curated_sha256": "865b87c20bed8f3f73e64c55a64bf568f84f5032dbaf6c2e56b67f7276e73cb3",
+      "curated_size_bytes": 13759
+    },
+    {
+      "source_path": "old-screen-202411/group_df_ternary.json",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "old-screen-202411/group_with_gaps.ipynb",
+      "artifact_kind": "notebook",
+      "family": "old-screen-202411",
+      "scientific_roles": [
+        "historical-baseline"
+      ],
+      "status": "stored",
+      "source_sha256": "4919e97f0391ea97051ff60d229d2e0c8b14fea31acbad30084bea9eced8d59a",
+      "source_size_bytes": 71635,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project/WBM tables",
+        "robocrys condensed JSON archives"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/old-screen-202411/notebooks/group_with_gaps.ipynb",
+      "curated_sha256": "4919e97f0391ea97051ff60d229d2e0c8b14fea31acbad30084bea9eced8d59a",
+      "curated_size_bytes": 71635
+    },
+    {
+      "source_path": "old-screen-202411/mbj_gaps.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "old-screen-202411/screening-binary.ipynb",
+      "artifact_kind": "notebook",
+      "family": "old-screen-202411",
+      "scientific_roles": [
+        "historical-baseline"
+      ],
+      "status": "stored",
+      "source_sha256": "42935db76059e4d8cb1d926f6dff8988c84abb713f4c542dae915c771ce0c166",
+      "source_size_bytes": 545609,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project/WBM tables",
+        "robocrys condensed JSON archives"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/old-screen-202411/notebooks/screening-binary.ipynb",
+      "curated_sha256": "42935db76059e4d8cb1d926f6dff8988c84abb713f4c542dae915c771ce0c166",
+      "curated_size_bytes": 545609
+    },
+    {
+      "source_path": "old-screen-202411/screening.ipynb",
+      "artifact_kind": "notebook",
+      "family": "old-screen-202411",
+      "scientific_roles": [
+        "historical-baseline"
+      ],
+      "status": "stored",
+      "source_sha256": "bb32ea72b6a484baf8c8f103998cacc9a0b7fd35137b75b1f234da9463aa137e",
+      "source_size_bytes": 358637,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project/WBM tables",
+        "robocrys condensed JSON archives"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/old-screen-202411/notebooks/screening.ipynb",
+      "curated_sha256": "bb32ea72b6a484baf8c8f103998cacc9a0b7fd35137b75b1f234da9463aa137e",
+      "curated_size_bytes": 358637
+    },
+    {
+      "source_path": "old-screen-202411/ternary_mbj_calc_structures.json",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/.git/",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "upstream Git metadata",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/.ipynb_checkpoints/datacollect-checkpoint.py",
+      "artifact_kind": "python-source",
+      "family": "pair-screening",
+      "scientific_roles": [
+        "data-loading",
+        "structure-grouping",
+        "pair-enumeration"
+      ],
+      "status": "alias",
+      "source_sha256": "7a698f6f8d498be12481352c4ffb4e0d76fa42d79aca17665da7e238f54f5c2d",
+      "source_size_bytes": 3625,
+      "outputs_preserved": false,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": "040836e3f376737b602d650d4dedf907a1dfaa8b",
+      "source_git_dirty": true,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project/WBM tables",
+        "robocrys condensed JSON archives"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "pair-screening/datacollect.py"
+    },
+    {
+      "source_path": "pair-screening/.ipynb_checkpoints/mbj_gaps_binary-checkpoint.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/.ipynb_checkpoints/mbj_gaps_binary_2025_0425_pmg_info-checkpoint.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/.ipynb_checkpoints/mbj_gaps_tenary_2025_0425_pmg_info-checkpoint.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/.ipynb_checkpoints/mbj_result_binary_20250426-checkpoint.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/.ipynb_checkpoints/mbj_result_ternary_20250426-checkpoint.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/.ipynb_checkpoints/mp_id_with_valence-checkpoint.json",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/.ipynb_checkpoints/pairing_mbj_gaps_binary-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "pair-screening",
+      "scientific_roles": [
+        "data-loading",
+        "structure-grouping",
+        "pair-enumeration"
+      ],
+      "status": "alias",
+      "source_sha256": "df1e9c86f5592bcecb8d3d5526529bc6d2e12d7d851eb462536670ef228fe24d",
+      "source_size_bytes": 71114,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": "040836e3f376737b602d650d4dedf907a1dfaa8b",
+      "source_git_dirty": true,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project/WBM tables",
+        "robocrys condensed JSON archives"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "pair-screening/pairing_mbj_gaps_binary.ipynb"
+    },
+    {
+      "source_path": "pair-screening/.ipynb_checkpoints/pairing_mbj_gaps_ternary-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "pair-screening",
+      "scientific_roles": [
+        "data-loading",
+        "structure-grouping",
+        "pair-enumeration"
+      ],
+      "status": "stored",
+      "source_sha256": "d10721c487d47e28d98b0df78b6b91e908b0fc74d8a97dec2303b82528f9240f",
+      "source_size_bytes": 46530,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": "040836e3f376737b602d650d4dedf907a1dfaa8b",
+      "source_git_dirty": true,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project/WBM tables",
+        "robocrys condensed JSON archives"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/pair-screening/revisions/pairing_mbj_gaps_ternary-checkpoint.ipynb",
+      "curated_sha256": "d10721c487d47e28d98b0df78b6b91e908b0fc74d8a97dec2303b82528f9240f",
+      "curated_size_bytes": 46530
+    },
+    {
+      "source_path": "pair-screening/.ipynb_checkpoints/screening-binary-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "pair-screening",
+      "scientific_roles": [
+        "data-loading",
+        "structure-grouping",
+        "pair-enumeration"
+      ],
+      "status": "stored",
+      "source_sha256": "ee4101c7fb2779f37d21545f5e398ee7dc0e20fda80dcd045b9cc4b19368275d",
+      "source_size_bytes": 179012,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": "040836e3f376737b602d650d4dedf907a1dfaa8b",
+      "source_git_dirty": true,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project/WBM tables",
+        "robocrys condensed JSON archives"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/pair-screening/revisions/screening-binary-checkpoint.ipynb",
+      "curated_sha256": "ee4101c7fb2779f37d21545f5e398ee7dc0e20fda80dcd045b9cc4b19368275d",
+      "curated_size_bytes": 179012
+    },
+    {
+      "source_path": "pair-screening/.ipynb_checkpoints/screening-tenary-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "pair-screening",
+      "scientific_roles": [
+        "data-loading",
+        "structure-grouping",
+        "pair-enumeration"
+      ],
+      "status": "alias",
+      "source_sha256": "94e20442309af5031f45f1fe015fada664e8b0885d82bdcda1648c3f6ac55e40",
+      "source_size_bytes": 358667,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": "040836e3f376737b602d650d4dedf907a1dfaa8b",
+      "source_git_dirty": true,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project/WBM tables",
+        "robocrys condensed JSON archives"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "pair-screening/screening-tenary.ipynb"
+    },
+    {
+      "source_path": "pair-screening/.ipynb_checkpoints/ternary-group-df-checkpoint.json",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/.ipynb_checkpoints/valence-filter-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "pair-screening",
+      "scientific_roles": [
+        "data-loading",
+        "structure-grouping",
+        "pair-enumeration"
+      ],
+      "status": "stored",
+      "source_sha256": "4a62b68a633d79c53a6fd8893e8ea42dcf2b9a8a3e907b1b9861661f04f21517",
+      "source_size_bytes": 72,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": "040836e3f376737b602d650d4dedf907a1dfaa8b",
+      "source_git_dirty": true,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project/WBM tables",
+        "robocrys condensed JSON archives"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/pair-screening/revisions/valence-filter-checkpoint.ipynb",
+      "curated_sha256": "4a62b68a633d79c53a6fd8893e8ea42dcf2b9a8a3e907b1b9861661f04f21517",
+      "curated_size_bytes": 72
+    },
+    {
+      "source_path": "pair-screening/__pycache__/",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "Python bytecode cache",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/binary-group-df.json",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/binary_mbj_calc_structures_2025_03_19.json",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/datacollect.py",
+      "artifact_kind": "python-source",
+      "family": "pair-screening",
+      "scientific_roles": [
+        "data-loading",
+        "structure-grouping",
+        "pair-enumeration"
+      ],
+      "status": "stored",
+      "source_sha256": "7a698f6f8d498be12481352c4ffb4e0d76fa42d79aca17665da7e238f54f5c2d",
+      "source_size_bytes": 3625,
+      "outputs_preserved": false,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": "040836e3f376737b602d650d4dedf907a1dfaa8b",
+      "source_git_dirty": true,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project/WBM tables",
+        "robocrys condensed JSON archives"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/pair-screening/source/datacollect.py",
+      "curated_sha256": "7a698f6f8d498be12481352c4ffb4e0d76fa42d79aca17665da7e238f54f5c2d",
+      "curated_size_bytes": 3625
+    },
+    {
+      "source_path": "pair-screening/envmatch.py",
+      "artifact_kind": "python-source",
+      "family": "pair-screening",
+      "scientific_roles": [
+        "data-loading",
+        "structure-grouping",
+        "pair-enumeration"
+      ],
+      "status": "stored",
+      "source_sha256": "b4323f2646b278f85f87ae27f3d4e11ab95a657c06086a89aa1e86d80944d306",
+      "source_size_bytes": 4913,
+      "outputs_preserved": false,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": "040836e3f376737b602d650d4dedf907a1dfaa8b",
+      "source_git_dirty": true,
+      "known_defects": [
+        "StructureGroup.__getitem___ is misspelled"
+      ],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project/WBM tables",
+        "robocrys condensed JSON archives"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/pair-screening/source/envmatch.py",
+      "curated_sha256": "b4323f2646b278f85f87ae27f3d4e11ab95a657c06086a89aa1e86d80944d306",
+      "curated_size_bytes": 4913
+    },
+    {
+      "source_path": "pair-screening/mbj_gaps_binary.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/mbj_gaps_binary_2025_0425_pmg_info.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/mbj_gaps_tenary_2025_0425_pmg_info.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/mbj_result_binary.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/mbj_result_binary_20250426.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/mbj_result_ternary_20250426.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/mp_id_with_valence.json",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/pairing_mbj_gaps_binary.ipynb",
+      "artifact_kind": "notebook",
+      "family": "pair-screening",
+      "scientific_roles": [
+        "data-loading",
+        "structure-grouping",
+        "pair-enumeration"
+      ],
+      "status": "stored",
+      "source_sha256": "df1e9c86f5592bcecb8d3d5526529bc6d2e12d7d851eb462536670ef228fe24d",
+      "source_size_bytes": 71114,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": "040836e3f376737b602d650d4dedf907a1dfaa8b",
+      "source_git_dirty": true,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project/WBM tables",
+        "robocrys condensed JSON archives"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/pair-screening/notebooks/pairing_mbj_gaps_binary.ipynb",
+      "curated_sha256": "df1e9c86f5592bcecb8d3d5526529bc6d2e12d7d851eb462536670ef228fe24d",
+      "curated_size_bytes": 71114
+    },
+    {
+      "source_path": "pair-screening/pairing_mbj_gaps_ternary.ipynb",
+      "artifact_kind": "notebook",
+      "family": "pair-screening",
+      "scientific_roles": [
+        "data-loading",
+        "structure-grouping",
+        "pair-enumeration"
+      ],
+      "status": "stored",
+      "source_sha256": "7c8a32a41153f24aa82e1c0f6e14f1749b9bd2f1430923f025d11ef0c54baf29",
+      "source_size_bytes": 46530,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": "040836e3f376737b602d650d4dedf907a1dfaa8b",
+      "source_git_dirty": true,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project/WBM tables",
+        "robocrys condensed JSON archives"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/pair-screening/notebooks/pairing_mbj_gaps_ternary.ipynb",
+      "curated_sha256": "7c8a32a41153f24aa82e1c0f6e14f1749b9bd2f1430923f025d11ef0c54baf29",
+      "curated_size_bytes": 46530
+    },
+    {
+      "source_path": "pair-screening/screening-binary.ipynb",
+      "artifact_kind": "notebook",
+      "family": "pair-screening",
+      "scientific_roles": [
+        "data-loading",
+        "structure-grouping",
+        "pair-enumeration"
+      ],
+      "status": "stored",
+      "source_sha256": "4fad5202f506ff94fa6e905057178dcef5263237c71b37ae15fef23d8e0eae0b",
+      "source_size_bytes": 296986,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": "040836e3f376737b602d650d4dedf907a1dfaa8b",
+      "source_git_dirty": true,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project/WBM tables",
+        "robocrys condensed JSON archives"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/pair-screening/notebooks/screening-binary.ipynb",
+      "curated_sha256": "4fad5202f506ff94fa6e905057178dcef5263237c71b37ae15fef23d8e0eae0b",
+      "curated_size_bytes": 296986
+    },
+    {
+      "source_path": "pair-screening/screening-tenary.ipynb",
+      "artifact_kind": "notebook",
+      "family": "pair-screening",
+      "scientific_roles": [
+        "data-loading",
+        "structure-grouping",
+        "pair-enumeration"
+      ],
+      "status": "stored",
+      "source_sha256": "94e20442309af5031f45f1fe015fada664e8b0885d82bdcda1648c3f6ac55e40",
+      "source_size_bytes": 358667,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": "040836e3f376737b602d650d4dedf907a1dfaa8b",
+      "source_git_dirty": true,
+      "known_defects": [
+        "stale inlined envmatch implementation"
+      ],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project/WBM tables",
+        "robocrys condensed JSON archives"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/pair-screening/notebooks/screening-tenary.ipynb",
+      "curated_sha256": "94e20442309af5031f45f1fe015fada664e8b0885d82bdcda1648c3f6ac55e40",
+      "curated_size_bytes": 358667
+    },
+    {
+      "source_path": "pair-screening/screening_results_20250426.tar.gz",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "dataset or archive outside notebook/source scope",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/ternary-group-df.json",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/valence-filter.ipynb",
+      "artifact_kind": "notebook",
+      "family": "pair-screening",
+      "scientific_roles": [
+        "data-loading",
+        "structure-grouping",
+        "pair-enumeration"
+      ],
+      "status": "stored",
+      "source_sha256": "389e8b0cbf2ac9af9d428ac607d072e6b4dd8455e178f02418505e18772c2a55",
+      "source_size_bytes": 12614,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": "040836e3f376737b602d650d4dedf907a1dfaa8b",
+      "source_git_dirty": true,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "Materials Project/WBM tables",
+        "robocrys condensed JSON archives"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/pair-screening/notebooks/valence-filter.ipynb",
+      "curated_sha256": "389e8b0cbf2ac9af9d428ac607d072e6b4dd8455e178f02418505e18772c2a55",
+      "curated_size_bytes": 12614
+    },
+    {
+      "source_path": "pair-screening/wbm-dataset.df",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "pair-screening/wbm_id_with_valence.json",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "rocksalt/.ipynb_checkpoints/NaCl-checkpoint.cif",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "structure or calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "rocksalt/.ipynb_checkpoints/rocksalt-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "prototypes/rocksalt",
+      "scientific_roles": [
+        "prototype-study",
+        "sqs"
+      ],
+      "status": "stored",
+      "source_sha256": "edd0b2ec25fd480d91947ea74e9dfe6e6cd415d64ad4e36e374152575a85e40d",
+      "source_size_bytes": 5335204,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/prototypes/rocksalt/revisions/rocksalt-checkpoint.ipynb",
+      "curated_sha256": "edd0b2ec25fd480d91947ea74e9dfe6e6cd415d64ad4e36e374152575a85e40d",
+      "curated_size_bytes": 5335204
+    },
+    {
+      "source_path": "rocksalt/.ipynb_checkpoints/sqs-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "prototypes/rocksalt",
+      "scientific_roles": [
+        "prototype-study",
+        "sqs"
+      ],
+      "status": "stored",
+      "source_sha256": "27078a94f7cf105fd58a71d84f3869ec88b1041c1f257ab6717fead8f7f4cfb0",
+      "source_size_bytes": 14389,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/prototypes/rocksalt/revisions/sqs-checkpoint.ipynb",
+      "curated_sha256": "27078a94f7cf105fd58a71d84f3869ec88b1041c1f257ab6717fead8f7f4cfb0",
+      "curated_size_bytes": 14389
+    },
+    {
+      "source_path": "rocksalt/NaCl.cif",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "structure or calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "rocksalt/PbS.cif",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "structure or calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "rocksalt/rocksalt.ipynb",
+      "artifact_kind": "notebook",
+      "family": "prototypes/rocksalt",
+      "scientific_roles": [
+        "prototype-study",
+        "sqs"
+      ],
+      "status": "stored",
+      "source_sha256": "bc2f2aa96c5f625538bdcd74d4b6cb1e4601bf2fe4770dce2c9b5cd5ddee5e74",
+      "source_size_bytes": 5434743,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/prototypes/rocksalt/notebooks/rocksalt.ipynb",
+      "curated_sha256": "bc2f2aa96c5f625538bdcd74d4b6cb1e4601bf2fe4770dce2c9b5cd5ddee5e74",
+      "curated_size_bytes": 5434743
+    },
+    {
+      "source_path": "rocksalt/sqs.ipynb",
+      "artifact_kind": "notebook",
+      "family": "prototypes/rocksalt",
+      "scientific_roles": [
+        "prototype-study",
+        "sqs"
+      ],
+      "status": "stored",
+      "source_sha256": "a4ccad909076dee5cd30f4409314a590924de07a4edce75f29d6d9a8ff723793",
+      "source_size_bytes": 1759335,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/prototypes/rocksalt/notebooks/sqs.ipynb",
+      "curated_sha256": "a4ccad909076dee5cd30f4409314a590924de07a4edce75f29d6d9a8ff723793",
+      "curated_size_bytes": 1759335
+    },
+    {
+      "source_path": "screen-antiperovskite/.ipynb_checkpoints/build-structure-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-antiperovskite",
+      "scientific_roles": [
+        "prototype-generation",
+        "stability",
+        "band-workflows"
+      ],
+      "status": "stored",
+      "source_sha256": "bc39841103d70ade54c31f61f1780d90553d2a1f0fd83730335a43cdd3df9087",
+      "source_size_bytes": 95741,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA settings and historical calculator/model paths"
+      ],
+      "external_dependencies": [
+        "AiiDA profile",
+        "MACE model",
+        "Materials Project entries"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-antiperovskite/revisions/build-structure-checkpoint.ipynb",
+      "curated_sha256": "bc39841103d70ade54c31f61f1780d90553d2a1f0fd83730335a43cdd3df9087",
+      "curated_size_bytes": 95741
+    },
+    {
+      "source_path": "screen-antiperovskite/.ipynb_checkpoints/mbj-run-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-antiperovskite",
+      "scientific_roles": [
+        "prototype-generation",
+        "stability",
+        "band-workflows"
+      ],
+      "status": "stored",
+      "source_sha256": "341f4b451e6cefe59103748e2acce693334f551cb5e7d26c78892f965b0f8d59",
+      "source_size_bytes": 12978262,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA settings and historical calculator/model paths"
+      ],
+      "external_dependencies": [
+        "AiiDA profile",
+        "MACE model",
+        "Materials Project entries"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-antiperovskite/revisions/mbj-run-checkpoint.ipynb",
+      "curated_sha256": "341f4b451e6cefe59103748e2acce693334f551cb5e7d26c78892f965b0f8d59",
+      "curated_size_bytes": 12978262
+    },
+    {
+      "source_path": "screen-antiperovskite/.ipynb_checkpoints/mpset-test-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-antiperovskite",
+      "scientific_roles": [
+        "prototype-generation",
+        "stability",
+        "band-workflows"
+      ],
+      "status": "alias",
+      "source_sha256": "b4f4d45a3dcccc34bb2e351a2908cd02be829ff43e626b35f53fd9842279af66",
+      "source_size_bytes": 102113,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA settings and historical calculator/model paths"
+      ],
+      "external_dependencies": [
+        "AiiDA profile",
+        "MACE model",
+        "Materials Project entries"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "screen-antiperovskite/satbility-mp.ipynb"
+    },
+    {
+      "source_path": "screen-antiperovskite/.ipynb_checkpoints/satbility-mp-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-antiperovskite",
+      "scientific_roles": [
+        "prototype-generation",
+        "stability",
+        "band-workflows"
+      ],
+      "status": "alias",
+      "source_sha256": "b4f4d45a3dcccc34bb2e351a2908cd02be829ff43e626b35f53fd9842279af66",
+      "source_size_bytes": 102113,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA settings and historical calculator/model paths"
+      ],
+      "external_dependencies": [
+        "AiiDA profile",
+        "MACE model",
+        "Materials Project entries"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "screen-antiperovskite/satbility-mp.ipynb"
+    },
+    {
+      "source_path": "screen-antiperovskite/build-structure.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-antiperovskite",
+      "scientific_roles": [
+        "prototype-generation",
+        "stability",
+        "band-workflows"
+      ],
+      "status": "stored",
+      "source_sha256": "3bc4800079bb393e2947c3391e4caeeb041fc8cf91ef4781cc4a12825e078bb8",
+      "source_size_bytes": 30006,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA settings and historical calculator/model paths"
+      ],
+      "external_dependencies": [
+        "AiiDA profile",
+        "MACE model",
+        "Materials Project entries"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-antiperovskite/notebooks/build-structure.ipynb",
+      "curated_sha256": "3bc4800079bb393e2947c3391e4caeeb041fc8cf91ef4781cc4a12825e078bb8",
+      "curated_size_bytes": 30006
+    },
+    {
+      "source_path": "screen-antiperovskite/hse_bandstructures/",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "generated band-plot directory",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-antiperovskite/mace_relaxed/",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "generated relaxed-structure directory",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-antiperovskite/mbj-run.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-antiperovskite",
+      "scientific_roles": [
+        "prototype-generation",
+        "stability",
+        "band-workflows"
+      ],
+      "status": "stored",
+      "source_sha256": "0500402afb29fcb1f40a2b58bc28a5b1bd04d3ff2e4262da5674b33610382380",
+      "source_size_bytes": 17086742,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA settings and historical calculator/model paths"
+      ],
+      "external_dependencies": [
+        "AiiDA profile",
+        "MACE model",
+        "Materials Project entries"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-antiperovskite/notebooks/mbj-run.ipynb",
+      "curated_sha256": "0500402afb29fcb1f40a2b58bc28a5b1bd04d3ff2e4262da5674b33610382380",
+      "curated_size_bytes": 17086742
+    },
+    {
+      "source_path": "screen-antiperovskite/mbj_bandstructure/",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "generated band-plot directory",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-antiperovskite/mbj_bandstructure_sigma_0_005/",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "generated band-plot directory",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-antiperovskite/mpset-test.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-antiperovskite",
+      "scientific_roles": [
+        "prototype-generation",
+        "stability",
+        "band-workflows"
+      ],
+      "status": "redacted",
+      "source_sha256": "3b28351ce55026d34f15ce28406eef7ca805c88e329f62050909fff0f0d5abb0",
+      "source_size_bytes": 103225,
+      "outputs_preserved": true,
+      "transformations": [
+        "credential-redaction"
+      ],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA settings and historical calculator/model paths"
+      ],
+      "external_dependencies": [
+        "AiiDA profile",
+        "MACE model",
+        "Materials Project entries"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-antiperovskite/notebooks/mpset-test.ipynb",
+      "curated_sha256": "7c1e6a20dc7efdf98352c764c0275e5df2f8c55a97bf89339e205cd890f2a096",
+      "curated_size_bytes": 103191
+    },
+    {
+      "source_path": "screen-antiperovskite/satbility-mp.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-antiperovskite",
+      "scientific_roles": [
+        "prototype-generation",
+        "stability",
+        "band-workflows"
+      ],
+      "status": "redacted",
+      "source_sha256": "b4f4d45a3dcccc34bb2e351a2908cd02be829ff43e626b35f53fd9842279af66",
+      "source_size_bytes": 102113,
+      "outputs_preserved": true,
+      "transformations": [
+        "credential-redaction"
+      ],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA settings and historical calculator/model paths"
+      ],
+      "external_dependencies": [
+        "AiiDA profile",
+        "MACE model",
+        "Materials Project entries"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-antiperovskite/notebooks/satbility-mp.ipynb",
+      "curated_sha256": "9176ab29feec903034957a2b297578174518954e72dd652a3d0a0c9165c9f824",
+      "curated_size_bytes": 102079
+    },
+    {
+      "source_path": "screen-mbj/.ipynb_checkpoints/abacus-hse-analysis-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-mbj",
+      "scientific_roles": [
+        "band-workflows",
+        "band-analysis"
+      ],
+      "status": "stored",
+      "source_sha256": "07e19457e99e878264eaef0fce7c76cf0652e6c11bcc204f31e08ad9d2835298",
+      "source_size_bytes": 154776,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP/ABACUS codes"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-mbj/revisions/abacus-hse-analysis-checkpoint.ipynb",
+      "curated_sha256": "07e19457e99e878264eaef0fce7c76cf0652e6c11bcc204f31e08ad9d2835298",
+      "curated_size_bytes": 154776
+    },
+    {
+      "source_path": "screen-mbj/.ipynb_checkpoints/binary_mbj_calc_structures_2025_03_19-checkpoint.json",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-mbj/.ipynb_checkpoints/hse-screen-binary-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-mbj",
+      "scientific_roles": [
+        "band-workflows",
+        "band-analysis"
+      ],
+      "status": "stored",
+      "source_sha256": "11a58a5bc6cb3caa93ae064bd79f0bea39b55f9445c39bfc81297222adbf4f43",
+      "source_size_bytes": 62175,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP/ABACUS codes"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-mbj/revisions/hse-screen-binary-checkpoint.ipynb",
+      "curated_sha256": "11a58a5bc6cb3caa93ae064bd79f0bea39b55f9445c39bfc81297222adbf4f43",
+      "curated_size_bytes": 62175
+    },
+    {
+      "source_path": "screen-mbj/.ipynb_checkpoints/kpt-example-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-mbj",
+      "scientific_roles": [
+        "band-workflows",
+        "band-analysis"
+      ],
+      "status": "stored",
+      "source_sha256": "7f9c538c26caaece47e47d1186b62f5c301954a12407425bc15086c48a273caf",
+      "source_size_bytes": 6424,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP/ABACUS codes"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-mbj/revisions/kpt-example-checkpoint.ipynb",
+      "curated_sha256": "7f9c538c26caaece47e47d1186b62f5c301954a12407425bc15086c48a273caf",
+      "curated_size_bytes": 6424
+    },
+    {
+      "source_path": "screen-mbj/.ipynb_checkpoints/launch_2025_4_6-checkpoint.log",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-mbj/.ipynb_checkpoints/launch_2025_5_27_abacus_hse-checkpoint.log",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-mbj/.ipynb_checkpoints/mbj-analysis-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-mbj",
+      "scientific_roles": [
+        "band-workflows",
+        "band-analysis"
+      ],
+      "status": "stored",
+      "source_sha256": "851346d8913fb751cf079e8d9617493102bd1b009958eb52cbe512e63437f778",
+      "source_size_bytes": 774274,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP/ABACUS codes"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-mbj/revisions/mbj-analysis-checkpoint.ipynb",
+      "curated_sha256": "851346d8913fb751cf079e8d9617493102bd1b009958eb52cbe512e63437f778",
+      "curated_size_bytes": 774274
+    },
+    {
+      "source_path": "screen-mbj/.ipynb_checkpoints/mbj-screen-binary-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-mbj",
+      "scientific_roles": [
+        "band-workflows",
+        "band-analysis"
+      ],
+      "status": "stored",
+      "source_sha256": "827c548ce3e29cecc984a899804b9325e0757deff9755987cf3bb9646f5cc4f0",
+      "source_size_bytes": 269294,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP/ABACUS codes"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-mbj/revisions/mbj-screen-binary-checkpoint.ipynb",
+      "curated_sha256": "827c548ce3e29cecc984a899804b9325e0757deff9755987cf3bb9646f5cc4f0",
+      "curated_size_bytes": 269294
+    },
+    {
+      "source_path": "screen-mbj/.ipynb_checkpoints/mbj-screen-ternery-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-mbj",
+      "scientific_roles": [
+        "band-workflows",
+        "band-analysis"
+      ],
+      "status": "alias",
+      "source_sha256": "35dd8f5f4a4ccd642261555e6545d3364b011d50db70fe06458cd59baf2b67a6",
+      "source_size_bytes": 68181,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP/ABACUS codes"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "screen-mbj/mbj-screen-ternery.ipynb"
+    },
+    {
+      "source_path": "screen-mbj/.ipynb_checkpoints/mbj_gaps-checkpoint.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-mbj/.ipynb_checkpoints/mbj_gaps_binary-checkpoint.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-mbj/.ipynb_checkpoints/pbe-screen-binary-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-mbj",
+      "scientific_roles": [
+        "band-workflows",
+        "band-analysis"
+      ],
+      "status": "alias",
+      "source_sha256": "02284ee51b312c93e42c7708b8d841bd540cb84db8d00496307e43f60d78553d",
+      "source_size_bytes": 58349,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP/ABACUS codes"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "screen-mbj/hse-screen-binary.ipynb"
+    },
+    {
+      "source_path": "screen-mbj/.ipynb_checkpoints/struct-pks-checkpoint.txt",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "non-source artifact outside approved curation scope",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-mbj/In.pbe-n-nc.UPF",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "structure or calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-mbj/In_gga_9au_100Ry_2s2p2d1f.orb",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "structure or calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-mbj/abacus-hse-analysis.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-mbj",
+      "scientific_roles": [
+        "band-workflows",
+        "band-analysis"
+      ],
+      "status": "stored",
+      "source_sha256": "5d5f215f4c04caef73f12369c4fd65e3aad30733daedf22956dcb3aad8ca97e1",
+      "source_size_bytes": 168161,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP/ABACUS codes"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-mbj/notebooks/abacus-hse-analysis.ipynb",
+      "curated_sha256": "5d5f215f4c04caef73f12369c4fd65e3aad30733daedf22956dcb3aad8ca97e1",
+      "curated_size_bytes": 168161
+    },
+    {
+      "source_path": "screen-mbj/abacus_hse_gaps_binary_2025_0528_pmg_info.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-mbj/binary_mbj_calc_structures_2025_03_19.json",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-mbj/hse-screen-binary.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-mbj",
+      "scientific_roles": [
+        "band-workflows",
+        "band-analysis"
+      ],
+      "status": "stored",
+      "source_sha256": "02284ee51b312c93e42c7708b8d841bd540cb84db8d00496307e43f60d78553d",
+      "source_size_bytes": 58349,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP/ABACUS codes"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-mbj/notebooks/hse-screen-binary.ipynb",
+      "curated_sha256": "02284ee51b312c93e42c7708b8d841bd540cb84db8d00496307e43f60d78553d",
+      "curated_size_bytes": 58349
+    },
+    {
+      "source_path": "screen-mbj/kpt-example.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-mbj",
+      "scientific_roles": [
+        "band-workflows",
+        "band-analysis"
+      ],
+      "status": "stored",
+      "source_sha256": "7774b102b343fdea83b0cb49467a33f05f0657f790803bd31c0df49d7f8da9a6",
+      "source_size_bytes": 7217,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP/ABACUS codes"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-mbj/notebooks/kpt-example.ipynb",
+      "curated_sha256": "7774b102b343fdea83b0cb49467a33f05f0657f790803bd31c0df49d7f8da9a6",
+      "curated_size_bytes": 7217
+    },
+    {
+      "source_path": "screen-mbj/launch_2025_4_6.log",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-mbj/launch_2025_5_27_abacus_hse.log",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-mbj/mbj-analysis.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-mbj",
+      "scientific_roles": [
+        "band-workflows",
+        "band-analysis"
+      ],
+      "status": "stored",
+      "source_sha256": "211e8d9e2ce828555cef40ff69868035317d9a53be060877434fec259e2b4c3c",
+      "source_size_bytes": 13044,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP/ABACUS codes"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-mbj/notebooks/mbj-analysis.ipynb",
+      "curated_sha256": "211e8d9e2ce828555cef40ff69868035317d9a53be060877434fec259e2b4c3c",
+      "curated_size_bytes": 13044
+    },
+    {
+      "source_path": "screen-mbj/mbj-screen-binary.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-mbj",
+      "scientific_roles": [
+        "band-workflows",
+        "band-analysis"
+      ],
+      "status": "stored",
+      "source_sha256": "3445f6e7e31108accd83645923ab1af77175c4d6c60b91a2568caca634994bdb",
+      "source_size_bytes": 475483,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP/ABACUS codes"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-mbj/notebooks/mbj-screen-binary.ipynb",
+      "curated_sha256": "3445f6e7e31108accd83645923ab1af77175c4d6c60b91a2568caca634994bdb",
+      "curated_size_bytes": 475483
+    },
+    {
+      "source_path": "screen-mbj/mbj-screen-ternery.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-mbj",
+      "scientific_roles": [
+        "band-workflows",
+        "band-analysis"
+      ],
+      "status": "stored",
+      "source_sha256": "35dd8f5f4a4ccd642261555e6545d3364b011d50db70fe06458cd59baf2b67a6",
+      "source_size_bytes": 68181,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP/ABACUS codes"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-mbj/notebooks/mbj-screen-ternery.ipynb",
+      "curated_sha256": "35dd8f5f4a4ccd642261555e6545d3364b011d50db70fe06458cd59baf2b67a6",
+      "curated_size_bytes": 68181
+    },
+    {
+      "source_path": "screen-mbj/mbj_gaps.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-mbj/mbj_gaps_binary.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-mbj/mbj_gaps_binary_2025_0425_pmg_info.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-mbj/mbj_gaps_tenary_2025_0425_pmg_info.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-mbj/pbe-screen-binary.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-mbj",
+      "scientific_roles": [
+        "band-workflows",
+        "band-analysis"
+      ],
+      "status": "stored",
+      "source_sha256": "a3598281b5b4c011f05a5fc0e92191cd95dc0768acbee6c358619d55c5465a0c",
+      "source_size_bytes": 26684,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP/ABACUS codes"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-mbj/notebooks/pbe-screen-binary.ipynb",
+      "curated_sha256": "a3598281b5b4c011f05a5fc0e92191cd95dc0768acbee6c358619d55c5465a0c",
+      "curated_size_bytes": 26684
+    },
+    {
+      "source_path": "screen-mbj/struct-pks.txt",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "external result/provenance sidecar",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-mbj/ternary_mbj_calc_structures.json",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-promising/.ipynb_checkpoints/hse06-bandstructure-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-promising",
+      "scientific_roles": [
+        "band-verification"
+      ],
+      "status": "stored",
+      "source_sha256": "1c68140eae6e4999c02e3a296acb59e217b4cc1beaa4a04c6d3a90515b4945c4",
+      "source_size_bytes": 3511278,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "Materials Project structures"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-promising/revisions/hse06-bandstructure-checkpoint.ipynb",
+      "curated_sha256": "1c68140eae6e4999c02e3a296acb59e217b4cc1beaa4a04c6d3a90515b4945c4",
+      "curated_size_bytes": 3511278
+    },
+    {
+      "source_path": "screen-promising/.ipynb_checkpoints/hse06-example-checkpoint.py",
+      "artifact_kind": "python-source",
+      "family": "screen-promising",
+      "scientific_roles": [
+        "band-verification"
+      ],
+      "status": "alias",
+      "source_sha256": "413c82229b8b37c0a238e98c8df32434f89f435810169156df5ff8e8a2a9a29b",
+      "source_size_bytes": 1829,
+      "outputs_preserved": false,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "Materials Project structures"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "screen-promising/hse06-example.py"
+    },
+    {
+      "source_path": "screen-promising/.ipynb_checkpoints/pbe-bandstructure-insb-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-promising",
+      "scientific_roles": [
+        "band-verification"
+      ],
+      "status": "stored",
+      "source_sha256": "115d87d64a52c622cdc01fba725e3cea4f09d4f2ccb4b6cb62eec288d49a6290",
+      "source_size_bytes": 7603,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "Materials Project structures"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-promising/revisions/pbe-bandstructure-insb-checkpoint.ipynb",
+      "curated_sha256": "115d87d64a52c622cdc01fba725e3cea4f09d4f2ccb4b6cb62eec288d49a6290",
+      "curated_size_bytes": 7603
+    },
+    {
+      "source_path": "screen-promising/.ipynb_checkpoints/pbe-example-checkpoint.py",
+      "artifact_kind": "python-source",
+      "family": "screen-promising",
+      "scientific_roles": [
+        "band-verification"
+      ],
+      "status": "alias",
+      "source_sha256": "6e0288600e6f240d55a9799aaff2373ed320d171c6faf3a7d205c0905992ffd9",
+      "source_size_bytes": 1709,
+      "outputs_preserved": false,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "Materials Project structures"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "screen-promising/pbe-example.py"
+    },
+    {
+      "source_path": "screen-promising/hse06-bandstructure.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-promising",
+      "scientific_roles": [
+        "band-verification"
+      ],
+      "status": "stored",
+      "source_sha256": "30db9823eb9a79740433b4afe7d5e1ac6f2b9292080c9fe6df5e213181d5165e",
+      "source_size_bytes": 3619170,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "Materials Project structures"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-promising/notebooks/hse06-bandstructure.ipynb",
+      "curated_sha256": "30db9823eb9a79740433b4afe7d5e1ac6f2b9292080c9fe6df5e213181d5165e",
+      "curated_size_bytes": 3619170
+    },
+    {
+      "source_path": "screen-promising/hse06-example.py",
+      "artifact_kind": "python-source",
+      "family": "screen-promising",
+      "scientific_roles": [
+        "band-verification"
+      ],
+      "status": "stored",
+      "source_sha256": "413c82229b8b37c0a238e98c8df32434f89f435810169156df5ff8e8a2a9a29b",
+      "source_size_bytes": 1829,
+      "outputs_preserved": false,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "Materials Project structures"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-promising/source/hse06-example.py",
+      "curated_sha256": "413c82229b8b37c0a238e98c8df32434f89f435810169156df5ff8e8a2a9a29b",
+      "curated_size_bytes": 1829
+    },
+    {
+      "source_path": "screen-promising/hse_bandstructures/",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "generated band-plot directory",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "screen-promising/pbe-bandstructure-insb.ipynb",
+      "artifact_kind": "notebook",
+      "family": "screen-promising",
+      "scientific_roles": [
+        "band-verification"
+      ],
+      "status": "stored",
+      "source_sha256": "b573c9c6c05811ca0969968c28768786c23a2f4f549bb86d8df032636dbaf0c7",
+      "source_size_bytes": 178225,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "Materials Project structures"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-promising/notebooks/pbe-bandstructure-insb.ipynb",
+      "curated_sha256": "b573c9c6c05811ca0969968c28768786c23a2f4f549bb86d8df032636dbaf0c7",
+      "curated_size_bytes": 178225
+    },
+    {
+      "source_path": "screen-promising/pbe-example.py",
+      "artifact_kind": "python-source",
+      "family": "screen-promising",
+      "scientific_roles": [
+        "band-verification"
+      ],
+      "status": "stored",
+      "source_sha256": "6e0288600e6f240d55a9799aaff2373ed320d171c6faf3a7d205c0905992ffd9",
+      "source_size_bytes": 1709,
+      "outputs_preserved": false,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [
+        "syntax error in import",
+        "calls an undefined HSE helper and uses a misleading HSE label"
+      ],
+      "portability_notes": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "Materials Project structures"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/screen-promising/source/pbe-example.py",
+      "curated_sha256": "6e0288600e6f240d55a9799aaff2373ed320d171c6faf3a7d205c0905992ffd9",
+      "curated_size_bytes": 1709
+    },
+    {
+      "source_path": "screen-promising/pbe_bandstructures/",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "generated band-plot directory",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "simple-defects/.ipynb_checkpoints/CdPbAs2-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "26b4af319f03ae7145870fa091b64cb906d82bbbca59bfdb646fd39f21b3f92c",
+      "source_size_bytes": 18170,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/CdPbAs2.ipynb"
+    },
+    {
+      "source_path": "simple-defects/.ipynb_checkpoints/CdSnBi2-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "9f5ba41e4ad5ae715263551a76de2f59efc65ee50406e3c768cfd3300ea6f5dc",
+      "source_size_bytes": 20161,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/revisions/CdSnBi2-checkpoint.ipynb",
+      "curated_sha256": "9f5ba41e4ad5ae715263551a76de2f59efc65ee50406e3c768cfd3300ea6f5dc",
+      "curated_size_bytes": 20161
+    },
+    {
+      "source_path": "simple-defects/.ipynb_checkpoints/CdTe-checkpoint.cif",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "structure or calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "simple-defects/.ipynb_checkpoints/HgTe-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "7edd38d5738e49854bbd9d616d79049f3528947c40ff54f63ee7e7ab76bc86ec",
+      "source_size_bytes": 30963,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/HgTe.ipynb"
+    },
+    {
+      "source_path": "simple-defects/.ipynb_checkpoints/InAuSe2-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "0688523b0e5d10fea7193ea3b6b4bbf1e11d062bdae8ed86475a3003b4e1fb02",
+      "source_size_bytes": 17036,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/revisions/InAuSe2-checkpoint.ipynb",
+      "curated_sha256": "0688523b0e5d10fea7193ea3b6b4bbf1e11d062bdae8ed86475a3003b4e1fb02",
+      "curated_size_bytes": 17036
+    },
+    {
+      "source_path": "simple-defects/.ipynb_checkpoints/InCuSe2-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "54085057d48cac979fa60c7b05f17ffcb8f01e31a075bbe78c7ed404ffb02b18",
+      "source_size_bytes": 18603,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/InCuSe2.ipynb"
+    },
+    {
+      "source_path": "simple-defects/.ipynb_checkpoints/TlCuSe2-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "bc5ca2e4d43f4dfcea9dfe1de3cfc69389327cf99b8f92d8b57076853a216294",
+      "source_size_bytes": 20875,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/TlCuSe2.ipynb"
+    },
+    {
+      "source_path": "simple-defects/.ipynb_checkpoints/any-workchain-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "468bc8aa75ef4117a559456328c79cfcf9031e1f402028ef7b45304086964ee0",
+      "source_size_bytes": 17737,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/any-workchain.ipynb"
+    },
+    {
+      "source_path": "simple-defects/.ipynb_checkpoints/chempot-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "7eaeca584ce68001f183672353ddba6db362fa55d9445e76b84b97e75a7d89cc",
+      "source_size_bytes": 5669,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/chempot.ipynb"
+    },
+    {
+      "source_path": "simple-defects/.ipynb_checkpoints/defect-analysis-20250607-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "13436952e605b470cbc3311628c0a9bf48e8360a3a9026bc3beecd1df79424bb",
+      "source_size_bytes": 15698,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/revisions/defect-analysis-20250607-checkpoint.ipynb",
+      "curated_sha256": "13436952e605b470cbc3311628c0a9bf48e8360a3a9026bc3beecd1df79424bb",
+      "curated_size_bytes": 15698
+    },
+    {
+      "source_path": "simple-defects/.ipynb_checkpoints/elemental_ref-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "410e60158c3e1f7f649d07536b4de91e2deb903bd3286cbaa0aa3748a5819235",
+      "source_size_bytes": 5148,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/revisions/elemental_ref-checkpoint.ipynb",
+      "curated_sha256": "410e60158c3e1f7f649d07536b4de91e2deb903bd3286cbaa0aa3748a5819235",
+      "curated_size_bytes": 5148
+    },
+    {
+      "source_path": "simple-defects/.ipynb_checkpoints/hgte-pbe-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "3e1f174c49b73bc26b97bfabb36ce615da32bb5ce87d094ae9ef4bcf509dfc9c",
+      "source_size_bytes": 9327,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/revisions/hgte-pbe-checkpoint.ipynb",
+      "curated_sha256": "3e1f174c49b73bc26b97bfabb36ce615da32bb5ce87d094ae9ef4bcf509dfc9c",
+      "curated_size_bytes": 9327
+    },
+    {
+      "source_path": "simple-defects/.ipynb_checkpoints/hgte-workchain-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "07b953549124cea575afa930be80f6e808884958bcb89af4bbc980c0caa693ba",
+      "source_size_bytes": 5272,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/revisions/hgte-workchain-checkpoint.ipynb",
+      "curated_sha256": "07b953549124cea575afa930be80f6e808884958bcb89af4bbc980c0caa693ba",
+      "curated_size_bytes": 5272
+    },
+    {
+      "source_path": "simple-defects/.ipynb_checkpoints/mct-sqs-gen-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "18e82e69f01614b6ec95d3f0efe3890dd2c219da2ba5eca0be249c458a90b7d3",
+      "source_size_bytes": 8409,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/launch-notebooks/mct-sqs-gen.ipynb"
+    },
+    {
+      "source_path": "simple-defects/.ipynb_checkpoints/mct-sqs-vacancy-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "bf5088a282c7595420ee00de1df2d167c5245936f32b843ef6ef05e39ebad645",
+      "source_size_bytes": 13393,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/mct-sqs-vacancy.ipynb"
+    },
+    {
+      "source_path": "simple-defects/.ipynb_checkpoints/mct-workchain-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "ee40d7b9a12ad87e7785b6d3ee45c19fb15c4620f80a1160337decaf182edc53",
+      "source_size_bytes": 11893,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/launch-notebooks/mct-workchain.ipynb"
+    },
+    {
+      "source_path": "simple-defects/.ipynb_checkpoints/mg3bi2-sr3pbo-workchain-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "032b679d6c18a98e7e0ace3e319ca59f55cb6e5ac655af450892b8071d273d14",
+      "source_size_bytes": 27781,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/revisions/mg3bi2-sr3pbo-workchain-checkpoint.ipynb",
+      "curated_sha256": "032b679d6c18a98e7e0ace3e319ca59f55cb6e5ac655af450892b8071d273d14",
+      "curated_size_bytes": 27781
+    },
+    {
+      "source_path": "simple-defects/Cd.cif",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "structure or calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "simple-defects/CdPbAs2.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "26b4af319f03ae7145870fa091b64cb906d82bbbca59bfdb646fd39f21b3f92c",
+      "source_size_bytes": 18170,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/CdPbAs2.ipynb",
+      "curated_sha256": "26b4af319f03ae7145870fa091b64cb906d82bbbca59bfdb646fd39f21b3f92c",
+      "curated_size_bytes": 18170
+    },
+    {
+      "source_path": "simple-defects/CdSnBi2.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "481131da01a17912529c1f7aef17c872e816f7c55fa80a885c5c60d942f7aeb6",
+      "source_size_bytes": 20581,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/CdSnBi2.ipynb",
+      "curated_sha256": "481131da01a17912529c1f7aef17c872e816f7c55fa80a885c5c60d942f7aeb6",
+      "curated_size_bytes": 20581
+    },
+    {
+      "source_path": "simple-defects/CdTe.cif",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "structure or calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "simple-defects/Hg.cif",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "structure or calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "simple-defects/HgTe.cif",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "structure or calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "simple-defects/HgTe.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "7edd38d5738e49854bbd9d616d79049f3528947c40ff54f63ee7e7ab76bc86ec",
+      "source_size_bytes": 30963,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/HgTe.ipynb",
+      "curated_sha256": "7edd38d5738e49854bbd9d616d79049f3528947c40ff54f63ee7e7ab76bc86ec",
+      "curated_size_bytes": 30963
+    },
+    {
+      "source_path": "simple-defects/InAuSe2.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "9a2d39299fadc24dc3075af281889b6ce0b2b0459974e9e91c77fe457512465a",
+      "source_size_bytes": 33634,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/InAuSe2.ipynb",
+      "curated_sha256": "9a2d39299fadc24dc3075af281889b6ce0b2b0459974e9e91c77fe457512465a",
+      "curated_size_bytes": 33634
+    },
+    {
+      "source_path": "simple-defects/InCuSe2.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "54085057d48cac979fa60c7b05f17ffcb8f01e31a075bbe78c7ed404ffb02b18",
+      "source_size_bytes": 18603,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/InCuSe2.ipynb",
+      "curated_sha256": "54085057d48cac979fa60c7b05f17ffcb8f01e31a075bbe78c7ed404ffb02b18",
+      "curated_size_bytes": 18603
+    },
+    {
+      "source_path": "simple-defects/TlCuSe2.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "bc5ca2e4d43f4dfcea9dfe1de3cfc69389327cf99b8f92d8b57076853a216294",
+      "source_size_bytes": 20875,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/TlCuSe2.ipynb",
+      "curated_sha256": "bc5ca2e4d43f4dfcea9dfe1de3cfc69389327cf99b8f92d8b57076853a216294",
+      "curated_size_bytes": 20875
+    },
+    {
+      "source_path": "simple-defects/any-workchain.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "468bc8aa75ef4117a559456328c79cfcf9031e1f402028ef7b45304086964ee0",
+      "source_size_bytes": 17737,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/any-workchain.ipynb",
+      "curated_sha256": "468bc8aa75ef4117a559456328c79cfcf9031e1f402028ef7b45304086964ee0",
+      "curated_size_bytes": 17737
+    },
+    {
+      "source_path": "simple-defects/chempot.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "7eaeca584ce68001f183672353ddba6db362fa55d9445e76b84b97e75a7d89cc",
+      "source_size_bytes": 5669,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/chempot.ipynb",
+      "curated_sha256": "7eaeca584ce68001f183672353ddba6db362fa55d9445e76b84b97e75a7d89cc",
+      "curated_size_bytes": 5669
+    },
+    {
+      "source_path": "simple-defects/data-presentation/.ipynb_checkpoints/chempot-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "7eaeca584ce68001f183672353ddba6db362fa55d9445e76b84b97e75a7d89cc",
+      "source_size_bytes": 5669,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/chempot.ipynb"
+    },
+    {
+      "source_path": "simple-defects/data-presentation/.ipynb_checkpoints/defect-analysis-20250607-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "13436952e605b470cbc3311628c0a9bf48e8360a3a9026bc3beecd1df79424bb",
+      "source_size_bytes": 15698,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/.ipynb_checkpoints/defect-analysis-20250607-checkpoint.ipynb"
+    },
+    {
+      "source_path": "simple-defects/data-presentation/chempot.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "7eaeca584ce68001f183672353ddba6db362fa55d9445e76b84b97e75a7d89cc",
+      "source_size_bytes": 5669,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/chempot.ipynb"
+    },
+    {
+      "source_path": "simple-defects/data-presentation/defect-analysis-20250607.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "72bb35e0c3cbec92cad8170aa71fc70c6db2ba2e7343a7af1bfe0ec7073c1f6d",
+      "source_size_bytes": 15909,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/data-presentation/defect-analysis-20250607.ipynb",
+      "curated_sha256": "72bb35e0c3cbec92cad8170aa71fc70c6db2ba2e7343a7af1bfe0ec7073c1f6d",
+      "curated_size_bytes": 15909
+    },
+    {
+      "source_path": "simple-defects/data-presentation/defect_formation_energy.csv",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "simple-defects/defect-analysis-20250607.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "77de5c085036205e24a9d03b8a96b269a1a943af097d70b93feb7ac134965492",
+      "source_size_bytes": 16429,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/defect-analysis-20250607.ipynb",
+      "curated_sha256": "77de5c085036205e24a9d03b8a96b269a1a943af097d70b93feb7ac134965492",
+      "curated_size_bytes": 16429
+    },
+    {
+      "source_path": "simple-defects/elemental_ref.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "a71196771cd95e9d289caa44cc18ba5a2d42f81e9fe403bac3027ec1dc0497a6",
+      "source_size_bytes": 5569,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/elemental_ref.ipynb",
+      "curated_sha256": "a71196771cd95e9d289caa44cc18ba5a2d42f81e9fe403bac3027ec1dc0497a6",
+      "curated_size_bytes": 5569
+    },
+    {
+      "source_path": "simple-defects/hgte-pbe.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "98ac7d742a0be56ce8cfdff6951cee8d7a3c1790fb3a3385395e287be3d45df1",
+      "source_size_bytes": 15848,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/hgte-pbe.ipynb",
+      "curated_sha256": "98ac7d742a0be56ce8cfdff6951cee8d7a3c1790fb3a3385395e287be3d45df1",
+      "curated_size_bytes": 15848
+    },
+    {
+      "source_path": "simple-defects/hgte-workchain.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "d9c27cfb9d7e83e27accb1daf3edba2bd24b9911f90bf740d922a6eafe63b5ac",
+      "source_size_bytes": 6729,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/hgte-workchain.ipynb",
+      "curated_sha256": "d9c27cfb9d7e83e27accb1daf3edba2bd24b9911f90bf740d922a6eafe63b5ac",
+      "curated_size_bytes": 6729
+    },
+    {
+      "source_path": "simple-defects/launch-notebooks/.ipynb_checkpoints/any-workchain-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "bdb8c38a7fd3f86e4a477ac7f0010a51f90a46ba9c6917f9e17cc4332d806674",
+      "source_size_bytes": 9106,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/launch-notebooks/any-workchain.ipynb"
+    },
+    {
+      "source_path": "simple-defects/launch-notebooks/.ipynb_checkpoints/elemental_ref-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "a71196771cd95e9d289caa44cc18ba5a2d42f81e9fe403bac3027ec1dc0497a6",
+      "source_size_bytes": 5569,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/elemental_ref.ipynb"
+    },
+    {
+      "source_path": "simple-defects/launch-notebooks/.ipynb_checkpoints/mct-sqs-gen-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "18e82e69f01614b6ec95d3f0efe3890dd2c219da2ba5eca0be249c458a90b7d3",
+      "source_size_bytes": 8409,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/launch-notebooks/mct-sqs-gen.ipynb"
+    },
+    {
+      "source_path": "simple-defects/launch-notebooks/.ipynb_checkpoints/mct-sqs-vacancy-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "6d76b39f2f9e67bd52f13c18f252b8e62dfb04cf36767e2f9e232c2606c43cbb",
+      "source_size_bytes": 13103,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/launch-notebooks/mct-sqs-vacancy.ipynb"
+    },
+    {
+      "source_path": "simple-defects/launch-notebooks/.ipynb_checkpoints/mct-workchain-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "ee40d7b9a12ad87e7785b6d3ee45c19fb15c4620f80a1160337decaf182edc53",
+      "source_size_bytes": 11893,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/launch-notebooks/mct-workchain.ipynb"
+    },
+    {
+      "source_path": "simple-defects/launch-notebooks/.ipynb_checkpoints/mg3bi2-sr3pbo-workchain-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "3d52dcb0b9a6fcefee053745bc0a77174e88f03b6394b9185b876d465ca3c042",
+      "source_size_bytes": 23682,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/launch-notebooks/mg3bi2-sr3pbo-workchain.ipynb"
+    },
+    {
+      "source_path": "simple-defects/launch-notebooks/any-workchain.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "bdb8c38a7fd3f86e4a477ac7f0010a51f90a46ba9c6917f9e17cc4332d806674",
+      "source_size_bytes": 9106,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/launch-notebooks/any-workchain.ipynb",
+      "curated_sha256": "bdb8c38a7fd3f86e4a477ac7f0010a51f90a46ba9c6917f9e17cc4332d806674",
+      "curated_size_bytes": 9106
+    },
+    {
+      "source_path": "simple-defects/launch-notebooks/elemental_ref.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "a71196771cd95e9d289caa44cc18ba5a2d42f81e9fe403bac3027ec1dc0497a6",
+      "source_size_bytes": 5569,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/elemental_ref.ipynb"
+    },
+    {
+      "source_path": "simple-defects/launch-notebooks/mct-sqs-gen.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "18e82e69f01614b6ec95d3f0efe3890dd2c219da2ba5eca0be249c458a90b7d3",
+      "source_size_bytes": 8409,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/launch-notebooks/mct-sqs-gen.ipynb",
+      "curated_sha256": "18e82e69f01614b6ec95d3f0efe3890dd2c219da2ba5eca0be249c458a90b7d3",
+      "curated_size_bytes": 8409
+    },
+    {
+      "source_path": "simple-defects/launch-notebooks/mct-sqs-vacancy.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "6d76b39f2f9e67bd52f13c18f252b8e62dfb04cf36767e2f9e232c2606c43cbb",
+      "source_size_bytes": 13103,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/launch-notebooks/mct-sqs-vacancy.ipynb",
+      "curated_sha256": "6d76b39f2f9e67bd52f13c18f252b8e62dfb04cf36767e2f9e232c2606c43cbb",
+      "curated_size_bytes": 13103
+    },
+    {
+      "source_path": "simple-defects/launch-notebooks/mct-workchain.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "ee40d7b9a12ad87e7785b6d3ee45c19fb15c4620f80a1160337decaf182edc53",
+      "source_size_bytes": 11893,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/launch-notebooks/mct-workchain.ipynb",
+      "curated_sha256": "ee40d7b9a12ad87e7785b6d3ee45c19fb15c4620f80a1160337decaf182edc53",
+      "curated_size_bytes": 11893
+    },
+    {
+      "source_path": "simple-defects/launch-notebooks/mg3bi2-sr3pbo-workchain.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "3d52dcb0b9a6fcefee053745bc0a77174e88f03b6394b9185b876d465ca3c042",
+      "source_size_bytes": 23682,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/launch-notebooks/mg3bi2-sr3pbo-workchain.ipynb",
+      "curated_sha256": "3d52dcb0b9a6fcefee053745bc0a77174e88f03b6394b9185b876d465ca3c042",
+      "curated_size_bytes": 23682
+    },
+    {
+      "source_path": "simple-defects/mct-sqs-gen.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "18e82e69f01614b6ec95d3f0efe3890dd2c219da2ba5eca0be249c458a90b7d3",
+      "source_size_bytes": 8409,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/launch-notebooks/mct-sqs-gen.ipynb"
+    },
+    {
+      "source_path": "simple-defects/mct-sqs-vacancy.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "bf5088a282c7595420ee00de1df2d167c5245936f32b843ef6ef05e39ebad645",
+      "source_size_bytes": 13393,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/mct-sqs-vacancy.ipynb",
+      "curated_sha256": "bf5088a282c7595420ee00de1df2d167c5245936f32b843ef6ef05e39ebad645",
+      "curated_size_bytes": 13393
+    },
+    {
+      "source_path": "simple-defects/mct-workchain.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "alias",
+      "source_sha256": "ee40d7b9a12ad87e7785b6d3ee45c19fb15c4620f80a1160337decaf182edc53",
+      "source_size_bytes": 11893,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "simple-defects/launch-notebooks/mct-workchain.ipynb"
+    },
+    {
+      "source_path": "simple-defects/mg3bi2-sr3pbo-workchain.ipynb",
+      "artifact_kind": "notebook",
+      "family": "simple-defects",
+      "scientific_roles": [
+        "vacancy-workflows",
+        "defect-ranking"
+      ],
+      "status": "stored",
+      "source_sha256": "84697092a26be2c3f90f4535a480a55e25b7e1d326decd7615822e6487dbfee7",
+      "source_size_bytes": 26504,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains material-specific assumptions and site-specific AiiDA settings"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP code",
+        "doped/matchest"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/simple-defects/notebooks/mg3bi2-sr3pbo-workchain.ipynb",
+      "curated_sha256": "84697092a26be2c3f90f4535a480a55e25b7e1d326decd7615822e6487dbfee7",
+      "curated_size_bytes": 26504
+    },
+    {
+      "source_path": "simple-defects/notebooks.tar.gz",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "dataset or archive outside notebook/source scope",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "wbm-dataset/.git/",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "upstream Git metadata",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "wbm-dataset/README.txt",
+      "artifact_kind": "source-documentation",
+      "family": "wbm-dataset",
+      "scientific_roles": [
+        "wbm-preparation"
+      ],
+      "status": "stored",
+      "source_sha256": "0f59a7681d64422382c155364a5406fcdf4a3884789f2d8f93edbadf85b16477",
+      "source_size_bytes": 2059,
+      "outputs_preserved": false,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": "45633d98dc5414fe5de0a80c54280f1fbb53e829",
+      "source_git_dirty": true,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "WBM step_1..step_5 archives",
+        "WBM summary table"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/wbm-dataset/source/README.txt",
+      "curated_sha256": "0f59a7681d64422382c155364a5406fcdf4a3884789f2d8f93edbadf85b16477",
+      "curated_size_bytes": 2059
+    },
+    {
+      "source_path": "wbm-dataset/cleaned_summary.txt.gz",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "dataset or archive outside notebook/source scope",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "wbm-dataset/condense/condense.py",
+      "artifact_kind": "python-source",
+      "family": "wbm-dataset",
+      "scientific_roles": [
+        "wbm-preparation"
+      ],
+      "status": "alias",
+      "source_sha256": "57f5c9102ca2365c0d9b99395fab018d792979afd8ee0559bb8421f34f3510e8",
+      "source_size_bytes": 1957,
+      "outputs_preserved": false,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": "45633d98dc5414fe5de0a80c54280f1fbb53e829",
+      "source_git_dirty": true,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "WBM step_1..step_5 archives",
+        "WBM summary table"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "mp-condense/condense.py"
+    },
+    {
+      "source_path": "wbm-dataset/condense/condense_one.py",
+      "artifact_kind": "python-source",
+      "family": "wbm-dataset",
+      "scientific_roles": [
+        "wbm-preparation"
+      ],
+      "status": "alias",
+      "source_sha256": "bf77c9520556f8b7f33e543ea3841ce2a3f472f6b772031eaa15e1a58fd75f9c",
+      "source_size_bytes": 691,
+      "outputs_preserved": false,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": "45633d98dc5414fe5de0a80c54280f1fbb53e829",
+      "source_git_dirty": true,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "WBM step_1..step_5 archives",
+        "WBM summary table"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "mp-condense/condense_one.py"
+    },
+    {
+      "source_path": "wbm-dataset/condense/condensed/",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "generated condensed-structure archive",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "wbm-dataset/condense/convert-json.py",
+      "artifact_kind": "python-source",
+      "family": "wbm-dataset",
+      "scientific_roles": [
+        "wbm-preparation"
+      ],
+      "status": "stored",
+      "source_sha256": "94c6c0536762f4353d6be78211afb93fc124e66d711b8ca3609eaa7bba3438b2",
+      "source_size_bytes": 320,
+      "outputs_preserved": false,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": "45633d98dc5414fe5de0a80c54280f1fbb53e829",
+      "source_git_dirty": true,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "WBM step_1..step_5 archives",
+        "WBM summary table"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/wbm-dataset/source/condense/convert-json.py",
+      "curated_sha256": "94c6c0536762f4353d6be78211afb93fc124e66d711b8ca3609eaa7bba3438b2",
+      "curated_size_bytes": 320
+    },
+    {
+      "source_path": "wbm-dataset/condense/jobs",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "non-source artifact outside approved curation scope",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "wbm-dataset/condense/structures/",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "generated structure archive",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "wbm-dataset/convert_to_extxyz.py",
+      "artifact_kind": "python-source",
+      "family": "wbm-dataset",
+      "scientific_roles": [
+        "wbm-preparation"
+      ],
+      "status": "stored",
+      "source_sha256": "daf25c760e3b8f0a3885de309181070d49d00eee92c5a27ec41bd29765c1da83",
+      "source_size_bytes": 2895,
+      "outputs_preserved": false,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": "45633d98dc5414fe5de0a80c54280f1fbb53e829",
+      "source_git_dirty": true,
+      "known_defects": [],
+      "portability_notes": [],
+      "external_dependencies": [
+        "WBM step_1..step_5 archives",
+        "WBM summary table"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/wbm-dataset/source/convert_to_extxyz.py",
+      "curated_sha256": "daf25c760e3b8f0a3885de309181070d49d00eee92c5a27ec41bd29765c1da83",
+      "curated_size_bytes": 2895
+    },
+    {
+      "source_path": "wbm-dataset/step_1.json.bz2",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "dataset or archive outside notebook/source scope",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "wbm-dataset/step_2.json.bz2",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "dataset or archive outside notebook/source scope",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "wbm-dataset/step_3.json.bz2",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "dataset or archive outside notebook/source scope",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "wbm-dataset/step_4.json.bz2",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "dataset or archive outside notebook/source scope",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "wbm-dataset/step_5.json.bz2",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "dataset or archive outside notebook/source scope",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "wbm-dataset/summary.txt",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "full dataset",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "wbm-dataset/wbm-dataset.xyz",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/.ipynb_checkpoints/zincblend-checkpoint.ipynb",
+      "artifact_kind": "notebook",
+      "family": "prototypes/zincblend",
+      "scientific_roles": [
+        "prototype-study"
+      ],
+      "status": "alias",
+      "source_sha256": "c91b0c4872ad2f2d62fc6b645c098cd9daec2eaaf91d881ed851fd329737a7dc",
+      "source_size_bytes": 18011,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific scheduler and calculator configuration"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP/ABACUS codes"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "alias_of": "zincblend/zincblend.ipynb"
+    },
+    {
+      "source_path": "zincblend/614426-abacus/INPUT",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426-abacus/In.upf",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "structure or calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426-abacus/In_gga_7au_100Ry_2s2p2d1f.orb",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "structure or calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426-abacus/KPOINTS",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426-abacus/KPT",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "non-source artifact outside approved curation scope",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426-abacus/KPT-BAND",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "non-source artifact outside approved curation scope",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426-abacus/POSCAR",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426-abacus/STRU",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426-abacus/Sb.upf",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "structure or calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426-abacus/Sb_gga_7au_100Ry_2s2p2d1f.orb",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "structure or calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426-abacus/submit.sh",
+      "artifact_kind": "shell-source",
+      "family": "prototypes/zincblend",
+      "scientific_roles": [
+        "prototype-study"
+      ],
+      "status": "stored",
+      "source_sha256": "ecf72bdcebcf57a22d5cc16bc1dc0e434a730bd9a3e65182bbc1479333cf0631",
+      "source_size_bytes": 445,
+      "outputs_preserved": false,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific scheduler and calculator configuration"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP/ABACUS codes"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/prototypes/zincblend/source/614426-abacus/submit.sh",
+      "curated_sha256": "ecf72bdcebcf57a22d5cc16bc1dc0e434a730bd9a3e65182bbc1479333cf0631",
+      "curated_size_bytes": 445
+    },
+    {
+      "source_path": "zincblend/614426/.aiida/",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "AiiDA process archive",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426/CONTCAR",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "non-source artifact outside approved curation scope",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426/INCAR",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426/KPOINTS",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426/OUTCAR",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "non-source artifact outside approved curation scope",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426/POSCAR",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426/_aiidasubmit.sh",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "generated AiiDA scheduler artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426/_scheduler-stderr.txt",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "generated scheduler output",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426/_scheduler-stdout.txt",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "generated scheduler output",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426/aiida_info",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "non-source artifact outside approved curation scope",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426/vasp_output",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "non-source artifact outside approved curation scope",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/614426/vasprun.xml",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "data or calculated-result artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/CdTe.cif",
+      "artifact_kind": "excluded-artifact",
+      "status": "excluded",
+      "reason": "structure or calculator-input artifact",
+      "snapshot_date": "2026-07-21",
+      "license_status": "not-copied",
+      "redistribution_basis": "excluded-by-policy"
+    },
+    {
+      "source_path": "zincblend/zincblend.ipynb",
+      "artifact_kind": "notebook",
+      "family": "prototypes/zincblend",
+      "scientific_roles": [
+        "prototype-study"
+      ],
+      "status": "stored",
+      "source_sha256": "c91b0c4872ad2f2d62fc6b645c098cd9daec2eaaf91d881ed851fd329737a7dc",
+      "source_size_bytes": 18011,
+      "outputs_preserved": true,
+      "transformations": [],
+      "snapshot_date": "2026-07-21",
+      "source_git_head": null,
+      "source_git_dirty": null,
+      "known_defects": [],
+      "portability_notes": [
+        "contains site-specific scheduler and calculator configuration"
+      ],
+      "external_dependencies": [
+        "AiiDA profile and calculation nodes",
+        "VASP/ABACUS codes"
+      ],
+      "license_status": "user-authorized-unspecified",
+      "redistribution_basis": "user-confirmed-2026-07-21",
+      "curated_path": "references/prototypes/zincblend/notebooks/zincblend.ipynb",
+      "curated_sha256": "c91b0c4872ad2f2d62fc6b645c098cd9daec2eaaf91d881ed851fd329737a7dc",
+      "curated_size_bytes": 18011
+    }
+  ]
+}

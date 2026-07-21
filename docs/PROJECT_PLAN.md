@@ -199,5 +199,8 @@ The work is sequenced so each milestone is independently useful and testable.
 - All file paths configurable (CLI args / config file), no hardcoded relative paths.
 - No secrets in repo; MP key via env var.
 - Numerical thresholds are named parameters, never inline literals.
-- Original notebooks kept in `/home/bonan/work/HC/<orig>/` as reference; the
-  package is the canonical, tested version.
+- Original notebooks remain unchanged in `/home/bonan/work/HC/<orig>/`.
+  Curated notebook and source-code snapshots may also be tracked under
+  `references/` with provenance and secret/license checks; large datasets and
+  calculation artifacts remain external. The package code is the canonical,
+  tested implementation.

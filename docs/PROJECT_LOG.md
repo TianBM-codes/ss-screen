@@ -7,6 +7,144 @@
 
 **Read first at the start of every session:** `AGENTS.md` → this file → `PROJECT_PLAN.md`.
 
+## 2026-07-21 — Curated upstream reference archive
+
+**Goal of this session:** Implement the approved full-history curation of upstream notebooks, source code, executed results, and research knowledge.
+
+**Done:**
+- Added `scripts/curate_upstream_references.py`, a deterministic standard-library curation/validation tool with dry-run, write, and validate-only modes.
+- Added `tests/test_reference_curation.py` with eight RED/GREEN tests covering discovery, checkpoint layout, output-preserving credential redaction, byte aliases, manifest/index generation, tamper/stale-file detection, policy/provenance fields, complete exclusions, and dry-run behavior.
+- Generated `references/` with family knowledge indexes and `manifest.json`: 78 stored artifacts, 2 redacted notebooks, 35 byte-identical aliases, and 101 explicit file/directory exclusions; 55,618,466 curated artifact bytes.
+- Preserved executed scientific outputs, including the large historical band/prototype plots, and retained source-distinct checkpoints under visible `revisions/` paths.
+- Linked the archive and manifest from `README.md`.
+- Completed a pre-commit credential scan of the curated archive: no remaining API-key formats, private keys, JWTs, URL credentials, or literal positional `MPRester` credentials were found.
+
+**Decisions / changes to plan:**
+- Credential-bearing positional `MPRester` arguments in two stored antiperovskite notebooks were replaced by standard configuration discovery (`MPRester()`); their outputs/execution state were preserved and original/curated hashes recorded.
+- Byte-identical content is stored once and represented by manifest aliases. Files with distinct bytes/metadata remain separate historical artifacts.
+- The archive records user-authorized/otherwise-unspecified license status because no upstream license files were found.
+- Historical researcher email, local/cluster paths, and AiiDA `code@host` metadata were retained with explicit user approval as provenance-bearing notebook output.
+
+**Next up:** Resume the CLI tutorial or use the curated source index to plan/port the remaining WBM, DFT, prototype/stability, and defect routines.
+
+**Blockers / upstream issues:** The credential remains in read-only upstream files and should be rotated/scrubbed separately. No upstream path was modified.
+
+**Verification:** 8 focused curation tests passed; full suite passed (97 tests); Ruff and `py_compile` passed; archive validation and `git diff --check` passed; repeated curation produced identical manifest/README SHA-256 values.
+
+## 2026-07-21 — Upstream reference curation design
+
+**Goal of this session:** Design a complete, safe archive of upstream notebooks, source code, executed results, and research knowledge inside `ss-screen`.
+
+**Done:**
+- Inventoried and classified primary notebooks, source scripts, checkpoint histories, embedded result payloads, duplicates, generated/data exclusions, provenance, and credential risks across every declared upstream family.
+- Confirmed a duplicate-aware full-history archive is approximately 56 MB and preserves 67 distinct notebook cell histories from 98 primary/checkpoint paths.
+- Wrote and self-reviewed `docs/superpowers/specs/2026-07-20-upstream-reference-curation-design.md` after user approval of the recommended design and redistribution-authority condition.
+
+**Decisions / changes to plan:**
+- Preserve scientific notebook outputs inline; retain source-distinct checkpoints as visible historical revisions; represent byte-identical files as manifest aliases.
+- Redact the two credential-bearing antiperovskite notebook cells while recording original/curated hashes. Keep datasets, calculation directories, archives, `.aiida`, generated scheduler artifacts, and external result sidecars out of scope.
+
+**Next up:** Obtain user review of the written spec, then create and execute the implementation plan.
+
+**Blockers / upstream issues:** The external credential remains in read-only upstream files and should be rotated/scrubbed separately; no upstream file was modified.
+
+## 2026-07-20 — Permit curated historical source copies
+
+**Goal of this session:** Update repository policy so historical notebooks and source code can be curated inside `ss-screen`.
+
+**Done:**
+- Updated `AGENTS.md` to allow attributed notebook/source snapshots under `references/` while keeping all external originals read-only.
+- Aligned `docs/PROJECT_PLAN.md` with the new historical-source curation policy.
+
+**Decisions / changes to plan:**
+- Copying is limited to notebooks and source code after provenance, secret, and license checks. Full datasets, archives, `.aiida` dumps, generated calculation outputs, and other large data remain external.
+- Curated snapshots are historical references; tested implementations under `src/` remain canonical.
+
+**Next up:** Define the `references/` layout and curate the relevant historical notebooks/source files.
+
+**Blockers / upstream issues:** A live-looking credential previously identified in an upstream notebook must not be copied; it requires scrubbing and rotation at the source.
+
+## 2026-07-19 — Upstream migration completeness audit
+
+**Goal of this session:** Determine whether `ss-screen` includes all reusable information, routines, functionality, and workflows from the declared read-only upstream workspace.
+
+**Done:**
+- Added `docs/review_upstream_completeness_2026-07-19.md` with a source-family coverage matrix, prioritized gaps, verification evidence, and completion criteria.
+- Confirmed the core MP/condense/group/gap/pair path is strongly migrated, while raw WBM construction is partial and AiiDA band workflows, phase stability, prototype/MACE flows, and defect ranking remain mostly absent.
+- Fresh full verification passed (`89` tests; ruff clean); Black reported 33 files unchanged but hung after three variants, so its exit status is recorded as inconclusive.
+- Reproduced the canonical binary result exactly (`52/52` rows).
+- Found that the real ternary group JSON fails to load because it uses legacy `Compositions`; a temporary one-key normalization made the unchanged scientific logic reproduce the canonical `299/299` rows exactly.
+
+**Decisions / changes to plan:**
+- Classify the repository as a tested core screening package with external calculation contracts and an early SQS stage, not as a complete migration of the full upstream research workflow.
+- Treat large datasets, tarballs, and `.aiida` archives as intentionally external; require their reusable schemas/provenance transformations rather than copying data.
+
+**Next up:** Fix the legacy ternary field alias, implement optional PBE fallback and raw WBM reconciliation, then decide whether DFT/defect execution will be ported or formally replaced by documented external adapters.
+
+**Blockers / upstream issues:** A read-only upstream notebook still contains a live-looking MP credential and should be rotated/scrubbed outside this package audit. No upstream file, notebook, archive, DFT job, AiiDA daemon, GPU task, or MPI task was modified or run.
+
+## 2026-07-19 — mp-offline thermo cache commit
+
+**Goal of this session:** Commit the completed `mp-offline` summary/thermo cache migration and theory-separation work.
+
+**Done:**
+- Committed `mp-offline/mp-offline-develop` on `codex/mp-offline-schema-migration` as `418b9e3` (`feat: add schema migration and theory-safe MP thermo cache`).
+- Commit includes schema migration, resumable summary downloads, thermo-scheme selection/provenance, exact scalar run-type filtering, local thermo queries, CLI support, tests, and design/implementation docs.
+- Verified the committed checkout with `.venv/bin/python -m pytest -q` before staging; the suite passed.
+
+**Decisions / changes to plan:**
+- Kept the parent-project log outside this package commit; it records the handoff without mixing unrelated root-project changes into the package history.
+
+**Next up:**
+- Optional live authenticated Materials Project smoke test, push, or pull-request preparation.
+
+**Blockers / upstream issues:** Historical archive/default databases were not modified.
+
+## 2026-07-19 — CLI tutorial design
+
+**Goal of this session:** Define an interface-first CLI tutorial for researchers and future GUI developers.
+
+**Done:**
+- Agreed on a two-part guide: a complete staged screening workflow plus per-command file contracts.
+- Wrote and self-reviewed `docs/superpowers/specs/2026-07-19-cli-tutorial-design.md` covering scope, artifact boundaries, command inventory, GUI contract, and verification.
+
+**Decisions / changes to plan:**
+- The tutorial will document only files and command contracts; GUI code, notebooks, bundled research data, and CLI behavior changes are out of scope.
+
+**Next up:** Obtain user review of the design, then write `docs/CLI_TUTORIAL.md` and link it from `README.md`.
+
+**Blockers / upstream issues:** No read-only source files were modified.
+
+## 2026-07-16 — Binary CLI reproduction rerun
+
+**Goal of this session:** Exercise the implemented CLI against the historical binary-screening inputs and verify its output against the notebook artifact.
+
+**Done:**
+- Ran `.venv/bin/ss-screen pair --groups ../pair-screening/binary-group-df.json --gaps ../pair-screening/mbj_gaps_binary_2025_0425_pmg_info.csv` and wrote the transient result to `/tmp/ss-screen-binary-reproduction-20260716.csv`.
+- Fresh exact dataframe comparison against `../pair-screening/mbj_result_binary_20250426.csv` verified all 52 rows, columns, values, directness flags, and row order match.
+
+**Decisions / changes to plan:**
+- Used the existing editable virtual-environment CLI after `uv run` could not access the shared uv cache in the sandbox; no package code or reference data was changed.
+
+**Next up:** Continue with the next explicitly requested package milestone.
+
+**Blockers / upstream issues:** No read-only source files were modified.
+
+## 2026-07-16 — MACE model JSON element-scope audit
+
+**Goal of this session:** Determine whether MACE JSON conversion needs an explicit element list and whether it can retain all elements from its source `.model`.
+
+**Done:**
+- Inspected the read-only MACE conversion/training sources and existing AlN MACE logs; no `ss-screen` code or data artifacts were changed.
+- Confirmed that JSON metadata derives its `atomic_numbers` from the loaded model, while the `foundation_model_elements` training option controls whether a fine-tuned model preserves the foundation model's full element set.
+
+**Decisions / changes to plan:**
+- None; this was a read-only compatibility assessment outside the current package implementation.
+
+**Next up:** Use the original model's embedded `atomic_numbers` when exporting model metadata; retrain only if the source model was already pruned and broader elemental coverage is required.
+
+**Blockers / upstream issues:** Direct CPU inspection of the selected AlN `.model` was blocked because its serialized e3nn module requires CUDA during deserialization; training logs provide the recorded element sets.
+
 ## 2026-07-16 — Review remediation for staged CLI
 
 **Goal of this session:** Address multi-agent review findings against the staged CLI implementation.

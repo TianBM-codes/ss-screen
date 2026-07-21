@@ -131,6 +131,12 @@ provenance needed by later MLP relaxation stages.
 - `docs/PROJECT_PLAN.md` — full design and milestone roadmap
 - `docs/PROJECT_LOG.md` — cross-session progress log
 - `AGENTS.md` — operating rules for AI assistants (read-only boundaries)
+- `references/README.md` — curated historical notebooks/source with executed results
+- `references/manifest.json` — machine-readable provenance, hashes, aliases, redactions, and exclusions
+
+The `references/` archive is historical evidence, not canonical runtime code.
+Large datasets, calculation directories, archives, `.aiida` data, generated
+scheduler artifacts, and secrets remain external.
 
 ## Status
 

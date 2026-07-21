@@ -24,11 +24,18 @@ read-only siblings are at `../`.
 | `../old-screen-202411/` | 🔒 READ-ONLY | historical baseline snapshot |
 | `../*.aiida`, `../*.tar.gz`, large data | 🔒 READ-ONLY | never touch |
 
-**How to treat read-only dirs:** Read them, study them, quote short excerpts
-into `ss-screen/` source files with a citation comment, and copy *algorithms*
-(not verbatim large blocks without attribution). **Never write, edit, rename,
-move, or delete anything outside `ss-screen/`.** If a fix logically belongs in
-a read-only dir, instead fix it inside `ss-screen/` and note the upstream issue
+**How to treat read-only dirs:** Read and study them, but **never write, edit,
+rename, move, or delete anything outside `ss-screen/`.** Curated copies of
+historical notebooks and source-code files may be added inside `ss-screen/`
+(prefer `references/`) so the research provenance can be tracked with the
+package. Preserve the original content where practical and record the source
+path, snapshot date, and revision or checksum. Before copying, remove secrets
+and generated/large data embedded in or adjacent to the source, and confirm
+that its license permits redistribution. Full datasets, `.aiida` dumps,
+archives, calculation outputs, and other large data remain external and must
+not be copied or committed. Archived copies are historical references; the
+tested code under `src/` remains canonical. If a fix logically belongs in a
+read-only dir, instead fix it inside `ss-screen/` and note the upstream issue
 in `docs/PROJECT_LOG.md` under "Upstream issues".
 
 ## 2. Mission (what we are building)
@@ -63,11 +70,15 @@ on memory or on conversation history surviving between sessions.
 - **No magic numbers.** Numerical thresholds are named parameters (see `config.py`).
 - **Cite sources.** When porting an algorithm from a read-only notebook, add a
   comment like `# ported from pair-screening/screening-binary.ipynb cell 15`.
+- **Curate historical sources.** Store approved notebook/source snapshots under
+  `references/` with provenance metadata; do not import secrets, generated
+  outputs, dependency environments, archives, or full datasets.
 - **Test everything ported** into `pair/`, `data/` (core). DFT/defect modules
   (`workflow/`, `defects/`) get smoke tests where feasible.
 - **Commit hygiene.** Git commits only when the user asks. Keep the working
-  tree clean of large data (datasets stay in read-only dirs; only tiny test
-  fixtures are committed under `tests/data/`).
+  tree clean of large data. Curated notebooks/source snapshots may be tracked
+  under `references/`; datasets stay external and only tiny test fixtures are
+  committed under `tests/data/`.
 - **Don't commit** the multi-GB `.aiida` dumps, `*.tar.gz`, or full datasets.
 
 ## 5. PROJECT_LOG.md entry template
