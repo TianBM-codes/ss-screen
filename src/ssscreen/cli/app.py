@@ -10,6 +10,7 @@ Subcommands mirroring the implemented pipeline stages:
   ``ss-screen gap-export``      export candidates for external gap calculations
   ``ss-screen gap-compare``     compare final pairs across gap methods
   ``ss-screen stability``       generate optional stability-screening inputs
+  ``ss-screen recommend``       rank candidates from Stage 5 and Stage 8--10 evidence
   ``ss-screen group``           group by composition template + environment
   ``ss-screen pair``            enumerate promising alloying pairs from gaps
 
@@ -25,7 +26,15 @@ from pathlib import Path
 import click
 import pandas as pd
 
-from ..config import Thresholds, coerce_excluded
+from .. import __version__
+from ..config import (
+    CompetingPhaseSettings,
+    MLPRelaxationSettings,
+    PhononSettings,
+    RecommendationSettings,
+    Thresholds,
+    coerce_excluded,
+)
 from ..data.io import (
     CondenseLoader,
     dump_group_df,
@@ -42,9 +51,31 @@ from ..pair.grouping import (
 )
 from ..pair.pairing import enumerate_pairs, pairs_to_dataframe
 
+VERSION_BANNER = r""" ____  ____        ____   ____ ____  _____ _____ _   _
+/ ___|/ ___|      / ___| / ___|  _ \| ____| ____| \ | |
+\___ \\___ \ _____\___ \| |   | |_) |  _| |  _| |  \| |
+ ___) |__) |_____|___) | |___|  _ <| |___| |___| |\  |
+|____/____/      |____/ \____|_| \_\_____|_____|_| \_|"""
+
+
+def _show_version(ctx: click.Context, _param: click.Parameter, value: bool) -> None:
+    if not value or ctx.resilient_parsing:
+        return
+    click.echo(VERSION_BANNER)
+    click.echo()
+    click.echo(f"SS-Screen version {__version__}")
+    ctx.exit()
+
 
 @click.group()
-@click.version_option(package_name="ss-screen")
+@click.option(
+    "--version",
+    is_flag=True,
+    is_eager=True,
+    expose_value=False,
+    callback=_show_version,
+    help="Show the SS-Screen banner and version, then exit.",
+)
 def cli() -> None:
     """Screen materials pairs for solid-solution formation."""
 
@@ -60,6 +91,17 @@ def _parse_supercell(value: str) -> tuple[int, int, int]:
     if any(dim <= 0 for dim in supercell):
         raise click.BadParameter("supercell dimensions must be positive")
     return supercell
+
+
+def _parse_optional_supercell(
+    _ctx: click.Context, _param: click.Parameter, value: str | None
+) -> tuple[int, int, int] | None:
+    return None if value is None else _parse_supercell(value)
+
+
+def _prompt_mp_api_key() -> str:
+    """Read an MP API key without echoing it or accepting a leaky CLI option."""
+    return click.prompt("Materials Project API key", hide_input=True, type=str)
 
 
 # ---------------------------------------------------------------------------
@@ -81,7 +123,7 @@ def dataset_cmd() -> None:
 @click.option(
     "--offline-db",
     "offline_db",
-    type=click.Path(path_type=Path),
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
     help="Optional mp_offline SQLite database path.",
 )
 @click.option(
@@ -92,6 +134,12 @@ def dataset_cmd() -> None:
     help="Where to write the normalized MP pickle DataFrame.",
 )
 @click.option(
+    "--provenance",
+    "provenance_path",
+    type=click.Path(path_type=Path),
+    help="MP dataset provenance JSON (default: <output>.provenance.json).",
+)
+@click.option(
     "--max-e-hull",
     "max_e_hull",
     type=float,
@@ -99,7 +147,13 @@ def dataset_cmd() -> None:
     show_default=True,
     help="Maximum MP energy above hull to request (eV/atom).",
 )
-def dataset_mp_cmd(backend: str, offline_db: Path | None, output: Path, max_e_hull: float) -> None:
+def dataset_mp_cmd(
+    backend: str,
+    offline_db: Path | None,
+    output: Path,
+    provenance_path: Path | None,
+    max_e_hull: float,
+) -> None:
     """Fetch Materials Project summaries into the screening schema."""
     from ..data.mp import load_mp_dataset
 
@@ -109,11 +163,15 @@ def dataset_mp_cmd(backend: str, offline_db: Path | None, output: Path, max_e_hu
             max_e_hull=max_e_hull,
             backend=backend,
             offline_db=offline_db,
+            provenance_path=provenance_path,
         )
-    except ImportError as exc:
+    except (ImportError, FileNotFoundError, ValueError) as exc:
         raise click.ClickException(str(exc)) from exc
 
-    click.echo(f"Wrote {len(df)} MP rows to {output}")
+    from ..data.mp import default_mp_provenance_path
+
+    sidecar = provenance_path or default_mp_provenance_path(output)
+    click.echo(f"Wrote {len(df)} MP rows to {output}; provenance={sidecar}")
 
 
 @dataset_cmd.command("wbm")
@@ -387,7 +445,7 @@ def structure_match_cmd(
 
 
 # ---------------------------------------------------------------------------
-# gap-export / gap-validate
+# gap-export / gap-collect-vasp / gap-validate
 # ---------------------------------------------------------------------------
 @cli.command("gap-export")
 @click.option(
@@ -402,6 +460,17 @@ def structure_match_cmd(
 )
 @click.option("--method", default="external", show_default=True)
 @click.option("--structure-dir", type=click.Path(path_type=Path))
+@click.option(
+    "--structure-format",
+    "structure_formats",
+    multiple=True,
+    type=click.Choice(["json", "cif", "poscar"]),
+    default=("json", "cif", "poscar"),
+    show_default=True,
+    help="Portable structure format(s) written under --structure-dir.",
+)
+@click.option("--results-template", type=click.Path(path_type=Path))
+@click.option("--method-metadata-template", type=click.Path(path_type=Path))
 @click.option("--structure-column", "structure_col", default="structure", show_default=True)
 @click.option("--max-natoms", type=int, default=30, show_default=True)
 @click.option("--output", type=click.Path(path_type=Path), required=True)
@@ -410,6 +479,9 @@ def gap_export_cmd(
     dataset_path: Path,
     method: str,
     structure_dir: Path | None,
+    structure_formats: tuple[str, ...],
+    results_template: Path | None,
+    method_metadata_template: Path | None,
     structure_col: str,
     max_natoms: int | None,
     output: Path,
@@ -423,20 +495,117 @@ def gap_export_cmd(
         output=output,
         method=method,
         structure_dir=structure_dir,
+        structure_formats=structure_formats,
+        results_template=results_template,
+        method_metadata_template=method_metadata_template,
         structure_col=structure_col,
         max_natoms=max_natoms,
     )
     click.echo(f"Wrote {len(exported)} gap candidates to {output}")
 
 
+@cli.command("gap-collect-vasp")
+@click.option(
+    "--tasks",
+    "tasks_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--results-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    required=True,
+    help="Directory containing one task_id/vasprun.xml subdirectory per VASP task.",
+)
+@click.option(
+    "--method-metadata",
+    "method_metadata_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="Optional method metadata JSON used to populate settings_sha256.",
+)
+@click.option(
+    "--task-id",
+    "task_ids",
+    multiple=True,
+    help="Collect only this task ID; repeat to select multiple tasks.",
+)
+@click.option("--output", "output_path", type=click.Path(path_type=Path), required=True)
+@click.option(
+    "--report",
+    "report_path",
+    type=click.Path(path_type=Path),
+    help="JSON report path; defaults beside OUTPUT.",
+)
+def gap_collect_vasp_cmd(
+    tasks_path: Path,
+    results_dir: Path,
+    method_metadata_path: Path | None,
+    task_ids: tuple[str, ...],
+    output_path: Path,
+    report_path: Path | None,
+) -> None:
+    """Collect batch VASP vasprun.xml files into the external gap-result schema."""
+    from ..pair.gap_collect_vasp import collect_vasp_gap_results
+
+    results, report = collect_vasp_gap_results(
+        tasks_path=tasks_path,
+        results_dir=results_dir,
+        output_path=output_path,
+        report_path=report_path,
+        method_metadata_path=method_metadata_path,
+        task_ids=task_ids,
+    )
+    statuses = ", ".join(f"{status}={count}" for status, count in report["status_counts"].items())
+    suffix = f" ({statuses})" if statuses else ""
+    click.echo(
+        f"Scanned {report['selected_task_count']} VASP tasks and wrote {len(results)} rows "
+        f"to {output_path}; report={report_path or output_path.with_name(f'{output_path.stem}.collection-report.json')}"
+        f"{suffix}"
+    )
+
+
 @cli.command("gap-validate")
 @click.option("--gaps", type=click.Path(exists=True, path_type=Path), required=True)
-def gap_validate_cmd(gaps: Path) -> None:
-    """Validate external high-level gap-result schema."""
+@click.option("--tasks", "tasks_path", type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "--method-metadata",
+    "method_metadata_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option("--output", "output_path", type=click.Path(path_type=Path))
+@click.option("--rejected", "rejected_path", type=click.Path(path_type=Path))
+@click.option("--report", "report_path", type=click.Path(path_type=Path))
+def gap_validate_cmd(
+    gaps: Path,
+    tasks_path: Path | None,
+    method_metadata_path: Path | None,
+    output_path: Path | None,
+    rejected_path: Path | None,
+    report_path: Path | None,
+) -> None:
+    """Validate and normalize externally calculated band-gap results."""
     from ..pair.gap_export import validate_gap_results
 
-    results = validate_gap_results(gaps)
-    click.echo(f"Validated {len(results)} gap-result rows from {gaps}")
+    results = validate_gap_results(
+        gaps,
+        tasks_path=tasks_path,
+        method_metadata_path=method_metadata_path,
+        output_path=output_path,
+        rejected_path=rejected_path,
+        report_path=report_path,
+    )
+    report = results.attrs.get(
+        "validation_report",
+        {"accepted_count": len(results), "rejected_count": 0},
+    )
+    click.echo(
+        "Gap-result validation: "
+        f"accepted={report['accepted_count']} rejected={report['rejected_count']} source={gaps}"
+    )
+    if report["rejected_count"]:
+        raise click.ClickException(
+            f"gap validation rejected {report['rejected_count']} malformed row(s)"
+        )
 
 
 @cli.command("gap-compare")
@@ -586,6 +755,1105 @@ def stability_sqs_generate_cmd(
     click.echo(
         f"SQS input summary: written={statuses.get('written', 0)} "
         f"skipped={statuses.get('skipped', 0)} manifest={manifest_path}"
+    )
+
+
+@stability_cmd.command("relax")
+@click.option(
+    "--manifest",
+    "manifest_path",
+    type=click.Path(exists=True, path_type=Path),
+    required=True,
+    help="Stage 6 SQS JSONL manifest.",
+)
+@click.option(
+    "--include-endmembers/--no-include-endmembers",
+    default=False,
+    show_default=True,
+    help="Also relax de-duplicated endpoint A/B structures.",
+)
+@click.option(
+    "--dataset",
+    "dataset_path",
+    type=click.Path(exists=True, path_type=Path),
+    help="Dataset fallback for older manifests without endpoint structure paths.",
+)
+@click.option(
+    "--backend",
+    type=click.Choice(["mace"]),
+    default="mace",
+    show_default=True,
+)
+@click.option(
+    "--model-path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+    help="Local MACE checkpoint path.",
+)
+@click.option("--model-name", help="Optional stable model label stored in provenance.")
+@click.option("--device", default="cpu", show_default=True, help="MACE device, e.g. cpu or cuda:0.")
+@click.option(
+    "--dtype",
+    type=click.Choice(["float32", "float64"]),
+    default="float32",
+    show_default=True,
+)
+@click.option(
+    "--fmax",
+    type=click.FloatRange(min=0.0, min_open=True),
+    default=MLPRelaxationSettings.force_tolerance,
+    show_default=True,
+    help="Force convergence tolerance in eV/Angstrom.",
+)
+@click.option(
+    "--max-steps",
+    type=click.IntRange(min=1),
+    default=MLPRelaxationSettings.max_steps,
+    show_default=True,
+)
+@click.option(
+    "--relax-cell/--positions-only",
+    default=True,
+    show_default=True,
+    help="Relax positions and periodic cell, or positions only.",
+)
+@click.option("--limit", type=click.IntRange(min=1), help="Process at most this many tasks.")
+@click.option("--overwrite", is_flag=True, help="Replace results even when fingerprints differ.")
+@click.option("--retry-failed", is_flag=True, help="Retry matching failed task records.")
+@click.option("--output-dir", type=click.Path(path_type=Path), required=True)
+@click.option("--results", "results_path", type=click.Path(path_type=Path), required=True)
+def stability_relax_cmd(
+    manifest_path: Path,
+    include_endmembers: bool,
+    dataset_path: Path | None,
+    backend: str,
+    model_path: Path,
+    model_name: str | None,
+    device: str,
+    dtype: str,
+    fmax: float,
+    max_steps: int,
+    relax_cell: bool,
+    limit: int | None,
+    overwrite: bool,
+    retry_failed: bool,
+    output_dir: Path,
+    results_path: Path,
+) -> None:
+    """Relax SQS and optional endpoint structures with a configured MLP."""
+    from ..stability.mlp import MaceRelaxationBackend
+    from ..stability.relax import relax_manifest
+
+    if backend != "mace":  # The Click choice keeps this explicit for future backends.
+        raise click.ClickException(f"unsupported MLP backend: {backend}")
+    calculator = MaceRelaxationBackend(
+        model_path,
+        device=device,
+        dtype=dtype,
+        model_name=model_name,
+    )
+    records = relax_manifest(
+        manifest_path=manifest_path,
+        output_dir=output_dir,
+        results_path=results_path,
+        backend=calculator,
+        include_endmembers=include_endmembers,
+        dataset_path=dataset_path,
+        fmax=fmax,
+        max_steps=max_steps,
+        relax_cell=relax_cell,
+        overwrite=overwrite,
+        retry_failed=retry_failed,
+        limit=limit,
+    )
+    statuses = pd.Series([record["status"] for record in records]).value_counts().to_dict()
+    click.echo(
+        "MLP relaxation summary: "
+        f"success={statuses.get('success', 0)} "
+        f"not_converged={statuses.get('not_converged', 0)} "
+        f"failed={statuses.get('failed', 0)} results={results_path}"
+    )
+
+
+@stability_cmd.command("mixing-enthalpy")
+@click.option(
+    "--pairs",
+    "pairs_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+    help="Final pair CSV used to generate the Stage 6 SQS manifest.",
+)
+@click.option(
+    "--relax-results",
+    "relax_results_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+    help="Stage 7 relaxation-results JSONL containing SQS and endmembers.",
+)
+@click.option("--output", "output_path", type=click.Path(path_type=Path), required=True)
+@click.option("--summary", "summary_path", type=click.Path(path_type=Path), required=True)
+def stability_mixing_enthalpy_cmd(
+    pairs_path: Path,
+    relax_results_path: Path,
+    output_path: Path,
+    summary_path: Path,
+) -> None:
+    """Calculate preliminary per-composition mixing enthalpies."""
+    from ..stability.thermodynamics import calculate_mixing_enthalpies
+
+    _frame, summary = calculate_mixing_enthalpies(
+        pairs_path=pairs_path,
+        relax_results_path=relax_results_path,
+        output_path=output_path,
+        summary_path=summary_path,
+    )
+    click.echo(
+        "Mixing enthalpy summary: "
+        f"success={summary['success_count']} "
+        f"failed={summary['failed_count']} output={output_path} summary={summary_path}"
+    )
+
+
+@stability_cmd.command("phonon-export")
+@click.option(
+    "--relax-results",
+    "relax_results_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+    help="Stage 7 relaxation-results JSONL.",
+)
+@click.option(
+    "--structure-id",
+    "structure_ids",
+    multiple=True,
+    help="Process only this structure ID; repeat to select more than one.",
+)
+@click.option("--include-endmembers/--sqs-only", default=False, show_default=True)
+@click.option(
+    "--supercell",
+    callback=_parse_optional_supercell,
+    help="Optional diagonal supercell as 'a,b,c'; otherwise choose from cell lengths.",
+)
+@click.option(
+    "--min-supercell-length",
+    type=click.FloatRange(min=0.0, min_open=True),
+    default=PhononSettings.min_supercell_length,
+    show_default=True,
+    help="Automatic supercells target this lattice-vector length in Angstrom.",
+)
+@click.option(
+    "--max-supercell-atoms",
+    type=click.IntRange(min=1),
+    default=PhononSettings.max_supercell_atoms,
+    show_default=True,
+)
+@click.option(
+    "--displacement",
+    "displacement_distance",
+    type=click.FloatRange(min=0.0, min_open=True),
+    default=PhononSettings.displacement_distance,
+    show_default=True,
+    help="Finite-displacement amplitude in Angstrom.",
+)
+@click.option(
+    "--symprec",
+    "symmetry_tolerance",
+    type=click.FloatRange(min=0.0, min_open=True),
+    default=PhononSettings.symmetry_tolerance,
+    show_default=True,
+)
+@click.option(
+    "--max-input-force",
+    type=click.FloatRange(min=0.0, min_open=True),
+    default=PhononSettings.max_input_force,
+    show_default=True,
+    help="Maximum accepted Stage 7 residual force in eV/Angstrom.",
+)
+@click.option(
+    "--allow-loose-input",
+    is_flag=True,
+    help="Generate tasks even when the Stage 7 residual force exceeds the limit.",
+)
+@click.option("--output-dir", type=click.Path(path_type=Path), required=True)
+@click.option("--manifest", "manifest_path", type=click.Path(path_type=Path), required=True)
+def stability_phonon_export_cmd(
+    relax_results_path: Path,
+    structure_ids: tuple[str, ...],
+    include_endmembers: bool,
+    supercell: tuple[int, int, int] | None,
+    min_supercell_length: float,
+    max_supercell_atoms: int,
+    displacement_distance: float,
+    symmetry_tolerance: float,
+    max_input_force: float,
+    allow_loose_input: bool,
+    output_dir: Path,
+    manifest_path: Path,
+) -> None:
+    """Generate Phonopy reference and displaced-supercell tasks."""
+    from ..stability.phonon import export_phonon_tasks
+
+    records = export_phonon_tasks(
+        relax_results_path=relax_results_path,
+        output_dir=output_dir,
+        manifest_path=manifest_path,
+        structure_ids=structure_ids,
+        include_endmembers=include_endmembers,
+        supercell=supercell,
+        displacement_distance=displacement_distance,
+        symmetry_tolerance=symmetry_tolerance,
+        min_supercell_length=min_supercell_length,
+        max_supercell_atoms=max_supercell_atoms,
+        max_input_force=max_input_force,
+        allow_loose_input=allow_loose_input,
+    )
+    written = sum(record.get("status") == "written" for record in records)
+    skipped = sum(record.get("status") == "skipped" for record in records)
+    structures = len({record.get("phonon_id") for record in records})
+    click.echo(
+        f"Phonon export summary: structures={structures} tasks={written} "
+        f"skipped={skipped} manifest={manifest_path}"
+    )
+
+
+@stability_cmd.command("phonon-forces")
+@click.option(
+    "--manifest",
+    "manifest_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option("--backend", type=click.Choice(["mace"]), default="mace", show_default=True)
+@click.option(
+    "--model-path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option("--model-name", help="Optional stable model label stored in provenance.")
+@click.option("--device", default="cpu", show_default=True)
+@click.option(
+    "--dtype",
+    type=click.Choice(["float32", "float64"]),
+    default="float64",
+    show_default=True,
+)
+@click.option("--limit", type=click.IntRange(min=1), help="Evaluate at most this many tasks.")
+@click.option("--overwrite", is_flag=True)
+@click.option("--retry-failed", is_flag=True)
+@click.option("--output-dir", type=click.Path(path_type=Path), required=True)
+@click.option("--results", "results_path", type=click.Path(path_type=Path), required=True)
+def stability_phonon_forces_cmd(
+    manifest_path: Path,
+    backend: str,
+    model_path: Path,
+    model_name: str | None,
+    device: str,
+    dtype: str,
+    limit: int | None,
+    overwrite: bool,
+    retry_failed: bool,
+    output_dir: Path,
+    results_path: Path,
+) -> None:
+    """Evaluate Phonopy task energies, forces, and stresses with MACE."""
+    from ..stability.mlp import MaceRelaxationBackend
+    from ..stability.phonon import evaluate_phonon_forces
+
+    if backend != "mace":
+        raise click.ClickException(f"unsupported phonon force backend: {backend}")
+    calculator = MaceRelaxationBackend(
+        model_path,
+        device=device,
+        dtype=dtype,
+        model_name=model_name,
+    )
+    records = evaluate_phonon_forces(
+        manifest_path=manifest_path,
+        output_dir=output_dir,
+        results_path=results_path,
+        backend=calculator,
+        overwrite=overwrite,
+        retry_failed=retry_failed,
+        limit=limit,
+    )
+    statuses = pd.Series([record["status"] for record in records]).value_counts().to_dict()
+    click.echo(
+        "Phonon MACE force summary: "
+        f"success={statuses.get('success', 0)} failed={statuses.get('failed', 0)} "
+        f"results={results_path}"
+    )
+
+
+@stability_cmd.command("phonon-collect")
+@click.option(
+    "--manifest",
+    "manifest_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--force-results",
+    "force_results_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--mesh",
+    callback=lambda _ctx, _param, value: _parse_supercell(value),
+    default=",".join(map(str, PhononSettings.mesh)),
+    show_default=True,
+    help="Gamma-centered q mesh as 'a,b,c'.",
+)
+@click.option(
+    "--band-points",
+    type=click.IntRange(min=2),
+    default=PhononSettings.band_points,
+    show_default=True,
+)
+@click.option(
+    "--imaginary-tolerance",
+    type=click.FloatRange(min=0.0),
+    default=PhononSettings.imaginary_tolerance_thz,
+    show_default=True,
+    help="Magnitude threshold for significant imaginary frequencies in THz.",
+)
+@click.option("--subtract-reference-forces/--raw-forces", default=True, show_default=True)
+@click.option("--symmetrize-fc/--raw-force-constants", default=True, show_default=True)
+@click.option("--output-dir", type=click.Path(path_type=Path), required=True)
+@click.option("--summary", "summary_path", type=click.Path(path_type=Path), required=True)
+@click.option("--report", "report_path", type=click.Path(path_type=Path), required=True)
+def stability_phonon_collect_cmd(
+    manifest_path: Path,
+    force_results_path: Path,
+    mesh: tuple[int, int, int],
+    band_points: int,
+    imaginary_tolerance: float,
+    subtract_reference_forces: bool,
+    symmetrize_fc: bool,
+    output_dir: Path,
+    summary_path: Path,
+    report_path: Path,
+) -> None:
+    """Build force constants, phonon bands, DOS, and stability summaries."""
+    from ..stability.phonon import collect_phonon_results
+
+    frame, report = collect_phonon_results(
+        manifest_path=manifest_path,
+        force_results_path=force_results_path,
+        output_dir=output_dir,
+        summary_path=summary_path,
+        report_path=report_path,
+        mesh=mesh,
+        band_points=band_points,
+        imaginary_tolerance=imaginary_tolerance,
+        subtract_reference_forces=subtract_reference_forces,
+        symmetrize_force_constants=symmetrize_fc,
+    )
+    counts = report["dynamical_status_counts"]
+    click.echo(
+        "Phonon collection summary: "
+        f"structures={len(frame)} stable={counts.get('stable', 0)} "
+        f"unstable={counts.get('unstable', 0)} uncertain={counts.get('uncertain', 0)} "
+        f"failed={counts.get('failed', 0)} summary={summary_path}"
+    )
+
+
+@stability_cmd.command("phonon-run")
+@click.option(
+    "--relax-results",
+    "relax_results_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option("--structure-id", "structure_ids", multiple=True)
+@click.option("--include-endmembers/--sqs-only", default=False, show_default=True)
+@click.option("--supercell", callback=_parse_optional_supercell)
+@click.option(
+    "--min-supercell-length",
+    type=click.FloatRange(min=0.0, min_open=True),
+    default=PhononSettings.min_supercell_length,
+    show_default=True,
+)
+@click.option(
+    "--max-supercell-atoms",
+    type=click.IntRange(min=1),
+    default=PhononSettings.max_supercell_atoms,
+    show_default=True,
+)
+@click.option(
+    "--displacement",
+    type=click.FloatRange(min=0.0, min_open=True),
+    default=PhononSettings.displacement_distance,
+    show_default=True,
+)
+@click.option(
+    "--symprec",
+    type=click.FloatRange(min=0.0, min_open=True),
+    default=PhononSettings.symmetry_tolerance,
+    show_default=True,
+)
+@click.option(
+    "--max-input-force",
+    type=click.FloatRange(min=0.0, min_open=True),
+    default=PhononSettings.max_input_force,
+    show_default=True,
+)
+@click.option("--allow-loose-input", is_flag=True)
+@click.option(
+    "--mesh",
+    callback=lambda _ctx, _param, value: _parse_supercell(value),
+    default=",".join(map(str, PhononSettings.mesh)),
+    show_default=True,
+)
+@click.option(
+    "--band-points",
+    type=click.IntRange(min=2),
+    default=PhononSettings.band_points,
+    show_default=True,
+)
+@click.option(
+    "--imaginary-tolerance",
+    type=click.FloatRange(min=0.0),
+    default=PhononSettings.imaginary_tolerance_thz,
+    show_default=True,
+)
+@click.option(
+    "--model-path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option("--model-name")
+@click.option("--device", default="cpu", show_default=True)
+@click.option(
+    "--dtype",
+    type=click.Choice(["float32", "float64"]),
+    default="float64",
+    show_default=True,
+)
+@click.option("--overwrite", is_flag=True)
+@click.option("--retry-failed", is_flag=True)
+@click.option("--output-dir", type=click.Path(path_type=Path), required=True)
+def stability_phonon_run_cmd(
+    relax_results_path: Path,
+    structure_ids: tuple[str, ...],
+    include_endmembers: bool,
+    supercell: tuple[int, int, int] | None,
+    min_supercell_length: float,
+    max_supercell_atoms: int,
+    displacement: float,
+    symprec: float,
+    max_input_force: float,
+    allow_loose_input: bool,
+    mesh: tuple[int, int, int],
+    band_points: int,
+    imaginary_tolerance: float,
+    model_path: Path,
+    model_name: str | None,
+    device: str,
+    dtype: str,
+    overwrite: bool,
+    retry_failed: bool,
+    output_dir: Path,
+) -> None:
+    """Run harmonic finite-displacement phonons end to end with MACE forces."""
+    from ..stability.mlp import MaceRelaxationBackend
+    from ..stability.phonon import run_phonon_pipeline
+
+    calculator = MaceRelaxationBackend(
+        model_path,
+        device=device,
+        dtype=dtype,
+        model_name=model_name,
+    )
+    settings = PhononSettings(
+        displacement_distance=displacement,
+        symmetry_tolerance=symprec,
+        min_supercell_length=min_supercell_length,
+        max_supercell_atoms=max_supercell_atoms,
+        mesh=mesh,
+        band_points=band_points,
+        imaginary_tolerance_thz=imaginary_tolerance,
+        max_input_force=max_input_force,
+    )
+    frame, report = run_phonon_pipeline(
+        relax_results_path=relax_results_path,
+        output_dir=output_dir,
+        backend=calculator,
+        settings=settings,
+        structure_ids=structure_ids,
+        include_endmembers=include_endmembers,
+        supercell=supercell,
+        allow_loose_input=allow_loose_input,
+        overwrite=overwrite,
+        retry_failed=retry_failed,
+    )
+    counts = report["dynamical_status_counts"]
+    click.echo(
+        "MACE phonon summary: "
+        f"structures={len(frame)} stable={counts.get('stable', 0)} "
+        f"unstable={counts.get('unstable', 0)} uncertain={counts.get('uncertain', 0)} "
+        f"failed={counts.get('failed', 0)} output={output_dir}"
+    )
+
+
+@stability_cmd.command("competing-export")
+@click.option(
+    "--relax-results",
+    "relax_results_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+    help="Stage 7 relaxation-results JSONL containing SQS candidates.",
+)
+@click.option("--structure-id", "structure_ids", multiple=True)
+@click.option(
+    "--mp-backend",
+    type=click.Choice(["api", "offline"]),
+    default="api",
+    show_default=True,
+    help="Materials Project source used only to discover competing structures.",
+)
+@click.option(
+    "--offline-db",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="Explicit mp_offline SQLite snapshot; required for the offline backend.",
+)
+@click.option(
+    "--mp-max-e-hull",
+    type=click.FloatRange(min=0.0),
+    default=CompetingPhaseSettings.max_mp_energy_above_hull,
+    show_default=True,
+    help="Maximum MP hull distance used to select competing structures (eV/atom).",
+)
+@click.option(
+    "--thermo-type",
+    type=click.Choice(["GGA_GGA+U", "GGA_GGA+U_R2SCAN", "R2SCAN"]),
+    default=CompetingPhaseSettings.thermo_type,
+    show_default=True,
+    help="MP thermo filter for the API backend; not available in offline summaries.",
+)
+@click.option(
+    "--max-phase-atoms",
+    type=click.IntRange(min=1),
+    default=CompetingPhaseSettings.max_competing_phase_atoms,
+    show_default=True,
+    help="Maximum atom count after primitive-cell reduction.",
+)
+@click.option(
+    "--api-timeout",
+    type=click.FloatRange(min=0.0, min_open=True),
+    default=CompetingPhaseSettings.api_timeout_seconds,
+    show_default=True,
+    help="Per-request and per-system Materials Project timeout in seconds.",
+)
+@click.option("--output-dir", type=click.Path(path_type=Path), required=True)
+@click.option("--manifest", "manifest_path", type=click.Path(path_type=Path), required=True)
+@click.option("--report", "report_path", type=click.Path(path_type=Path), required=True)
+def stability_competing_export_cmd(
+    relax_results_path: Path,
+    structure_ids: tuple[str, ...],
+    mp_backend: str,
+    offline_db: Path | None,
+    mp_max_e_hull: float,
+    thermo_type: str,
+    max_phase_atoms: int,
+    api_timeout: float,
+    output_dir: Path,
+    manifest_path: Path,
+    report_path: Path,
+) -> None:
+    """Export competing structures from MP API or an offline snapshot."""
+    from ..stability.competing import export_competing_phases
+
+    if mp_backend == "offline" and offline_db is None:
+        raise click.UsageError("--offline-db is required when --mp-backend=offline")
+    api_key = _prompt_mp_api_key() if mp_backend == "api" else None
+    records, report = export_competing_phases(
+        relax_results_path=relax_results_path,
+        output_dir=output_dir,
+        manifest_path=manifest_path,
+        report_path=report_path,
+        api_key=api_key,
+        mp_backend=mp_backend,
+        offline_db=offline_db,
+        structure_ids=structure_ids,
+        settings=CompetingPhaseSettings(
+            thermo_type=thermo_type,
+            max_mp_energy_above_hull=mp_max_e_hull,
+            max_competing_phase_atoms=max_phase_atoms,
+            api_timeout_seconds=api_timeout,
+        ),
+    )
+    counts = report["status_counts"]
+    click.echo(
+        f"MP competing-phase export ({mp_backend}): "
+        f"systems={len(report['chemical_systems'])} fetched={report['fetched_entry_count']} "
+        f"written={counts.get('written', 0)} skipped={counts.get('skipped', 0)} "
+        f"query_failed={report['query_failure_count']} manifest={manifest_path}"
+    )
+
+
+@stability_cmd.command("competing-relax")
+@click.option(
+    "--manifest",
+    "manifest_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--model-path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option("--model-name")
+@click.option("--device", default="cpu", show_default=True)
+@click.option(
+    "--dtype",
+    type=click.Choice(["float32", "float64"]),
+    default="float32",
+    show_default=True,
+)
+@click.option(
+    "--fmax",
+    type=click.FloatRange(min=0.0, min_open=True),
+    default=MLPRelaxationSettings.force_tolerance,
+    show_default=True,
+)
+@click.option(
+    "--max-steps",
+    type=click.IntRange(min=1),
+    default=MLPRelaxationSettings.max_steps,
+    show_default=True,
+)
+@click.option("--relax-cell/--positions-only", default=True, show_default=True)
+@click.option("--limit", type=click.IntRange(min=1))
+@click.option("--overwrite", is_flag=True)
+@click.option("--retry-failed", is_flag=True)
+@click.option("--output-dir", type=click.Path(path_type=Path), required=True)
+@click.option("--results", "results_path", type=click.Path(path_type=Path), required=True)
+def stability_competing_relax_cmd(
+    manifest_path: Path,
+    model_path: Path,
+    model_name: str | None,
+    device: str,
+    dtype: str,
+    fmax: float,
+    max_steps: int,
+    relax_cell: bool,
+    limit: int | None,
+    overwrite: bool,
+    retry_failed: bool,
+    output_dir: Path,
+    results_path: Path,
+) -> None:
+    """Relax MP competing structures with MACE and the Stage 7 contract."""
+    from ..stability.competing import relax_competing_phases
+    from ..stability.mlp import MaceRelaxationBackend
+
+    calculator = MaceRelaxationBackend(
+        model_path,
+        device=device,
+        dtype=dtype,
+        model_name=model_name,
+    )
+    records = relax_competing_phases(
+        manifest_path=manifest_path,
+        output_dir=output_dir,
+        results_path=results_path,
+        backend=calculator,
+        fmax=fmax,
+        max_steps=max_steps,
+        relax_cell=relax_cell,
+        overwrite=overwrite,
+        retry_failed=retry_failed,
+        limit=limit,
+    )
+    counts = pd.Series([record["status"] for record in records]).value_counts().to_dict()
+    click.echo(
+        "Competing-phase MACE relaxation: "
+        f"success={counts.get('success', 0)} "
+        f"not_converged={counts.get('not_converged', 0)} "
+        f"failed={counts.get('failed', 0)} results={results_path}"
+    )
+
+
+@stability_cmd.command("convex-hull")
+@click.option(
+    "--relax-results",
+    "candidate_relax_results_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--competing-manifest",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--competing-results",
+    "competing_relax_results_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option("--structure-id", "structure_ids", multiple=True)
+@click.option(
+    "--screening-cutoff",
+    type=click.FloatRange(min=0.0),
+    default=CompetingPhaseSettings.screening_cutoff_ev_per_atom,
+    show_default=True,
+    help="Maximum e_above_hull retained for screening (eV/atom).",
+)
+@click.option(
+    "--numerical-tolerance",
+    type=click.FloatRange(min=0.0),
+    default=CompetingPhaseSettings.numerical_tolerance_ev_per_atom,
+    show_default=True,
+)
+@click.option(
+    "--allow-incomplete",
+    is_flag=True,
+    help="Calculate an explicitly uncertain hull despite missing competing phases.",
+)
+@click.option("--output", "output_path", type=click.Path(path_type=Path), required=True)
+@click.option(
+    "--entries-output",
+    "entries_output_path",
+    type=click.Path(path_type=Path),
+    required=True,
+)
+@click.option("--summary", "summary_path", type=click.Path(path_type=Path), required=True)
+def stability_convex_hull_cmd(
+    candidate_relax_results_path: Path,
+    competing_manifest: Path,
+    competing_relax_results_path: Path,
+    structure_ids: tuple[str, ...],
+    screening_cutoff: float,
+    numerical_tolerance: float,
+    allow_incomplete: bool,
+    output_path: Path,
+    entries_output_path: Path,
+    summary_path: Path,
+) -> None:
+    """Build strict same-MLIP convex hulls for relaxed SQS candidates."""
+    from ..stability.competing import collect_convex_hulls
+
+    frame, _entries, summary = collect_convex_hulls(
+        candidate_relax_results_path=candidate_relax_results_path,
+        competing_manifest_path=competing_manifest,
+        competing_relax_results_path=competing_relax_results_path,
+        output_path=output_path,
+        entries_output_path=entries_output_path,
+        summary_path=summary_path,
+        structure_ids=structure_ids,
+        screening_cutoff=screening_cutoff,
+        numerical_tolerance=numerical_tolerance,
+        allow_incomplete=allow_incomplete,
+    )
+    click.echo(
+        "MLIP convex-hull summary: "
+        f"candidates={len(frame)} success={summary['success_count']} "
+        f"uncertain={summary['uncertain_count']} failed={summary['failed_count']} "
+        f"output={output_path}"
+    )
+
+
+@stability_cmd.command("phase-diagram")
+@click.option(
+    "--relax-results",
+    "candidate_relax_results_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option("--structure-id", "structure_ids", multiple=True)
+@click.option(
+    "--mp-backend",
+    type=click.Choice(["api", "offline"]),
+    default="api",
+    show_default=True,
+    help="Materials Project source used only to discover competing structures.",
+)
+@click.option(
+    "--offline-db",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="Explicit mp_offline SQLite snapshot; required for the offline backend.",
+)
+@click.option(
+    "--mp-max-e-hull",
+    type=click.FloatRange(min=0.0),
+    default=CompetingPhaseSettings.max_mp_energy_above_hull,
+    show_default=True,
+)
+@click.option(
+    "--thermo-type",
+    type=click.Choice(["GGA_GGA+U", "GGA_GGA+U_R2SCAN", "R2SCAN"]),
+    default=CompetingPhaseSettings.thermo_type,
+    show_default=True,
+    help="MP thermo filter for the API backend; not available in offline summaries.",
+)
+@click.option(
+    "--max-phase-atoms",
+    type=click.IntRange(min=1),
+    default=CompetingPhaseSettings.max_competing_phase_atoms,
+    show_default=True,
+)
+@click.option(
+    "--api-timeout",
+    type=click.FloatRange(min=0.0, min_open=True),
+    default=CompetingPhaseSettings.api_timeout_seconds,
+    show_default=True,
+)
+@click.option(
+    "--model-path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option("--model-name")
+@click.option("--device", default="cpu", show_default=True)
+@click.option(
+    "--dtype",
+    type=click.Choice(["float32", "float64"]),
+    default="float32",
+    show_default=True,
+)
+@click.option(
+    "--fmax",
+    type=click.FloatRange(min=0.0, min_open=True),
+    default=MLPRelaxationSettings.force_tolerance,
+    show_default=True,
+)
+@click.option(
+    "--max-steps",
+    type=click.IntRange(min=1),
+    default=MLPRelaxationSettings.max_steps,
+    show_default=True,
+)
+@click.option("--relax-cell/--positions-only", default=True, show_default=True)
+@click.option(
+    "--screening-cutoff",
+    type=click.FloatRange(min=0.0),
+    default=CompetingPhaseSettings.screening_cutoff_ev_per_atom,
+    show_default=True,
+)
+@click.option(
+    "--numerical-tolerance",
+    type=click.FloatRange(min=0.0),
+    default=CompetingPhaseSettings.numerical_tolerance_ev_per_atom,
+    show_default=True,
+)
+@click.option("--allow-incomplete", is_flag=True)
+@click.option("--overwrite", is_flag=True)
+@click.option("--retry-failed", is_flag=True)
+@click.option("--output-dir", type=click.Path(path_type=Path), required=True)
+def stability_phase_diagram_cmd(
+    candidate_relax_results_path: Path,
+    structure_ids: tuple[str, ...],
+    mp_backend: str,
+    offline_db: Path | None,
+    mp_max_e_hull: float,
+    thermo_type: str,
+    max_phase_atoms: int,
+    api_timeout: float,
+    model_path: Path,
+    model_name: str | None,
+    device: str,
+    dtype: str,
+    fmax: float,
+    max_steps: int,
+    relax_cell: bool,
+    screening_cutoff: float,
+    numerical_tolerance: float,
+    allow_incomplete: bool,
+    overwrite: bool,
+    retry_failed: bool,
+    output_dir: Path,
+) -> None:
+    """Discover, relax, and compare MP phases from API or offline data."""
+    from ..stability.competing import run_phase_diagram_pipeline
+    from ..stability.mlp import MaceRelaxationBackend
+
+    if mp_backend == "offline" and offline_db is None:
+        raise click.UsageError("--offline-db is required when --mp-backend=offline")
+    api_key = _prompt_mp_api_key() if mp_backend == "api" else None
+    calculator = MaceRelaxationBackend(
+        model_path,
+        device=device,
+        dtype=dtype,
+        model_name=model_name,
+    )
+    settings = CompetingPhaseSettings(
+        thermo_type=thermo_type,
+        max_mp_energy_above_hull=mp_max_e_hull,
+        max_competing_phase_atoms=max_phase_atoms,
+        api_timeout_seconds=api_timeout,
+        screening_cutoff_ev_per_atom=screening_cutoff,
+        numerical_tolerance_ev_per_atom=numerical_tolerance,
+    )
+    frame, _entries, summary = run_phase_diagram_pipeline(
+        candidate_relax_results_path=candidate_relax_results_path,
+        output_dir=output_dir,
+        api_key=api_key,
+        mp_backend=mp_backend,
+        offline_db=offline_db,
+        backend=calculator,
+        settings=settings,
+        structure_ids=structure_ids,
+        fmax=fmax,
+        max_steps=max_steps,
+        relax_cell=relax_cell,
+        allow_incomplete=allow_incomplete,
+        overwrite=overwrite,
+        retry_failed=retry_failed,
+    )
+    click.echo(
+        "Stage 10 phase-diagram summary: "
+        f"candidates={len(frame)} success={summary['success_count']} "
+        f"uncertain={summary['uncertain_count']} failed={summary['failed_count']} "
+        f"output={output_dir}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Stage 11 recommendation
+# ---------------------------------------------------------------------------
+@cli.command("recommend")
+@click.option(
+    "--pairs",
+    "pairs_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+    help="Stage 5 final-pairs CSV.",
+)
+@click.option(
+    "--gap-results",
+    "gap_results_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+    help="Normalized external high-fidelity gap results.",
+)
+@click.option(
+    "--mixing-enthalpy",
+    "mixing_enthalpy_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+    help="Stage 8 mixing-enthalpy CSV.",
+)
+@click.option(
+    "--phonons",
+    "phonons_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+    help="Stage 9 phonon-summary CSV.",
+)
+@click.option(
+    "--phase-stability",
+    "phase_stability_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+    help="Stage 10 phase-stability CSV.",
+)
+@click.option(
+    "--defects",
+    "defects_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="Optional defect evidence with pair_index, status, and defect_signal.",
+)
+@click.option(
+    "--gap-method",
+    help="Gap method override for legacy pair tables without a gap_method column.",
+)
+@click.option(
+    "--require-defects",
+    is_flag=True,
+    help="Downgrade missing defect evidence to uncertain.",
+)
+@click.option(
+    "--promising-max-mixing",
+    type=click.FloatRange(min=0.0),
+    default=RecommendationSettings.promising_max_mixing_enthalpy_mev_per_atom,
+    show_default=True,
+    help="Maximum promising mixing enthalpy in meV/atom.",
+)
+@click.option(
+    "--low-priority-mixing",
+    type=click.FloatRange(min=0.0),
+    default=RecommendationSettings.low_priority_mixing_enthalpy_mev_per_atom,
+    show_default=True,
+    help="Mixing enthalpy above which a candidate is low priority (meV/atom).",
+)
+@click.option(
+    "--promising-max-hull",
+    type=click.FloatRange(min=0.0),
+    default=RecommendationSettings.promising_max_hull_ev_per_atom,
+    show_default=True,
+    help="Maximum promising same-MLIP hull distance in eV/atom.",
+)
+@click.option(
+    "--low-priority-hull",
+    type=click.FloatRange(min=0.0),
+    default=RecommendationSettings.low_priority_hull_ev_per_atom,
+    show_default=True,
+    help="Hull distance above which a candidate is low priority (eV/atom).",
+)
+@click.option(
+    "--gap-consistency-tolerance",
+    type=click.FloatRange(min=0.0),
+    default=RecommendationSettings.gap_consistency_tolerance_ev,
+    show_default=True,
+    help="Allowed endpoint-gap difference between pair and gap-result tables (eV).",
+)
+@click.option("--output", "output_path", type=click.Path(path_type=Path), required=True)
+@click.option("--report", "report_path", type=click.Path(path_type=Path), required=True)
+@click.option("--summary", "summary_path", type=click.Path(path_type=Path))
+def recommend_cmd(
+    pairs_path: Path,
+    gap_results_path: Path,
+    mixing_enthalpy_path: Path,
+    phonons_path: Path,
+    phase_stability_path: Path,
+    defects_path: Path | None,
+    gap_method: str | None,
+    require_defects: bool,
+    promising_max_mixing: float,
+    low_priority_mixing: float,
+    promising_max_hull: float,
+    low_priority_hull: float,
+    gap_consistency_tolerance: float,
+    output_path: Path,
+    report_path: Path,
+    summary_path: Path | None,
+) -> None:
+    """Rank candidates for further DFT or experimental study."""
+    from ..stability.recommendation import generate_recommendations
+
+    try:
+        frame, summary = generate_recommendations(
+            pairs_path=pairs_path,
+            gap_results_path=gap_results_path,
+            mixing_enthalpy_path=mixing_enthalpy_path,
+            phonons_path=phonons_path,
+            phase_stability_path=phase_stability_path,
+            defects_path=defects_path,
+            output_path=output_path,
+            report_path=report_path,
+            summary_path=summary_path,
+            gap_method=gap_method,
+            require_defects=require_defects,
+            settings=RecommendationSettings(
+                promising_max_mixing_enthalpy_mev_per_atom=promising_max_mixing,
+                low_priority_mixing_enthalpy_mev_per_atom=low_priority_mixing,
+                promising_max_hull_ev_per_atom=promising_max_hull,
+                low_priority_hull_ev_per_atom=low_priority_hull,
+                gap_consistency_tolerance_ev=gap_consistency_tolerance,
+            ),
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+    counts = summary["classification_counts"]
+    click.echo(
+        "Stage 11 recommendation summary: "
+        f"candidates={len(frame)} promising={counts.get('promising', 0)} "
+        f"uncertain={counts.get('uncertain', 0)} "
+        f"low-priority={counts.get('low-priority', 0)} "
+        f"output={output_path} report={report_path}"
     )
 
 

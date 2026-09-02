@@ -195,7 +195,9 @@ KNOWN_DEFECTS_BY_PATH = {
 
 PORTABILITY_NOTES = {
     "screen-mbj": ["contains site-specific AiiDA nodes, groups, codes, queues, and resources"],
-    "screen-promising": ["contains site-specific AiiDA nodes, groups, codes, queues, and resources"],
+    "screen-promising": [
+        "contains site-specific AiiDA nodes, groups, codes, queues, and resources"
+    ],
     "screen-antiperovskite": [
         "contains site-specific AiiDA settings and historical calculator/model paths"
     ],
@@ -499,9 +501,7 @@ def _write_indexes(repo_root: Path, manifest: dict[str, object]) -> None:
         ]
         for record in sorted(family_records, key=lambda item: str(item["source_path"])):
             if "curated_path" in record:
-                target = Path(str(record["curated_path"])).relative_to(
-                    Path("references") / family
-                )
+                target = Path(str(record["curated_path"])).relative_to(Path("references") / family)
                 family_lines.append(
                     f"- [`{record['source_path']}`]({target.as_posix()}) — {record['status']}"
                 )
@@ -620,7 +620,6 @@ def curate(
             else:
                 shutil.copyfile(candidate.path, output)
         records.append(
-
             _artifact_record(
                 candidate,
                 status="redacted" if transformations else "stored",
@@ -668,7 +667,9 @@ def curate(
             for family in FAMILIES
             if (workspace_root / family.source_name).is_dir()
         ],
-        "counts": {status: counts.get(status, 0) for status in ("alias", "excluded", "redacted", "stored")},
+        "counts": {
+            status: counts.get(status, 0) for status in ("alias", "excluded", "redacted", "stored")
+        },
         "artifacts": sorted(records, key=lambda item: str(item["source_path"])),
     }
     if write:
@@ -681,9 +682,7 @@ def curate(
 
 def _summary(manifest: dict[str, object]) -> dict[str, object]:
     stored = [
-        record
-        for record in manifest["artifacts"]
-        if record["status"] in {"stored", "redacted"}
+        record for record in manifest["artifacts"] if record["status"] in {"stored", "redacted"}
     ]
     return {
         "counts": manifest["counts"],

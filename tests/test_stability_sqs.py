@@ -74,6 +74,12 @@ def test_generate_sqs_inputs_writes_structures_and_manifest(tmp_path):
     assert record["mp_id_b"] == "mp-case"
     assert record["substitution"] == {"from": "S", "to": "Se"}
     assert record["target_fraction_b"] == 0.5
+    assert record["actual_fraction_b"] == 0.5
+    assert loadfn(record["endpoint_a_structure_path"]).composition.reduced_formula == "CaS"
+    assert loadfn(record["endpoint_b_structure_path"]).composition.reduced_formula == "CaSe"
+    assert len(record["endpoint_a_structure_sha256"]) == 64
+    assert len(record["endpoint_b_structure_sha256"]) == 64
+    assert len(record["structure_sha256"]) == 64
     structure = loadfn(record["structure_path"])
     assert structure.composition["Ca"] == 2
     assert structure.composition["S"] == 1
@@ -172,3 +178,57 @@ def test_generate_sqs_inputs_can_use_icet_backend(tmp_path):
     assert structure.composition["Ca"] == 2
     assert structure.composition["S"] == 1
     assert structure.composition["Se"] == 1
+
+
+def test_icet_fraction_excludes_target_element_on_inactive_sites(tmp_path):
+    pytest.importorskip("icet")
+    pairs_path = tmp_path / "pairs.csv"
+    dataset_path = tmp_path / "dataset.df"
+    pd.DataFrame(
+        [
+            {
+                "comp_a": "NaClF",
+                "comp_b": "NaCl2",
+                "mp_id_a": "mp-a",
+                "mp_id_b": "mp-b",
+            }
+        ]
+    ).to_csv(pairs_path, index=False)
+    lattice = Lattice.cubic(5.0)
+    pd.DataFrame(
+        [
+            {
+                "material_id": "mp-a",
+                "structure": Structure(
+                    lattice,
+                    ["Na", "Cl", "F"],
+                    [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5]],
+                ),
+            },
+            {
+                "material_id": "mp-b",
+                "structure": Structure(
+                    lattice,
+                    ["Na", "Cl", "Cl"],
+                    [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5]],
+                ),
+            },
+        ]
+    ).set_index("material_id").to_pickle(dataset_path)
+
+    records = generate_sqs_inputs(
+        pairs_path=pairs_path,
+        dataset_path=dataset_path,
+        output_dir=tmp_path / "sqs",
+        manifest_path=tmp_path / "manifest.jsonl",
+        target_fractions=[0.5],
+        supercell=(2, 1, 1),
+        backend="icet",
+        cutoffs=[4.0],
+        sqs_steps=10,
+    )
+
+    assert records[0]["status"] == "written"
+    assert records[0]["replaced_sites"] == 1
+    assert records[0]["available_substitution_sites"] == 2
+    assert records[0]["actual_fraction_b"] == 0.5

@@ -146,6 +146,31 @@ def test_condense_dataframe_uses_dataframe_index_as_material_id(tmp_path):
     assert (tmp_path / "condensed" / "mp-1.json").exists()
 
 
+def test_condense_dataframe_reuses_one_structure_condenser(tmp_path, monkeypatch):
+    df = pd.DataFrame(
+        [{"structure": _structure()}, {"structure": _structure()}],
+        index=pd.Index(["mp-1", "mp-2"], name="material_id"),
+    )
+    df_path = tmp_path / "dataset.df"
+    df.to_pickle(df_path)
+    factory_calls = []
+
+    class FakeCondenser:
+        def condense_structure(self, structure):
+            return _condensed(structure.composition.reduced_formula)
+
+    def fake_factory():
+        factory_calls.append(True)
+        return FakeCondenser()
+
+    monkeypatch.setattr("ssscreen.data.condense._make_condenser", fake_factory)
+
+    summary = condense_dataframe(df_path, tmp_path / "condensed")
+
+    assert summary.written == 2
+    assert factory_calls == [True]
+
+
 def test_build_archive_index_and_validate_archive(tmp_path):
     output_dir = tmp_path / "condensed"
     output_dir.mkdir()

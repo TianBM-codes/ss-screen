@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ss-screen"
-version = "0.1.0"
+version = "1.0"
 description = "Screen materials pairs that form solid-solutions (alloys) with tunable band gaps."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -40,22 +40,27 @@ condense = [
 ]
 # Official Materials Project live API backend. The default MP loader uses the
 # separately installed/local `mp_offline` package for network-isolated runs.
-mp = ["mp-api>=0.41"]
+mp = ["mp-api>=0.46.4,<0.47"]
 # WBM extxyz loading.
 wbm = ["ase>=3.22"]
 # Optimized SQS generation backend for Stage 6.
 sqs = ["ase>=3.22", "icet>=3.2"]
-# AiiDA-driven DFT verification + defect ranking (M3/M4).
-dft = [
-    "aiida",
-    "aiida-vasp",
-    "aiida-grouppathx",
-    "mace-torch",
-    "icet",
-    "sumo",
-    "doped",
+# Stage 7 MLP relaxation. These pins reproduce the validated MACE-MPA-0 runtime;
+# install the desired CUDA build of torch before installing this extra.
+mlp = [
+    "numpy>=1.26,<2",
+    "ase>=3.23,<3.27",
+    "torch==2.5.1",
+    "matscipy==1.1.1",
+    "mace-torch==0.3.14",
 ]
-
+# Stage 9 harmonic phonons. Install together with `mlp` for direct MACE forces.
+phonon = [
+    "phonopy>=4.3,<5",
+    "seekpath>=2.1",
+    "h5py>=3.10",
+    "matplotlib>=3.8",
+]
 [dependency-groups]
 dev = [
     "pytest>=7",

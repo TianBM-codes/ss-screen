@@ -1,0 +1,4 @@
+material_id,formula,lattice_a,band_gap,e_hull,source
+mp-cas,CaS,5.60,0.05,0.0,e2e-fixture
+mp-case,CaSe,5.80,0.35,0.0,e2e-fixture
+mp-cate,CaTe,6.20,0.75,0.0,e2e-fixture

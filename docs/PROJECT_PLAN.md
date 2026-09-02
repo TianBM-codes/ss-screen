@@ -41,11 +41,11 @@ algorithm.
 | `mp-condense/condense.py`, `condense_one.py` | Robocrys condense worker | HIGH — already CLI-shaped, resumable |
 | `mp-condense/combined_condensed.py` | Bundle JSONs | LOW — trivial helper |
 | `wbm-dataset/convert_to_extxyz.py` | WBM data prep | MEDIUM — entry-to-summary matcher |
-| `screen-mbj/*.ipynb` | AiiDA mBJ/HSE/PBE launch | MEDIUM (DFT extra) — launcher logic |
+| `screen-mbj/*.ipynb` | AiiDA mBJ/HSE/PBE launch | REFERENCE — external task/result mapping only |
 | `rocksalt/`, `zincblend/`, `Chalcopyrite /` | Prototype studies | LOW — keep as reference notebooks |
-| `screen-antiperovskite/*.ipynb` | Combinatorial + hull | MEDIUM (DFT extra) |
-| `screen-promising/*.ipynb` | HSE06 verification | MEDIUM (DFT extra) |
-| `simple-defects/*.ipynb` | Vacancy ranking | MEDIUM (DFT extra) |
+| `screen-antiperovskite/*.ipynb` | Combinatorial + hull | MEDIUM — scientific reference |
+| `screen-promising/*.ipynb` | HSE06 verification | REFERENCE — external result provenance |
+| `simple-defects/*.ipynb` | Vacancy ranking | MEDIUM — future defect design reference |
 | `old-screen-202411/` | Baseline snapshot | LOW — historical reference only |
 
 ### Known defects to fix on migration
@@ -79,13 +79,16 @@ ss-screen/
 │   │   ├── grouping.py         # composition-template grouping (binary/ternary)
 │   │   ├── filters.py          # valence filter, element exclusion, size/stability gates
 │   │   └── pairing.py          # gaps_valid predicate + pair enumeration
-│   ├── workflow/               # AiiDA / DFT factories  [extra: dft]
+│   ├── stability/              # SQS + optional MLP stability triage
 │   │   ├── __init__.py
-│   │   ├── aiida.py            # init_aiida, GroupPathX helpers
-│   │   ├── relax.py            # MACE relax + store
-│   │   ├── bands.py            # make_bandstructure_updater(functional=hse06/mbj/pbe, soc, relax)
-│   │   └── stability.py        # MP phase-diagram e_above_hull screening
-│   ├── defects/                # vacancy ranking  [extra: dft]
+│   │   ├── sqs.py              # random/icet SQS and endpoint artifacts
+│   │   ├── mlp.py              # backend protocol + MACE implementation [extra: mlp]
+│   │   ├── relax.py            # resumable relaxation records and quality control
+│   │   ├── thermodynamics.py   # compatible-energy mixing enthalpies and audit summary
+│   │   ├── phonon.py           # Phonopy displacements, MACE forces, bands/DOS and QC
+│   │   ├── competing.py        # MP competing structures + same-MLIP convex hulls
+│   │   └── recommendation.py   # auditable Stage 11 evidence aggregation and ranking
+│   ├── defects/                # future vacancy ranking; execution design TBD
 │   │   ├── __init__.py
 │   │   ├── elemental.py        # elemental reference builder
 │   │   ├── vacancy.py          # SimpleVacancyWorkChain driver
@@ -95,8 +98,7 @@ ss-screen/
 │   │   ├── app.py              # main `ss-screen` group
 │   │   ├── condense_cmd.py     # ss-screen condense
 │   │   ├── pair_cmd.py         # ss-screen pair-screen
-│   │   ├── bands_cmd.py        # ss-screen launch-bands  [dft]
-│   │   └── defects_cmd.py      # ss-screen rank-defects [dft]
+│   │   └── defects_cmd.py      # future ss-screen rank-defects
 │   └── _schema.py              # dataclass schemas for result CSVs
 ├── tests/
 │   ├── test_envmatch.py
@@ -107,7 +109,7 @@ ss-screen/
 ├── docs/
 │   ├── PROJECT_PLAN.md         # this file
 │   ├── review_pair_screening.md   # technical review #1
-│   ├── review_dft_workflow.md     # technical review #2
+│   ├── review_gap_contract.md     # technical review #2
 │   └── review_defects.md          # technical review #3
 └── examples/
     └── (ported notebooks / scripts)
@@ -121,18 +123,26 @@ pre-built data artifacts and pre-condensed structure JSONs without requiring
 heavy workflow dependencies.
 
 **Extras**:
-- `mp`: official Materials Project live API backend (`mp-api`). The offline MP
-  backend uses a separately installed/local `mp_offline` package and database.
+- `mp`: official Materials Project live API backend (`mp-api` 0.46.x). The offline MP
+  backend uses a separately installed/local `mp_offline` package and explicit
+  SQLite snapshot; Stage 10 records the snapshot SHA-256 and scope warning.
 - `wbm`: WBM extxyz loading (`ase`).
 - `condense`: robocrys condensation (`robocrys`, compatible `matminer` /
   `setuptools` pins).
 - `sqs`: optimized SQS generation (`ase`, `icet`).
-- `dft`: AiiDA-driven verification + defects (`aiida`, `aiida-vasp`,
-  `aiida-grouppathx`, `mace-torch`, `sumo`, `doped`). Add ABACUS and other
-  calculator integrations here when their workflow modules land.
+- `mlp`: MACE relaxation (`mace-torch`, a validated Torch build, `ase`) with
+  NumPy/ASE/matscipy compatibility pins matching the local MACE-MPA-0 runtime.
+- `phonon`: Phonopy 4.x finite displacements, SeeK-path high-symmetry paths,
+  HDF5 force constants, and matplotlib band/DOS figures. Install with `mlp` for
+  direct MACE energy/force evaluation.
+
+High-fidelity band-gap execution is intentionally not a package extra. Users
+calculate with VASP, ABACUS, AiiDA, or another platform and return the versioned
+task/result contract. Any future defect execution extra will be designed and
+validated independently rather than reintroducing a band-calculation runtime.
 
 Install: `pip install ss-screen` (core) or install targeted extras such as
-`pip install "ss-screen[mp,condense,sqs]"`.
+`pip install "ss-screen[mp,condense,sqs,mlp]"`.
 
 ## 5. Migration milestones (long-running roadmap)
 
@@ -169,29 +179,57 @@ The work is sequenced so each milestone is independently useful and testable.
 
 ### Milestone 2 — Data layer
 - Port `datacollect.py` → `data/mp.py`, `data/wbm.py`.
+- The MP loader uses explicit API/offline backends, excludes deprecated records,
+  projects only Stage 1 fields from `mp_offline`, and writes a JSON provenance
+  sidecar containing query bounds, database SHA-256/build metadata, and package
+  versions. **Implemented.**
 - Port `mp-condense/condense.py` + `condense_one.py` → `data/condense.py`;
   CLI: `ss-screen condense` (single file) and a batch mode.
 - Port the entry-to-summary matcher from `convert_to_extxyz.py` into a tested
   `match_entries_to_summary(entries, df, tol)` helper in `data/io.py`.
 - Externalize MP API key to `MP_API_KEY` env var.
 
-### Milestone 3 — DFT workflow factories `[dft]` extra
-- Single `make_bandstructure_updater(node, functional, soc, relax, ...)`
-  replacing the 6+ duplicated `launch_*` functions.
-- `init_aiida(family)` + GroupPathX helper, `relax_and_store(atoms, label)`.
-- Stability screening (`e_above_hull` via pymatgen PhaseDiagram).
-- CLI: `ss-screen launch-bands`.
+### Milestone 3 — External high-fidelity band-gap contract
+- Keep VASP, ABACUS, AiiDA, and other expensive execution outside the package.
+- Export deterministic task IDs, structure hashes, JSON/CIF/POSCAR structures,
+  a result template, and a method-metadata template.
+- Collect batch VASP results from deterministic `task_id/vasprun.xml[.gz]`
+  directories, preserving success, not-converged, failed, and missing states.
+- Validate returned task/material/method/structure/settings identity, numerical
+  values, status, duplicates, and coverage before pair generation.
+- Preserve legacy seven-column result ingestion when strict task tables are not
+  available. **Implemented.**
 
-### Milestone 4 — Defect ranking `[dft]` extra
+MLP phase stability remains independently implemented as Stage 10 under
+`stability/competing.py`; its same-energy-reference rules are not changed by
+the external band-gap decision. Competing structures can be discovered from
+either the live MP API or an explicit `mp_offline` summary snapshot; the latter
+does not claim online thermo-type filtering. **Implemented.**
+
+Stage 11 is independently implemented as the top-level `ss-screen recommend`
+command under `stability/recommendation.py`. It joins the final pair table,
+normalized high-fidelity gap results, mixing enthalpy, phonon summary, and
+competing-phase hull results per `pair_index + structure_id`. It preserves
+missing and incompatible evidence, checks the shared MLP model hash, assigns
+L2--L6 evidence levels, and classifies candidates as `promising`, `uncertain`,
+or `low-priority` without an opaque aggregate score. Optional defect evidence
+can raise the level to L6; missing defects are only required when explicitly
+configured. **Implemented.**
+
+### Milestone 4 — Defect ranking (future execution design)
 - Elemental-reference builder; `SimpleVacancyWorkChain` driver;
   cation/anion-aware ranking; CSV schema.
 - CLI: `ss-screen rank-defects`.
 
 ### Milestone 5 — Documentation & technical reviews
-- Three technical review docs (pair-screening / DFT workflow / defects) — see
+- Three technical review docs (pair-screening / external gap contract / defects) — see
   `docs/review_*.md` — covering algorithm derivation, parameter choices,
   references to source notebooks, and limitations.
 - User-guide docs; example notebook ports.
+- A CPU-only Stage 1--11 artifact-chain fixture under `tests/data/e2e/` runs the
+  real lightweight CLI stages and deterministic substitutes for external or
+  expensive engines. It verifies reproducible cross-stage schemas without
+  network, credentials, GPU, MLP/phonon execution, DFT, or AiiDA. **Implemented.**
 
 ## 6. Conventions
 - Python ≥3.10, `src/` layout.
@@ -204,3 +242,43 @@ The work is sequenced so each milestone is independently useful and testable.
   `references/` with provenance and secret/license checks; large datasets and
   calculation artifacts remain external. The package code is the canonical,
   tested implementation.
+
+## 7. Web platform extension
+
+The approved Web direction is a multi-user research operations platform built
+around the existing scientific core. Its development baseline is
+[`docs/web_platform_development_guide.md`](web_platform_development_guide.md).
+
+The fixed dependency direction is `ssscreen_web -> ssscreen`: the Web API,
+database, queue, authentication, and UI may call the tested Python package, but
+`src/ssscreen/` must remain independent of FastAPI, PostgreSQL, Redis/Celery,
+and frontend dependencies. PostgreSQL stores control-plane metadata; immutable
+scientific artifacts remain in a configurable repository-external NFS or object
+store with checksums and provenance.
+
+Development is staged as follows:
+
+1. Freeze and version the current scientific baseline and restore green CI.
+2. Add the Project/Run/Task/Attempt/Artifact/Event control layer.
+3. Deliver a Stage 1--5 Web MVP, including external gap task download, result
+   upload, validation, retries, and candidate inspection.
+4. Add Stage 6--11 CPU/GPU workers without weakening model/energy provenance.
+5. Add production OIDC, operations, and optional Slurm/AiiDA adapters.
+
+The Phase 1 control-plane vertical slice is implemented under `web/`: an independent
+FastAPI/SQLAlchemy/Alembic/Celery backend, PostgreSQL schema, external filesystem
+ArtifactStore, SSE, generated OpenAPI client, React workbench, Compose baseline, and
+deterministic demo task. Phase 2 now has its first scientific vertical slice: the
+`stage-1-mp-offline-v1` Dataset StageRunner calls the core MP offline loader on a
+server-configured read-only snapshot. `stage-1-wbm-upload-v1` streams user files into an
+external quarantine, rechecks integrity, applies the strict core WBM schema, and publishes
+raw inputs, normalized data and sanitized provenance. Both register auditable Datasets
+through the CPU queue. Stage 1a freezes a selected Dataset Artifact identity and calls the
+core composition screen to publish candidate CSV/provenance without creating a second Dataset;
+the Run workbench exposes frozen parameters and a bounded, authorized preview while preserving
+the immutable CSV as the authoritative output. Stage 2 now freezes both the normalized Dataset and
+composition Artifact identities, runs core Robocrys condensation in checkpointed batches, records
+per-material failures, resumes failed Attempts from complete JSON checkpoints, and publishes an
+archive/index/failure/manifest/provenance contract with live progress in the Run workbench.
+The demo JSON is not a scientific result. Online-MP inputs, Stage 3--11 Web StageRunners, production
+OIDC, GPU/HPC adapters, and production operations remain future work.

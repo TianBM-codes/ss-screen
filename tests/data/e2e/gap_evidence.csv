@@ -1,0 +1,4 @@
+material_id,band_gap,is_direct,transition
+mp-cas,0.05,False,X-X
+mp-case,0.35,True,G-G
+mp-cate,0.75,True,G-G

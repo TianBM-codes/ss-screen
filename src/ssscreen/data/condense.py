@@ -280,6 +280,8 @@ def condense_dataframe(
     continue_on_error: bool = True,
 ) -> CondenseSummary:
     """Condense structures from a normalized dataset DataFrame archive."""
+    if condenser is None and condense_func is condense_structure:
+        condenser = _make_condenser()
     return condense_materials(
         dataframe_materials(
             df_path,

@@ -54,10 +54,7 @@ def test_discovery_classifies_primary_checkpoint_and_excluded_paths(tmp_path):
     workspace = tmp_path / "HC"
     _write(workspace / "pair-screening" / "screening.ipynb", _notebook("x = 1\n"))
     _write(
-        workspace
-        / "pair-screening"
-        / ".ipynb_checkpoints"
-        / "screening-checkpoint.ipynb",
+        workspace / "pair-screening" / ".ipynb_checkpoints" / "screening-checkpoint.ipynb",
         _notebook("x = 2\n"),
     )
     _write(workspace / "wbm-dataset" / "summary.txt", "dataset row\n")
@@ -68,9 +65,7 @@ def test_discovery_classifies_primary_checkpoint_and_excluded_paths(tmp_path):
 
     by_path = {item.source_path: item for item in candidates}
     assert by_path["pair-screening/screening.ipynb"].kind == "notebook"
-    checkpoint = by_path[
-        "pair-screening/.ipynb_checkpoints/screening-checkpoint.ipynb"
-    ]
+    checkpoint = by_path["pair-screening/.ipynb_checkpoints/screening-checkpoint.ipynb"]
     assert checkpoint.is_revision is True
     assert "revisions" in module.destination_for(checkpoint).parts
     assert "wbm-dataset/README.txt" in by_path
@@ -120,32 +115,22 @@ def test_curate_aliases_exact_bytes_but_keeps_distinct_revision(tmp_path):
     primary = _notebook("x = 1\n")
     _write(workspace / "pair-screening" / "screening.ipynb", primary)
     _write(
-        workspace
-        / "pair-screening"
-        / ".ipynb_checkpoints"
-        / "screening-checkpoint.ipynb",
+        workspace / "pair-screening" / ".ipynb_checkpoints" / "screening-checkpoint.ipynb",
         primary,
     )
     _write(workspace / "pair-screening" / "analysis.ipynb", _notebook("x = 2\n"))
     _write(
-        workspace
-        / "pair-screening"
-        / ".ipynb_checkpoints"
-        / "analysis-checkpoint.ipynb",
+        workspace / "pair-screening" / ".ipynb_checkpoints" / "analysis-checkpoint.ipynb",
         _notebook("x = 3\n"),
     )
 
     manifest = module.curate(workspace, repo, "2026-07-21", write=True)
 
     records = {row["source_path"]: row for row in manifest["artifacts"]}
-    duplicate = records[
-        "pair-screening/.ipynb_checkpoints/screening-checkpoint.ipynb"
-    ]
+    duplicate = records["pair-screening/.ipynb_checkpoints/screening-checkpoint.ipynb"]
     assert duplicate["status"] == "alias"
     assert duplicate["alias_of"] == "pair-screening/screening.ipynb"
-    revision = records[
-        "pair-screening/.ipynb_checkpoints/analysis-checkpoint.ipynb"
-    ]
+    revision = records["pair-screening/.ipynb_checkpoints/analysis-checkpoint.ipynb"]
     assert revision["status"] == "stored"
     assert "/revisions/" in revision["curated_path"]
     assert (repo / revision["curated_path"]).is_file()

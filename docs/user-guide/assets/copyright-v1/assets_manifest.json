@@ -1,0 +1,221 @@
+{
+  "schema_version": 1,
+  "images": [
+    {
+      "file": "cli_01_version_and_main.png",
+      "width": 1800,
+      "height": 1476,
+      "bytes": 156884
+    },
+    {
+      "file": "cli_02_dataset_menu.png",
+      "width": 1800,
+      "height": 760,
+      "bytes": 62548
+    },
+    {
+      "file": "cli_03_stability_menu.png",
+      "width": 1800,
+      "height": 932,
+      "bytes": 117634
+    },
+    {
+      "file": "cli_04_composition_screen.png",
+      "width": 1800,
+      "height": 760,
+      "bytes": 87969
+    },
+    {
+      "file": "cli_05_structure_match.png",
+      "width": 1800,
+      "height": 760,
+      "bytes": 92119
+    },
+    {
+      "file": "cli_06_gap_export.png",
+      "width": 1800,
+      "height": 1102,
+      "bytes": 243530
+    },
+    {
+      "file": "cli_07_gap_validate.png",
+      "width": 1800,
+      "height": 898,
+      "bytes": 131953
+    },
+    {
+      "file": "cli_08_pair.png",
+      "width": 1800,
+      "height": 760,
+      "bytes": 95116
+    },
+    {
+      "file": "cli_09_sqs.png",
+      "width": 1800,
+      "height": 1238,
+      "bytes": 269092
+    },
+    {
+      "file": "cli_10_recommend.png",
+      "width": 1800,
+      "height": 1034,
+      "bytes": 155035
+    },
+    {
+      "file": "cli_11_environment_check.png",
+      "width": 1800,
+      "height": 830,
+      "bytes": 66789
+    },
+    {
+      "file": "cli_12_dataset_mp_artifact.png",
+      "width": 1800,
+      "height": 1544,
+      "bytes": 148578
+    },
+    {
+      "file": "cli_13_condense_archive.png",
+      "width": 1800,
+      "height": 796,
+      "bytes": 152535
+    },
+    {
+      "file": "cli_14_relax_existing_result.png",
+      "width": 1800,
+      "height": 1612,
+      "bytes": 224713
+    },
+    {
+      "file": "cli_15_mixing_enthalpy.png",
+      "width": 1800,
+      "height": 966,
+      "bytes": 154134
+    },
+    {
+      "file": "cli_16_phonon_existing_result.png",
+      "width": 1800,
+      "height": 1612,
+      "bytes": 180112
+    },
+    {
+      "file": "cli_17_phase_existing_result.png",
+      "width": 1800,
+      "height": 1544,
+      "bytes": 195862
+    },
+    {
+      "file": "cli_18_full_workflow_acceptance.png",
+      "width": 1800,
+      "height": 966,
+      "bytes": 106311
+    },
+    {
+      "file": "cli_19_gap_export_inputs.png",
+      "width": 1800,
+      "height": 1034,
+      "bytes": 75914
+    },
+    {
+      "file": "cli_20_gap_export_vasp.png",
+      "width": 1800,
+      "height": 760,
+      "bytes": 88806
+    },
+    {
+      "file": "cli_21_gap_export_outputs.png",
+      "width": 1800,
+      "height": 830,
+      "bytes": 96760
+    },
+    {
+      "file": "cli_22_gap_export_templates.png",
+      "width": 1800,
+      "height": 898,
+      "bytes": 105476
+    },
+    {
+      "file": "diagram_01_architecture.png",
+      "width": 1800,
+      "height": 1080,
+      "bytes": 127124
+    },
+    {
+      "file": "diagram_02_overall_workflow.png",
+      "width": 1800,
+      "height": 1080,
+      "bytes": 90403
+    },
+    {
+      "file": "diagram_03_module_dependencies.png",
+      "width": 1800,
+      "height": 1080,
+      "bytes": 94344
+    },
+    {
+      "file": "diagram_04_interface_boundary.png",
+      "width": 1800,
+      "height": 1080,
+      "bytes": 109245
+    },
+    {
+      "file": "diagram_05_runtime_state.png",
+      "width": 1800,
+      "height": 1080,
+      "bytes": 99192
+    },
+    {
+      "file": "flow_01_dataset.png",
+      "width": 1800,
+      "height": 1080,
+      "bytes": 79476
+    },
+    {
+      "file": "flow_02_structure.png",
+      "width": 1800,
+      "height": 1080,
+      "bytes": 74989
+    },
+    {
+      "file": "flow_03_gap.png",
+      "width": 1800,
+      "height": 1080,
+      "bytes": 80700
+    },
+    {
+      "file": "flow_04_pair_sqs.png",
+      "width": 1800,
+      "height": 1080,
+      "bytes": 77663
+    },
+    {
+      "file": "flow_05_relax_mixing.png",
+      "width": 1800,
+      "height": 1080,
+      "bytes": 74432
+    },
+    {
+      "file": "flow_06_phonon.png",
+      "width": 1800,
+      "height": 1080,
+      "bytes": 69224
+    },
+    {
+      "file": "flow_07_phase.png",
+      "width": 1800,
+      "height": 1080,
+      "bytes": 71873
+    },
+    {
+      "file": "flow_08_recommend.png",
+      "width": 1800,
+      "height": 1080,
+      "bytes": 74657
+    },
+    {
+      "file": "result_phonon_band_dos.png",
+      "width": 1098,
+      "height": 729,
+      "bytes": 146754
+    }
+  ]
+}

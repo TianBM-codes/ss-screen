@@ -1,0 +1,15 @@
+{
+  "formula": "CaTe",
+  "sites": {
+    "0": {
+      "element": "Ca",
+      "poly_formula": "Te6",
+      "geometry": {"type": "octahedral"}
+    },
+    "1": {
+      "element": "Te",
+      "poly_formula": "Ca6",
+      "geometry": {"type": "octahedral"}
+    }
+  }
+}

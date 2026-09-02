@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import random
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -45,6 +47,26 @@ def _structure_for_row(row: pd.Series, structure_col: str) -> Structure:
     if "primitive_structure" in row and row["primitive_structure"] is not None:
         return row["primitive_structure"].copy()
     return row[structure_col].copy()
+
+
+def _safe_filename(value: object) -> str:
+    cleaned = re.sub(r"[^A-Za-z0-9_.-]+", "-", str(value)).strip("-.")
+    return cleaned or "structure"
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _write_endpoint_structure(structure: Structure, material_id: str, output_dir: Path) -> Path:
+    path = output_dir / "endmembers" / f"{_safe_filename(material_id)}.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    dumpfn(structure, str(path))
+    return path
 
 
 def _replace_fraction(
@@ -129,10 +151,22 @@ def _generate_icet_structure(
         random_seed=seed,
     )
     generated = AseAtomsAdaptor.get_structure(sqs_atoms)
-    replaced = sum(
+    generated_to_sites = sum(
         1 for site in generated if getattr(site.specie, "symbol", str(site.specie)) == to_element
     )
-    available = active_sites * supercell[0] * supercell[1] * supercell[2]
+    repeat_count = supercell[0] * supercell[1] * supercell[2]
+    baseline_to_sites = (
+        sum(
+            1
+            for site in structure
+            if getattr(site.specie, "symbol", str(site.specie)) == to_element
+        )
+        * repeat_count
+    )
+    replaced = generated_to_sites - baseline_to_sites
+    available = active_sites * repeat_count
+    if replaced < 0 or replaced > available:
+        raise ValueError(f"icet generated an invalid substitution count: {replaced}/{available}")
     return generated, replaced, available
 
 
@@ -223,9 +257,24 @@ def generate_sqs_inputs(
                 )
                 record["substitution"] = {"from": from_element, "to": to_element}
                 mp_id_a = str(row["mp_id_a"])
+                mp_id_b = str(row["mp_id_b"])
                 if mp_id_a not in dataset.index:
                     raise ValueError(f"dataset is missing endpoint structure {mp_id_a}")
-                structure = _structure_for_row(dataset.loc[mp_id_a], structure_col)
+                if mp_id_b not in dataset.index:
+                    raise ValueError(f"dataset is missing endpoint structure {mp_id_b}")
+                endpoint_a = _structure_for_row(dataset.loc[mp_id_a], structure_col)
+                endpoint_b = _structure_for_row(dataset.loc[mp_id_b], structure_col)
+                endpoint_a_path = _write_endpoint_structure(endpoint_a, mp_id_a, output_dir)
+                endpoint_b_path = _write_endpoint_structure(endpoint_b, mp_id_b, output_dir)
+                record.update(
+                    {
+                        "endpoint_a_structure_path": str(endpoint_a_path),
+                        "endpoint_a_structure_sha256": _sha256_file(endpoint_a_path),
+                        "endpoint_b_structure_path": str(endpoint_b_path),
+                        "endpoint_b_structure_sha256": _sha256_file(endpoint_b_path),
+                    }
+                )
+                structure = endpoint_a.copy()
                 if backend == "icet":
                     structure, replaced, available = _generate_icet_structure(
                         structure,
@@ -261,8 +310,10 @@ def generate_sqs_inputs(
                     {
                         "status": "written",
                         "structure_path": str(structure_path),
+                        "structure_sha256": _sha256_file(structure_path),
                         "replaced_sites": int(replaced),
                         "available_substitution_sites": int(available),
+                        "actual_fraction_b": float(replaced / available),
                         "limitation": limitation,
                     }
                 )

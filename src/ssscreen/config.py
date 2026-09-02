@@ -61,6 +61,14 @@ _DEFAULT_EXCLUDED = [
 #: Frozen set used by :func:`ssscreen.pair.filters.apply_element_exclusion`.
 DEFAULT_EXCLUDED_ELEMENTS: frozenset[str] = frozenset(_DEFAULT_EXCLUDED)
 
+# Live Materials Project requests include full crystal structures and can exceed
+# mp-api's 20-second default on shared networks. Keep these operational limits
+# named and auditable alongside the scientific thresholds.
+MP_API_REQUEST_TIMEOUT_SECONDS = 120
+MP_API_CHUNK_SIZE = 500
+MP_API_PAGE_RETRIES = 3
+MP_API_RETRY_BACKOFF_SECONDS = 2.0
+
 
 # ---------------------------------------------------------------------------
 # Permutation indices for composition-template grouping
@@ -145,6 +153,84 @@ class PairThresholds:
     pair_any_above: float = 0.2
     #: ...and neither member exceeds this (eV). Default 0.8.
     pair_both_below: float = 0.8
+
+
+@dataclass(frozen=True)
+class MLPRelaxationSettings:
+    """Numerical settings and quality-control bounds for Stage 7 MLP relaxation."""
+
+    #: Atomic-force convergence tolerance in eV/Angstrom.
+    force_tolerance: float = 0.03
+    #: Maximum number of geometry-optimization steps.
+    max_steps: int = 500
+    #: Warn when the final volume is less than this fraction of the initial volume.
+    min_volume_ratio: float = 0.5
+    #: Warn when the final volume exceeds this multiple of the initial volume.
+    max_volume_ratio: float = 2.0
+    #: Warn when distinct atoms are closer than this distance in Angstrom.
+    min_distance: float = 0.5
+
+
+@dataclass(frozen=True)
+class PhononSettings:
+    """Numerical defaults for Stage 9 finite-displacement phonons."""
+
+    #: Cartesian displacement amplitude in Angstrom.
+    displacement_distance: float = 0.01
+    #: Phonopy symmetry tolerance.
+    symmetry_tolerance: float = 1e-5
+    #: Automatic diagonal supercells target at least this lattice-vector length.
+    min_supercell_length: float = 10.0
+    #: Refuse automatically or explicitly generated supercells above this size.
+    max_supercell_atoms: int = 300
+    #: Gamma-centered q-point mesh used for the dynamical-stability screen.
+    mesh: tuple[int, int, int] = (20, 20, 20)
+    #: Number of q points per high-symmetry path segment.
+    band_points: int = 101
+    #: Frequencies below minus this tolerance are significant imaginary modes.
+    imaginary_tolerance_thz: float = 0.1
+    #: Maximum accepted Stage 7 residual force before phonon generation.
+    max_input_force: float = 0.01
+
+
+@dataclass(frozen=True)
+class CompetingPhaseSettings:
+    """Defaults for Stage 10 MP competing-phase and convex-hull screening."""
+
+    #: Materials Project thermo scheme used only to select source structures.
+    thermo_type: str = "GGA_GGA+U_R2SCAN"
+    #: Fetch MP structures no farther than this from the selected MP hull (eV/atom).
+    max_mp_energy_above_hull: float = 0.1
+    #: Refuse a primitive competing-phase structure above this atom count.
+    max_competing_phase_atoms: int = 200
+    #: Candidate energies at or below this MLP hull distance remain screening candidates.
+    screening_cutoff_ev_per_atom: float = 0.1
+    #: Numerical tolerance used to distinguish an on-hull candidate from metastability.
+    numerical_tolerance_ev_per_atom: float = 1e-6
+    #: Current Materials Project helper supports at most nine elements per parent system.
+    max_query_elements: int = 9
+    #: Per-request and per-chemical-system wall-clock timeout for MP API calls.
+    api_timeout_seconds: float = 30.0
+
+
+@dataclass(frozen=True)
+class RecommendationSettings:
+    """Conservative Stage 11 decision-support thresholds.
+
+    These values are triage defaults rather than universal stability criteria.
+    Stage 11 records them in every summary and exposes them as CLI options.
+    """
+
+    #: Mixing enthalpies at or below this remain a positive screening signal.
+    promising_max_mixing_enthalpy_mev_per_atom: float = 25.0
+    #: Mixing enthalpies above this are an explicit low-priority signal.
+    low_priority_mixing_enthalpy_mev_per_atom: float = 50.0
+    #: Same-MLIP hull distances at or below this remain a positive signal.
+    promising_max_hull_ev_per_atom: float = 0.025
+    #: Hull distances above this are an explicit low-priority signal.
+    low_priority_hull_ev_per_atom: float = 0.1
+    #: Tolerance for checking pair-table gaps against normalized gap results.
+    gap_consistency_tolerance_ev: float = 1e-6
 
 
 @dataclass(frozen=True)

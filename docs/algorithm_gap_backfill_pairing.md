@@ -97,6 +97,26 @@ out_dict = {'formula': ..., 'material_id': node.label.split()[?], **band_info}
 
 **产物**：CSV（`mbj_gaps_*_pmg_info.csv`），列为 `formula, material_id, direct, transition, band_gap`。`direct`（布尔）来自 pymatgen 的 `bs.get_band_gap()['direct']`，表示是否直接带隙。
 
+### 3.5 正式软件边界：外部计算、内部契约与校验
+
+`ss-screen` 不启动 VASP、ABACUS、AiiDA 或其他高精度带隙计算。正式软件负责导出任务和结构，用户在任意外部平台完成计算，再把结果交回软件统一校验和分析。这个边界使核心筛选不依赖许可证、集群、调度器、profile、赝势安装或特定工作流插件。
+
+当前 `gap-export` 输出 `schema_version`、确定性 `task_id`、`material_id`、方法标识和 `structure_sha256`；结构可同时写成 pymatgen JSON、CIF 和 POSCAR，并可生成结果表及方法元数据 JSON 模板。任务 ID 由 schema 版本、材料 ID、方法标识和结构哈希确定，同一输入重复导出保持稳定。
+
+当前 `gap-validate` 保留历史七列 CSV/JSON 兼容，同时在提供任务表时严格核对：
+
+- 任务表自身的 schema 版本、ID 格式、结构哈希及确定性任务身份是否合法；
+- 任务是否存在，材料 ID、化学式、方法和结构哈希是否一致；
+- 成功带隙是否为有限非负 eV 数值；失败、未收敛和跳过行是否有明确状态；
+- 结果是否重复，方法元数据及其设置哈希是否冲突；
+- 缺失任务、各状态计数和拒绝原因。
+
+校验输出分为规范化结果、拒绝行和 JSON 审计报告；报告区分完全未返回的任务和已返回但未获接受的任务。`is_direct` 未知时保留为空，不伪装成 `False`；不同高精度方法必须使用不同的稳定方法标识，不得静默混合。只有规范化结果进入回填、配对和多方法比较。
+
+VASP批量结果可由 `gap-collect-vasp` 自动转换为上述稳定结果契约。收集器要求每个子目录以确定性 `task_id` 命名，并读取其中的 `vasprun.xml` 或 `vasprun.xml.gz`。默认处理任务表中的全部任务；`--task-id`仅用于单任务调试或选择性重试。可解析且收敛的任务写入带隙、directness和transition，未收敛、解析失败与缺少结果分别写成 `not_converged`、`failed` 和 `missing`，因此每个选中任务在结果CSV中恰有一行。收集报告保存四种状态的完整计数、逐任务解析错误、发现的子目录和未知目录。可选方法元数据会生成 `settings_sha256`，供后续 `gap-validate` 核对；收集器不启动VASP，也不替代最终身份与数值校验。
+
+若外部平台是 AiiDA，SS-Screen 不读取 AiiDA profile、PostgreSQL/RabbitMQ、SSH、Computer、Code 或赝势路径。外部收集脚本只需原样传递 `task_id` 和 `structure_sha256`，填写标准结果字段，并可把 `aiida_process_uuid`、远端任务号或可追溯 URI 作为附加列；附加列会保留在规范化结果中，但不得包含凭据。
+
 ---
 
 ## 4. 步骤 (b)：回填进 structure group

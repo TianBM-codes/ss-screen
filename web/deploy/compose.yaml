@@ -1,0 +1,82 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ssscreen
+      POSTGRES_PASSWORD: ssscreen
+      POSTGRES_DB: ssscreen
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ssscreen -d ssscreen"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports: ["5432:5432"]
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - redis-data:/data
+    ports: ["6379:6379"]
+
+  api:
+    build:
+      context: ../..
+      dockerfile: web/backend/Dockerfile
+    env_file: .env
+    command: ["sh", "-c", "alembic upgrade head && uvicorn ssscreen_web.main:app --host 0.0.0.0 --port 8000"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    volumes:
+      - /vepfs-mlp2/project-battery/zuolong/ss-screen-web-data:/data/ss-screen-web
+      - ${MP_OFFLINE_DATABASE_HOST_PATH:?set MP_OFFLINE_DATABASE_HOST_PATH}:/data/mp-offline/default.db:ro
+    ports: ["8000:8000"]
+
+  control-worker:
+    build:
+      context: ../..
+      dockerfile: web/backend/Dockerfile
+    env_file: .env
+    command: ["celery", "-A", "ssscreen_web.workers.celery_app:celery_app", "worker", "-Q", "control", "--loglevel=INFO"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    volumes:
+      - /vepfs-mlp2/project-battery/zuolong/ss-screen-web-data:/data/ss-screen-web
+
+  cpu-worker:
+    build:
+      context: ../..
+      dockerfile: web/backend/Dockerfile
+    env_file: .env
+    environment:
+      PYTHONPATH: /opt/mp-offline/src
+    command: ["celery", "-A", "ssscreen_web.workers.celery_app:celery_app", "worker", "-Q", "cpu", "--loglevel=INFO", "--concurrency=1"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    volumes:
+      - /vepfs-mlp2/project-battery/zuolong/ss-screen-web-data:/data/ss-screen-web
+      - ${MP_OFFLINE_DATABASE_HOST_PATH:?set MP_OFFLINE_DATABASE_HOST_PATH}:/data/mp-offline/default.db:ro
+      - ${MP_OFFLINE_PACKAGE_HOST_PATH:?set MP_OFFLINE_PACKAGE_HOST_PATH}:/opt/mp-offline:ro
+
+  frontend:
+    build:
+      context: ../..
+      dockerfile: web/frontend/Dockerfile
+      args:
+        VITE_API_BASE_URL: ${API_BASE_URL:-http://localhost:8000}
+    depends_on: [api]
+    ports: ["5173:80"]
+
+volumes:
+  postgres-data:
+  redis-data:

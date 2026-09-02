@@ -9,7 +9,12 @@ dist/
 
 # Virtual envs
 .venv/
+.venv-broken-*/
 venv/
+
+# Project-local package download/build caches
+.pip-cache/
+.pip-tmp/
 
 # Test / coverage
 .pytest_cache/
@@ -18,6 +23,14 @@ htmlcov/
 .tox/
 .mypy_cache/
 .ruff_cache/
+
+# Web frontend and browser-test outputs
+web/frontend/node_modules/
+web/frontend/dist/
+web/frontend/playwright-report/
+web/frontend/test-results/
+web/frontend/.playwright-browsers/
+web/frontend/*.tsbuildinfo
 
 # Editors / OS
 .idea/
@@ -35,6 +48,10 @@ htmlcov/
 .env
 .envrc
 mp-offline/
+# Local workflow runs contain generated structures and calculation results.
+/work/
+# Local MLP checkpoints are large runtime assets; keep provenance sidecars tracked.
+models/*.model
 # Large AiiDA dumps and archives (reference only, live outside this repo anyway)
 *.aiida
 *.tar.gz

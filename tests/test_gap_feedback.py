@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pandas as pd
+import pytest
 
 from ssscreen.data.io import dump_group_df
 from ssscreen.pair.envmatch import StructureGroup
@@ -169,6 +170,30 @@ def test_generate_pairs_from_gap_results_requires_method_for_ambiguous_sources(t
         assert "multiple gap methods" in str(exc)
     else:
         raise AssertionError("expected ambiguous gap methods to fail")
+
+
+def test_generate_pairs_from_gap_results_rejects_duplicate_success_rows(tmp_path):
+    groups_path = tmp_path / "groups.json"
+    gaps_path = tmp_path / "gap_results.csv"
+    dump_group_df(_groups(), groups_path)
+    row = {
+        "material_id": "mp-low",
+        "formula": "CaS",
+        "method": "hse06",
+        "band_gap": 0.05,
+        "is_direct": False,
+        "transition": "indirect",
+        "status": "success",
+    }
+    pd.DataFrame([row, row]).to_csv(gaps_path, index=False)
+
+    with pytest.raises(ValueError, match="duplicate successful gap results"):
+        generate_pairs_from_gap_results(
+            groups_path=groups_path,
+            gap_paths=[gaps_path],
+            output=tmp_path / "pairs.csv",
+            method="hse06",
+        )
 
 
 def test_compare_gap_methods_writes_method_outputs_and_summary(tmp_path):

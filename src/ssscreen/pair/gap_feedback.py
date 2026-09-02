@@ -17,12 +17,19 @@ from .pairing import attach_gaps_and_compress, enumerate_pairs, gaps_valid, pair
 SUCCESS_STATUSES = frozenset({"success", "completed", "ok"})
 
 
-def _bool_from_value(value: Any) -> bool:
+def _bool_from_value(value: Any) -> bool | None:
+    if value is None or pd.isna(value):
+        return None
     if isinstance(value, bool):
         return value
     if isinstance(value, (int, float)):
         return bool(value)
-    return str(value).strip().lower() in {"true", "t", "1", "yes", "y"}
+    text = str(value).strip().lower()
+    if text in {"true", "t", "1", "yes", "y", "direct"}:
+        return True
+    if text in {"false", "f", "0", "no", "n", "indirect"}:
+        return False
+    return None
 
 
 def load_gap_results(
@@ -39,6 +46,19 @@ def load_gap_results(
     frames = [validate_gap_results(path) for path in gap_paths]
     if not frames:
         raise ValueError("at least one gap-result table is required")
+    rejected = [
+        frame.attrs.get("validation_report", {})
+        for frame in frames
+        if frame.attrs.get("validation_report", {}).get("rejected_count", 0)
+    ]
+    if rejected:
+        errors: dict[str, int] = {}
+        for report in rejected:
+            for name, count in report.get("error_counts", {}).items():
+                errors[name] = errors.get(name, 0) + int(count)
+        if "duplicate_result" in errors:
+            raise ValueError("duplicate successful gap results are not allowed")
+        raise ValueError(f"gap result validation rejected rows: {errors}")
 
     raw = pd.concat(frames, ignore_index=True)
     methods = sorted(raw["method"].dropna().astype(str).unique())
@@ -53,7 +73,8 @@ def load_gap_results(
     success_mask = selected["status"].str.lower().isin(SUCCESS_STATUSES)
     successful = selected.loc[success_mask].copy()
     duplicate_rows = int(successful.duplicated(subset=["material_id"], keep=False).sum())
-    successful = successful.drop_duplicates(subset=["material_id"], keep="last")
+    if duplicate_rows:
+        raise ValueError(f"duplicate successful gap results are not allowed for method {method!r}")
 
     gap_map = {
         str(row["material_id"]): [float(row["band_gap"]), _bool_from_value(row["is_direct"])]
@@ -194,8 +215,8 @@ def compare_gap_methods(
         ids = pair_key.split("|")
         directness_changes[pair_key] = {
             method: [
-                bool(method_gap_maps[method][ids[0]][1]),
-                bool(method_gap_maps[method][ids[1]][1]),
+                method_gap_maps[method][ids[0]][1],
+                method_gap_maps[method][ids[1]][1],
             ]
             for method in methods
             if ids[0] in method_gap_maps[method] and ids[1] in method_gap_maps[method]

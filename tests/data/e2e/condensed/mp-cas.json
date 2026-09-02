@@ -1,0 +1,15 @@
+{
+  "formula": "CaS",
+  "sites": {
+    "0": {
+      "element": "Ca",
+      "poly_formula": "S6",
+      "geometry": {"type": "octahedral"}
+    },
+    "1": {
+      "element": "S",
+      "poly_formula": "Ca6",
+      "geometry": {"type": "octahedral"}
+    }
+  }
+}
