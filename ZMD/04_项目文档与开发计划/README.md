@@ -63,6 +63,8 @@
 
 ## 最近同步
 
+- 2026-09-02：项目日志登记当前完整工作树以提交 `33f9cc3` 发布到新远程 `master`；远程 `main`
+  保持在原基线，科学路线与下一步 Stage 3 structure-match 不变。
 - 2026-09-02：远程前端保持运行；定位本地页面`Failed to fetch`为远程API进程退出，改用脱离交互
   会话的后台API与control/cpu Worker；ready六项和项目API正常，浏览器继续通过5173/8000转发访问。
 - 2026-09-01：Web开发指南和项目计划登记Stage 2 condensation完成：双Artifact输入、分批检查点、

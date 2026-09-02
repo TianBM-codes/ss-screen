@@ -69,6 +69,9 @@ npm --prefix web/frontend run test:e2e
 
 ## 最近同步
 
+- 2026-09-02：远程发布前重新运行核心172项pytest、Ruff、Black，Web后端54项pytest/Ruff/Black，
+  以及前端ESLint、Vitest 1项、TypeScript typecheck和生产构建；全部通过。未重跑需要浏览器与
+  运行中服务的Playwright，沿用同日最近一次20项通过记录。
 - 2026-09-01：Web后端扩展为54项；Stage 2单元/集成链验证双输入冻结、逐材料失败、Worker中断后
   检查点保留、Attempt #2跳过已完成JSON、五类制品和检查点成功清理；Playwright四宽度20项
   增加Stage 2创建、冻结配置、进度摘要和无页面级横向溢出。

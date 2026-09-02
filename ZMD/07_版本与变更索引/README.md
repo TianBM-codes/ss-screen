@@ -8,11 +8,18 @@
 |---|---|
 | 初始同步日期 | 2026-07-22 |
 | 工作区 | `/vepfs-mlp2/project-battery/zuolong/ss-screen-learning-20260722` |
-| Git 分支 | `codex/web-platform` |
-| 基线提交 | `33ddf40` — `chore: curate upstream research references` |
+| Git 分支 | 本地 `codex/web-platform`，跟踪远程 `origin/master` |
+| 基线提交 | `33f9cc3` — `feat: add screening workflow and web platform` |
 | 包版本 | `ss-screen 1.0` |
 | Python 环境 | 项目本地 Python 3.11.15 |
 | 导航范围 | 根入口、26 个科学源码文件、Web 控制层/前端/部署、核心与 Web 测试、docs/plans、models、11 个历史资料家族、scripts 和 CI |
+
+### 2026-09-02 — 发布当前完整工作树到远程 master
+
+- Git发布：将241个约定范围内文件提交为`33f9cc3`，通过SSH以非强制方式新建并推送
+  `origin/master`；远程`main`保持在`33ddf40`，没有覆盖、重命名或删除。
+- 范围与门禁：包含核心源码/测试、Web平台、脚本、项目文档、软著交付物、ZMD与配置；排除环境、
+  缓存、构建输出、模型权重和运行数据。核心172项、Web后端54项、Vitest 1项及静态/构建门禁通过。
 
 ### 2026-09-02 — 恢复远程 Web 服务
 

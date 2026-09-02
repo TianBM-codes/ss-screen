@@ -7,6 +7,20 @@
 
 **Read first at the start of every session:** `AGENTS.md` → this file → `PROJECT_PLAN.md`.
 
+## 2026-09-02 — 发布当前完整工作树到远程 master
+
+**本次工作目标：** 将当前工作副本中经约定纳入版本控制的源码、测试、Web 平台、文档与 ZMD 发布到 `bonan-group/ss-screen` 的新远程 `master` 分支。
+
+**已完成：** 核对远程仅有 `main` 且位于基线 `33ddf40`；使用已授权的 GitHub SSH 身份，将 241 个文件组成的完整变更提交为 `33f9cc3`（`feat: add screening workflow and web platform`），并以非强制方式新建并推送 `origin/master`。远程 `main` 未修改。提交前排除虚拟环境、缓存、前端构建输出、TypeScript 增量缓存、模型权重、运行产物和大型数据，并完成常见 Token/私钥模式扫描。
+
+**决策 / 计划变更：** 无科学路线变化；远程发布分支按用户要求命名为 `master`，本地 `codex/web-platform` 设置为跟踪 `origin/master`。`origin` 使用等价 SSH URL 以复用现有 GitHub 密钥认证。
+
+**下一步：** 在 GitHub 检查 `master` 分支内容和 CI；功能开发继续实现 Stage 3 structure-match。
+
+**阻塞项 / 上游问题：** 无。GitHub 推送成功；未使用强制推送，未修改远程 `main`。
+
+**验证：** Python 3.11.15、`ssscreen` 1.0；核心 172 项 pytest、Ruff、Black，Web 后端 54 项 pytest/Ruff/Black，前端 ESLint、Vitest 1 项、TypeScript typecheck 和生产构建通过。提交前扫描未发现常见 GitHub/OpenAI/AWS/Slack Token 或私钥模式；最大新增文件约 4.4 MB。未运行 notebook、DFT、MACE、Phonopy 或 AiiDA daemon。
+
 ## 2026-09-02 — 重启 Web API 与 CPU Worker
 
 **本次工作目标：** 恢复远程 Web 服务并给出本地浏览器访问方法。
