@@ -7,6 +7,54 @@
 
 **Read first at the start of every session:** `AGENTS.md` → this file → `PROJECT_PLAN.md`.
 
+## 2026-09-04 — 检查本机 WSL 项目运行条件
+
+**本次工作目标：** 核对新安装的 WSL 是否能承载 `ss-screen` 当前 CLI/Web 项目，并检查关键文件是否缺失。
+
+**已完成：**
+- 确认 WSL 默认发行版为 Ubuntu、版本为 WSL 2；Windows 工作副本可从 `/mnt/d/WorkSpace/FEM/ss-screen` 访问。
+- 核对关键目录和入口文件存在：`src/ssscreen`、`tests`、`docs`、`ZMD`、`web/frontend`、`web/backend`、`references`、`scripts`、`models`、`plans`、`pyproject.toml`、`README.md`、`AGENTS.md`。
+- 统计当前可见源码：核心 26 个 Python 源文件、21 个核心测试文件、Web 后端 45 个 Python 源文件、前端 `src` 20 个文件；`web/frontend/src/features/WorkflowPrototypePage.tsx` 已存在。
+
+**决策 / 计划变更：**
+- 无代码和路线变更；本次仅做环境可行性检查。
+
+**下一步：** 在 WSL/Linux 侧准备项目路径、Python 3.11 `.venv`、editable 安装、前端 Node/npm 环境，以及后续 Web 后端需要的 PostgreSQL/Redis/ArtifactStore。
+
+**阻塞项 / 上游问题：** 当前 WSL 内未发现 `AGENTS.md` 指定路径 `/home/zuolong/projects/ss-screen-learning-20260722`，当前工作副本位于 `/mnt/d/WorkSpace/FEM/ss-screen`；项目 `.venv` 缺失，WSL 仅有 Python 3.12.3，未安装 `python3.11`/`python3.10`，`python` 命令缺失；WSL 内未发现 Linux 侧 `node`，仅能看到 Windows npm；`models/` 仅有 README，真实 MACE/大型数据仍需按项目规则放在仓库外。未运行测试、notebook、DFT、MACE、Phonopy 或 AiiDA daemon。
+
+## 2026-09-04 — 新增 Web 流程说明静态原型页
+
+**本次工作目标：** 先不连接后端，基于现有 CLI/阶段设计搭建一个可在浏览器中讨论的软件流程界面原型。
+
+**已完成：**
+- 新增 `web/frontend/src/features/WorkflowPrototypePage.tsx`，以静态数据展示 Stage 1--11 分析流程、对应 CLI、用户输入项、阶段产物和接入优先级。
+- 更新 `web/frontend/src/app/router.tsx` 与 `web/frontend/src/app/Shell.tsx`，增加 `/workflow-prototype` 路由和“流程原型”侧边栏入口。
+- 更新 `web/frontend/src/styles.css`，补充流程时间线、阶段状态、输入/产物标签、CLI 映射表和落地顺序区域样式。
+
+**决策 / 计划变更：**
+- 本次只做前端静态原型，不接后端 API，不新增后端 pipeline/schema，不改变科学核心 CLI 行为。页面将 Stage 3--5 标为优先接入，将 Stage 6--11 标为后续重计算/稳定性阶段。
+
+**下一步：** 与后台同事确认 Stage 3--5 的 API/Worker 接入可行性；若认可，再把结构匹配、gap 任务交换和 pair 枚举逐步实现为 Web StageRunner。
+
+**阻塞项 / 上游问题：** 当前 Windows 主机仍无默认 WSL 发行版，无法按 `AGENTS.md` 的 Linux 路径激活 `.venv`；本次未运行后端、Python 测试、notebook、DFT、MACE、Phonopy 或 AiiDA daemon。
+
+**验证：** 在 `web/frontend` 安装前端依赖后，`npm run build` 通过；启动 Vite 开发服务并确认 `http://127.0.0.1:5173/workflow-prototype` 返回 HTTP 200。
+
+## 2026-09-02 — 只读梳理项目代码逻辑
+
+**本次工作目标：** 阅读当前工作副本中的项目文档、源码导航、科学核心和 Web 控制层代码，整理整体思路逻辑。
+
+**已完成：**
+- 阅读 `AGENTS.md`、`ZMD/README.md`、`docs/PROJECT_LOG.md`、`docs/PROJECT_PLAN.md`、`ZMD/02_正式源码/`、`ZMD/08_Web平台/README.md`、核心 `src/ssscreen/` 数据/配对/CLI 模块与 Web `StageRunner`、Run/Worker/模型代码，形成主数据流和当前边界梳理。
+
+**决策 / 计划变更：**
+- 无代码和科学路线变更；本次仅做理解与交接整理。
+
+**下一步：** 若继续开发，优先实现 Web Stage 3 structure-match StageRunner，将 Stage 1a composition 候选与 Stage 2 condensation ZIP/manifest 汇合并发布结构环境分组。
+
+**阻塞项 / 上游问题：** 当前 Windows 主机未配置默认 WSL 发行版，无法进入 `AGENTS.md` 指定的 `/home/zuolong/projects/ss-screen-learning-20260722` 并激活 `.venv`；`git status` 受 dubious ownership 保护阻断。本次未运行测试、notebook、DFT、MACE、Phonopy 或 AiiDA daemon。
+
 ## 2026-09-02 — 发布当前完整工作树到远程 master
 
 **本次工作目标：** 将当前工作副本中经约定纳入版本控制的源码、测试、Web 平台、文档与 ZMD 发布到 `bonan-group/ss-screen` 的新远程 `master` 分支。

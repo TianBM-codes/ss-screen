@@ -27,6 +27,7 @@ SQLAlchemy、Celery、Redis 或 React。当前已实现 Phase 1 控制层，以�
 | [`web/backend/openapi.json`](../../web/backend/openapi.json) | FastAPI 生成的前后端契约 | 客户端重复生成 |
 | [`web/frontend/src/api/`](../../web/frontend/src/api/) | OpenAPI 类型客户端和请求封装 | TypeScript 构建 |
 | [`web/frontend/src/features/`](../../web/frontend/src/features/) | Project、Run、Dataset 新建/详情和 Artifact 工作台 | Vitest/Playwright |
+| [`web/frontend/src/features/WorkflowPrototypePage.tsx`](../../web/frontend/src/features/WorkflowPrototypePage.tsx) | 不连接后端的 Stage 1--11 分析流程说明原型页，用于讨论界面流程、输入项、产物和接入顺序 | 前端 build、路由 HTTP 200 |
 | [`web/frontend/src/styles.css`](../../web/frontend/src/styles.css) | 科研工作台、响应式表格、焦点/触控/动效规则 | 四宽度截图与 DOM 审计 |
 | [`web/deploy/compose.yaml`](../../web/deploy/compose.yaml) | PostgreSQL、Redis、API、control/CPU Worker、只读 MP 源和前端 | Compose 可用主机验收 |
 
@@ -71,6 +72,8 @@ MP SQLite 快照和 `mp_offline` 包也位于仓库外并只读使用。路径�
 - 当前验证基线为核心 172 项、Web 后端 54 项 pytest、前端 1 项 Vitest 和四宽度
   20 项 Playwright；Stage 2 Run 另经真实 Robocrys 两结构运行和 1440 视觉检查；
 - demo JSON 的 `scientific_status` 为 `not_applicable`，不能描述为科研结果；
+- 已新增 `/workflow-prototype` 纯前端说明页，用静态内容展示 Stage 1--11 页面化流程、用户输入、
+  产物和接入优先级；该页不调用 API，可用于与后台同事讨论后续实现范围；
 - 未实现在线 MP、Stage 3--11 Web StageRunner、正式 OIDC、GPU、MACE、Phonopy、
   Slurm 或 AiiDA；
 - 下一步是实现 Stage 3 structure-match StageRunner，把 composition 候选与 Stage 2 ZIP/manifest

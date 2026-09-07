@@ -14,6 +14,29 @@
 | Python 环境 | 项目本地 Python 3.11.15 |
 | 导航范围 | 根入口、26 个科学源码文件、Web 控制层/前端/部署、核心与 Web 测试、docs/plans、models、11 个历史资料家族、scripts 和 CI |
 
+### 2026-09-04 — 检查本机 WSL 项目运行条件
+
+- 环境检查：WSL 默认发行版为 Ubuntu/WSL2，Windows 工作副本可从 `/mnt/d/WorkSpace/FEM/ss-screen`
+  访问；关键源码、测试、文档、ZMD、Web 前后端、references、scripts、models、plans 和入口文件均存在。
+- 缺口：尚未建立 `AGENTS.md` 指定的 `/home/zuolong/projects/ss-screen-learning-20260722` 与项目
+  `.venv`；WSL 仅有 Python 3.12.3，缺 Python 3.11/3.10 和 `python` 命令；Linux 侧未发现
+  `node`，真实 MACE/大型数据也未在仓库内提供。未修改源码或运行测试。
+
+### 2026-09-04 — 新增 Web 流程说明静态原型页
+
+- 真实变更：新增 `web/frontend/src/features/WorkflowPrototypePage.tsx`，并在前端路由和侧边栏加入
+  `/workflow-prototype`；页面以静态内容呈现 Stage 1--11、CLI映射、用户输入、阶段产物、接入优先级
+  和推荐落地顺序，不连接后端 API。
+- ZMD更新：同步 Web 平台导航、本版本索引和项目日志；未修改科学核心、后端 schema、pipeline 或
+  Worker。验证为 `npm run build` 通过，Vite 本地路由返回 HTTP 200。
+
+### 2026-09-02 — 只读梳理项目代码逻辑
+
+- 梳理范围：阅读入口规则、项目日志/计划、正式源码导航、Web平台导航、核心 data/pair/CLI 模块、
+  Web StageRunner/Run/Worker/数据库模型，确认当前主线为科学核心 Stage 1--11 与 Web Stage 1--2。
+- ZMD更新：同步登记本次只读梳理；未修改源码、测试、schema 或科学路线。当前 Windows 主机无默认
+  WSL 发行版，无法按项目 Linux 路径激活 `.venv`；`git status` 受 dubious ownership 保护阻断。
+
 ### 2026-09-02 — 发布当前完整工作树到远程 master
 
 - Git发布：将241个约定范围内文件提交为`33f9cc3`，通过SSH以非强制方式新建并推送
