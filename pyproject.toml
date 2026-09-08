@@ -45,6 +45,9 @@ mp = ["mp-api>=0.46.4,<0.47"]
 wbm = ["ase>=3.22"]
 # Optimized SQS generation backend for Stage 6.
 sqs = ["ase>=3.22", "icet>=3.2"]
+# Optional PySide6 desktop workbench. The GUI remains a thin launcher over the
+# real Click CLI so `ss-screen` keeps the authoritative scientific behavior.
+gui = ["PySide6>=6.5,<7"]
 # Stage 7 MLP relaxation. These pins reproduce the validated MACE-MPA-0 runtime;
 # install the desired CUDA build of torch before installing this extra.
 mlp = [
@@ -71,6 +74,7 @@ dev = [
 
 [project.scripts]
 ss-screen = "ssscreen.cli.app:cli"
+ss-screen-gui = "ssscreen.gui.launcher:main"
 
 [project.urls]
 Documentation = "https://github.com/bonan/HC/ss-screen/docs/PROJECT_PLAN.md"

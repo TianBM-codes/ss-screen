@@ -6,6 +6,8 @@
 
 `pyproject.toml` 把终端命令 `ss-screen` 映射到 `ssscreen.cli.app:cli`。
 
+桌面入口 `ss-screen-gui` 映射到 `ssscreen.gui.launcher:main`，但 GUI 只作为前端调用本页所述真实 CLI；不得把 `cli/app.py` 替换为预览或 mock 命令面。
+
 `ss-screen --version` 输出固定的纯 ASCII `SS-SCREEN` 启动 Logo 和软件版本；该输出由 `VERSION_BANNER` 及 eager Click 回调实现，适用于真实终端、自动测试和操作手册截图。
 
 ## 命令清单
@@ -47,6 +49,8 @@
 
 ## 最近同步
 
+- 2026-09-07：恢复并保留真实 CLI 入口，新增独立 `ss-screen-gui`；GUI 集成不改变
+  `ss-screen` 的科学命令行为。
 - 2026-08-24：完善批量优先的 `gap-collect-vasp`；增加 `--method-metadata`，`--report` 可省略，missing任务保留结果行，报告增加逐任务错误和未知目录。
 - 2026-08-24：`--version` 改为显示 `SS-SCREEN` ASCII 启动 Logo 和 `SS-Screen version 1.0`，并由 CLI 回归测试固定输出契约。
 - 2026-08-03：新增顶层 `recommend`，支持 gap 方法覆盖、可选/强制缺陷、具名阈值、CSV/Markdown/JSON 输出。

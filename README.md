@@ -20,6 +20,8 @@ small direct-gap member.
 
 ```bash
 pip install -e .
+# Ubuntu development setup for the CLI plus common workflow extras and GUI:
+pip install -r requirements.txt
 # To query Materials Project directly with --backend api:
 pip install -e ".[mp]"
 # To use a local Materials Project SQLite snapshot (separate package):
@@ -30,6 +32,9 @@ pip install -e ".[wbm]"
 pip install -e ".[condense]"
 # To generate optimized SQS candidates with icet:
 pip install -e ".[sqs]"
+# To launch the optional PySide6 desktop GUI:
+pip install -e ".[gui]"
+ss-screen-gui
 # To run MACE-MPA-0 relaxation (install the cluster CUDA build first):
 pip install torch==2.5.1+cu121 --index-url https://download.pytorch.org/whl/cu121
 pip install -e ".[mlp,phonon]"

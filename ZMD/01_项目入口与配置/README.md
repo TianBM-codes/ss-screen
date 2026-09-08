@@ -9,6 +9,7 @@
 | [`AGENTS.md`](../../AGENTS.md) | 环境激活、读写边界、工作流程、日志规则 | 每次工作第一步；工作规则变化时更新 |
 | [`README.md`](../../README.md) | 科学目标、安装、CLI 示例、当前状态 | 用户用法或能力边界变化时更新 |
 | [`pyproject.toml`](../../pyproject.toml) | 包名、版本、依赖、extras、CLI、Ruff/Black/Pytest 配置 | 依赖、工具或命令入口变化时更新 |
+| [`requirements.txt`](../../requirements.txt) | Ubuntu/Linux 开发安装入口，包含核心包、常用 workflow extras、GUI 和开发工具 | Linux 安装流程或可选依赖变化时更新 |
 | [`LICENSE`](../../LICENSE) | MIT 许可文本 | 许可证变化时更新 |
 | [`.gitignore`](../../.gitignore) | 环境、缓存、数据、秘密和大型文件排除 | 新增生成物或本地资产类型时更新 |
 | [`.dockerignore`](../../.dockerignore) | 排除模型、运行数据、资料、秘密和本地构建缓存的容器上下文 | Web 镜像输入边界变化时更新 |
@@ -17,11 +18,12 @@
 
 - 包发布名：`ss-screen`
 - Python 导入名：`ssscreen`
-- 当前版本：`0.1.0`
+- 当前版本：`1.0`
 - Python 要求：3.10 及以上；当前 WSL 环境为 3.11.15
 - CLI 入口：`ss-screen = ssscreen.cli.app:cli`
+- GUI 入口：`ss-screen-gui = ssscreen.gui.launcher:main`
 - 核心依赖：pymatgen、pandas、numpy、monty、click、tqdm
-- 常用 extras：`mp`、`wbm`、`condense`、`sqs`、`mlp`、`phonon`
+- 常用 extras：`mp`、`wbm`、`condense`、`sqs`、`gui`、`mlp`、`phonon`
 - `[mp]` 固定已验证的 `mp-api>=0.46.4,<0.47`；Stage 10 在线命令每次隐藏提示密钥且不落盘
 - Stage 1 在线 MP 全量结构查询使用120秒单请求超时、500条稳定分页和单页3次重试；请求设置写入 provenance，密钥仅从标准配置发现且不落盘
 - 离线 MP 使用 separately installed 的 `mp_offline 0.1.0` 和显式 SQLite 路径；当前环境验证 SQLAlchemy 2.0.51，数据库不进入仓库
@@ -32,6 +34,7 @@
 - Stage 11 `RecommendationSettings` 集中管理混合焓、同 MLP 凸包和 gap 一致性初筛阈值；`ss-screen recommend` 可逐项覆盖并在 summary 中记录
 - 根目录 `work/` 用于本地工作流运行与教学计算产物，并由 `.gitignore` 整体排除；可提交测试夹具仍只能放在 `tests/data/`
 - Web 依赖保存在独立 [`web/backend/pyproject.toml`](../../web/backend/pyproject.toml) 和 [`web/frontend/package.json`](../../web/frontend/package.json)；根 `pyproject.toml` 不接收 Web 依赖。
+- 桌面 GUI 依赖由根 `pyproject.toml` 的 `[gui]` extra 管理；GUI 只收集参数并调用真实 CLI，不替代科学实现。
 - Web 的 Artifact、Attempt sandbox 和上传隔离根位于仓库外
   `/vepfs-mlp2/project-battery/zuolong/ss-screen-web-data`；ready 检查会按实际 UID 对三个目录执行
   无残留写入探针，禁止回退到 `work/`。
@@ -52,6 +55,8 @@
 
 ## 最近同步
 
+- 2026-09-07：新增 `requirements.txt` 作为 Ubuntu/Linux 开发安装入口；根包新增 `[gui]` extra 和
+  `ss-screen-gui` 脚本，CLI 入口保持 `ss-screen` 不变。
 - 2026-09-02：提交前将前端 `*.tsbuildinfo` 增量编译缓存加入 `.gitignore`；虚拟环境、缓存、
   模型权重、运行产物和 Web 构建输出继续保持仓库外或忽略状态。
 - 2026-09-01：Web 配置新增 WBM 结构/摘要上传字节上限；必须为正值，并与仓库外 quarantine、

@@ -7,6 +7,25 @@
 
 **Read first at the start of every session:** `AGENTS.md` → this file → `PROJECT_PLAN.md`.
 
+## 2026-09-07 — 集成可选桌面 GUI 并恢复真实 CLI
+
+**本次工作目标：** 将同事交付的 GUI 思路纳入项目，同时撤回对正式 CLI 的 preview-only 覆盖，并提供 Ubuntu 安装入口。
+
+**已完成：**
+- 恢复 `src/ssscreen/__init__.py`、`src/ssscreen/cli/__init__.py` 和 `src/ssscreen/cli/app.py` 的真实 CLI 行为，避免 `ss-screen` 被替换为 DEMO 命令。
+- 保留 `src/ssscreen/gui/` 作为可选 PySide6 桌面工作台，新增 `pyproject.toml` 的 `[gui]` extra 与 `ss-screen-gui = ssscreen.gui.launcher:main` 入口。
+- 新增 `requirements.txt`，用于 Ubuntu/Linux 开发环境安装核心包、常用 workflow extras、GUI 和开发工具；MACE/Torch 仍按 CPU/CUDA 环境单独安装。
+- 新增 `docs/gui_integration_notes.md`，保存 GUI 的工程树、阶段页、属性面板、日志区和调用真实 CLI 的集成思路。
+- 移除同事独立评审包中的顶层临时 README、`requirements-gui.txt`、Windows bat 启动器、preview launcher 和独立 HTML 预览，避免进入主线。
+- 同步更新 `README.md`、`docs/PROJECT_PLAN.md`、ZMD 入口配置、正式源码、CLI、GUI、文档和版本索引。
+
+**决策 / 计划变更：**
+- GUI 定位为可选前端；`ss-screen` 继续是科学计算权威入口，`ss-screen-gui` 只负责界面、参数收集、日志和子进程编排。
+
+**下一步：** 在 Ubuntu 26.04 虚拟机中准备 Python 3.11 项目 `.venv`，执行 `python -m pip install -r requirements.txt`，再分别验证 `ss-screen --help` 和 `ss-screen-gui`。
+
+**阻塞项 / 上游问题：** 当前本机 WSL 侧仍未按 `AGENTS.md` 建立项目 `.venv`/Python 3.11，因此本次未运行 pytest、GUI 启动、notebook、DFT、MACE、Phonopy 或 AiiDA daemon。
+
 ## 2026-09-04 — 检查本机 WSL 项目运行条件
 
 **本次工作目标：** 核对新安装的 WSL 是否能承载 `ss-screen` 当前 CLI/Web 项目，并检查关键文件是否缺失。

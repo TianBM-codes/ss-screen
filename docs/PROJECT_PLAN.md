@@ -99,6 +99,11 @@ ss-screen/
 │   │   ├── condense_cmd.py     # ss-screen condense
 │   │   ├── pair_cmd.py         # ss-screen pair-screen
 │   │   └── defects_cmd.py      # future ss-screen rank-defects
+│   ├── gui/                    # optional PySide6 desktop workbench
+│   │   ├── __init__.py
+│   │   ├── app.py              # GUI shell and command pages
+│   │   ├── launcher.py         # `ss-screen-gui` entry point
+│   │   └── metadata.py         # workflow presentation metadata
 │   └── _schema.py              # dataclass schemas for result CSVs
 ├── tests/
 │   ├── test_envmatch.py
@@ -130,6 +135,8 @@ heavy workflow dependencies.
 - `condense`: robocrys condensation (`robocrys`, compatible `matminer` /
   `setuptools` pins).
 - `sqs`: optimized SQS generation (`ase`, `icet`).
+- `gui`: optional PySide6 desktop workbench. It remains a control layer over the
+  real Click CLI and must not replace scientific command implementations.
 - `mlp`: MACE relaxation (`mace-torch`, a validated Torch build, `ase`) with
   NumPy/ASE/matscipy compatibility pins matching the local MACE-MPA-0 runtime.
 - `phonon`: Phonopy 4.x finite displacements, SeeK-path high-symmetry paths,
@@ -142,7 +149,8 @@ task/result contract. Any future defect execution extra will be designed and
 validated independently rather than reintroducing a band-calculation runtime.
 
 Install: `pip install ss-screen` (core) or install targeted extras such as
-`pip install "ss-screen[mp,condense,sqs,mlp]"`.
+`pip install "ss-screen[mp,condense,sqs,mlp]"`. For Ubuntu development with the
+CLI, common workflow extras, and GUI, use `pip install -r requirements.txt`.
 
 ## 5. Migration milestones (long-running roadmap)
 

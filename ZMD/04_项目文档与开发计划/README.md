@@ -14,6 +14,7 @@
 | [`docs/algorithm_recommendation.md`](../../docs/algorithm_recommendation.md) | 推荐单元、L2--L6、三类判定、排序和输入输出 | Stage 11 科学与文件契约 |
 | [`docs/web_platform_development_guide.md`](../../docs/web_platform_development_guide.md) | React/FastAPI 多用户 Web 平台的架构、状态机、API、页面、任务、存储、安全、测试和分阶段实施 | Phase 1、Stage 1 MP/WBM 与 Stage 1a composition 已接入 |
 | [`docs/web_platform_implementation_handoff.md`](../../docs/web_platform_implementation_handoff.md) | Phase 0/1 实施指令、schema、API、ArtifactStore、安全和验收清单 | 当前 Web 控制层实现的交付范围 |
+| [`docs/gui_integration_notes.md`](../../docs/gui_integration_notes.md) | 可选 PySide6 桌面 GUI 的集成边界、保留的界面流程思路和后续串通 CLI 的原则 | GUI 必须调用真实 CLI，不替换科学实现 |
 | [`docs/adr/`](../../docs/adr/) | Web/核心边界、元数据/制品分工、状态机、身份、Stage 1 数据源与 Stage 1a Artifact 输入决策 | 已接受架构决策 |
 | [`docs/software_status_report_2026-08-04.md`](../../docs/software_status_report_2026-08-04.md) | 面向导师汇报的软件定位、完成度、教学证据、限制、下一步和决策问题 | 2026-08-04 阶段性软件汇报材料 |
 | [`docs/review_upstream_completeness_2026-07-19.md`](../../docs/review_upstream_completeness_2026-07-19.md) | 逐研究家族比较已迁移/缺失能力 | 完整性与优先级审计 |
@@ -63,6 +64,8 @@
 
 ## 最近同步
 
+- 2026-09-07：新增 `docs/gui_integration_notes.md`，记录同事 GUI 评审包中保留的阶段化工作台思路，
+  并明确 GUI 作为可选前端调用真实 CLI。
 - 2026-09-02：项目日志登记当前完整工作树以提交 `33f9cc3` 发布到新远程 `master`；远程 `main`
   保持在原基线，科学路线与下一步 Stage 3 structure-match 不变。
 - 2026-09-02：远程前端保持运行；定位本地页面`Failed to fetch`为远程API进程退出，改用脱离交互

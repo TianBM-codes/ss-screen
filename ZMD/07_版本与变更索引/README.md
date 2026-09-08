@@ -14,6 +14,14 @@
 | Python 环境 | 项目本地 Python 3.11.15 |
 | 导航范围 | 根入口、26 个科学源码文件、Web 控制层/前端/部署、核心与 Web 测试、docs/plans、models、11 个历史资料家族、scripts 和 CI |
 
+### 2026-09-07 — 集成可选桌面 GUI 并保留真实 CLI
+
+- 真实变更：恢复 `ss-screen` 的真实 Click CLI 行为；新增 `src/ssscreen/gui/` 可选 PySide6 桌面工作台、
+  `[gui]` extra、`ss-screen-gui` 入口、Ubuntu/Linux 用 `requirements.txt` 和
+  `docs/gui_integration_notes.md`。
+- 范围边界：同事独立评审包中的 preview-only CLI、顶层 bat 启动器、独立 HTML 预览和临时 README 不进入
+  主线；GUI 思路以工程树、阶段页、属性面板、日志区和真实 CLI 子进程调用方式保留。
+
 ### 2026-09-04 — 检查本机 WSL 项目运行条件
 
 - 环境检查：WSL 默认发行版为 Ubuntu/WSL2，Windows 工作副本可从 `/mnt/d/WorkSpace/FEM/ss-screen`
