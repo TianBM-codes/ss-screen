@@ -1,4 +1,4 @@
-import { FlaskConical, FolderKanban, Menu, PanelLeftClose, Workflow, X } from "lucide-react";
+import { FlaskConical, FolderKanban, Menu, PanelLeftClose, X } from "lucide-react";
 import { useState } from "react";
 import { Link, Outlet } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -16,7 +16,6 @@ export function Shell() {
         <button className="sidebar-close icon-button" onClick={() => setOpen(false)} aria-label="关闭导航" title="关闭导航"><X /></button>
         <nav>
           <Link to="/projects" activeProps={{ className: "active" }} onClick={() => setOpen(false)}><FolderKanban aria-hidden="true" />项目</Link>
-          <Link to="/workflow-prototype" activeProps={{ className: "active" }} onClick={() => setOpen(false)}><Workflow aria-hidden="true" />流程原型</Link>
         </nav>
         <div className="sidebar-status">
           <span className={`health-dot ${live.isSuccess ? "online" : "offline"}`} aria-hidden="true" />

@@ -10,7 +10,6 @@ import { NewDatasetPage } from "../features/NewDatasetPage";
 import { NewWBMDatasetPage } from "../features/NewWBMDatasetPage";
 import { NewCompositionPage } from "../features/NewCompositionPage";
 import { NewCondensationPage } from "../features/NewCondensationPage";
-import { WorkflowPrototypePage } from "../features/WorkflowPrototypePage";
 
 const rootRoute = createRootRoute({ component: Shell });
 const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: "/", component: () => <Navigate to="/projects" /> });
@@ -24,8 +23,7 @@ const newCompositionRoute = createRoute({ getParentRoute: () => rootRoute, path:
 const newCondensationRoute = createRoute({ getParentRoute: () => rootRoute, path: "/runs/$runId/condensation/new", component: NewCondensationPage });
 const runRoute = createRoute({ getParentRoute: () => rootRoute, path: "/runs/$runId", component: RunPage });
 const artifactRoute = createRoute({ getParentRoute: () => rootRoute, path: "/artifacts/$artifactId", component: ArtifactPage });
-const workflowPrototypeRoute = createRoute({ getParentRoute: () => rootRoute, path: "/workflow-prototype", component: WorkflowPrototypePage });
-const routeTree = rootRoute.addChildren([indexRoute, projectsRoute, projectRoute, newRunRoute, newDatasetRoute, newWBMDatasetRoute, datasetRoute, newCompositionRoute, newCondensationRoute, runRoute, artifactRoute, workflowPrototypeRoute]);
+const routeTree = rootRoute.addChildren([indexRoute, projectsRoute, projectRoute, newRunRoute, newDatasetRoute, newWBMDatasetRoute, datasetRoute, newCompositionRoute, newCondensationRoute, runRoute, artifactRoute]);
 export const router = createRouter({ routeTree });
 
 declare module "@tanstack/react-router" { interface Register { router: typeof router; } }
