@@ -7,6 +7,35 @@
 
 **Read first at the start of every session:** `AGENTS.md` → this file → `PROJECT_PLAN.md`.
 
+## 2026-09-10 — 配置 WSL 后台 CLI 环境
+
+**本次工作目标：** 在 WSL 中为 `ss-screen` 创建可运行后台 CLI 的 Python 3.11 环境。
+
+**已完成：**
+- 在 WSL Ubuntu 26.04 用户目录安装 `uv`，并在 `/mnt/d/WorkSpace/OtherProjects/ss-screen/.venv` 创建 CPython 3.11.16 虚拟环境。
+- 使用 `uv pip` 安装 editable `ss-screen` 及 `[wbm,mp,condense,sqs]` 常用非 GPU 可选依赖，另安装 `pytest` 用于轻量端到端验证。
+- 验证 `ssscreen` 1.0、核心/可选模块导入、`ss-screen --version`、`ss-screen condense --help`、`ss-screen stability sqs-generate --help`、`uv pip check` 和 `tests/test_e2e_pipeline.py` 通过。
+
+**决策 / 计划变更：** 无科学路线变化；当前 WSL 环境先覆盖后台 CLI 与非 GPU 阶段，MACE、phonopy 和 GPU 相关依赖后续按需单独安装。
+
+**下一步：** 评估是否把仓库复制到 WSL 原生 `/home/sipesc/projects/` 目录以提升依赖安装和测试 I/O 性能，再将 GUI 命令执行目标连接到该 WSL 后台解释器。
+
+**阻塞项 / 上游问题：** Ubuntu 26.04 系统 Python 为 3.14.4，未提供 `python3.11` 命令；已通过用户级 `uv` 下载 CPython 3.11.16 规避。当前虚拟环境位于 Windows 挂载盘 `/mnt/d`，`uv` 无法 hardlink 并回退 copy，首次安装耗时较长。
+
+## 2026-09-09 — GUI 支持 PyCharm 直接运行 app.py
+
+**本次工作目标：** 让 `src/ssscreen/gui/app.py` 被 IDE 直接作为脚本运行时不再因相对导入失败退出。
+
+**已完成：**
+- 修改 `src/ssscreen/gui/app.py`：在 `__package__` 为空时自动把项目 `src/` 加入 `sys.path`，并改用绝对导入；包模式运行时继续使用原相对导入。
+- 更新 `ZMD/02_正式源码/gui.md` 和 `ZMD/07_版本与变更索引/README.md`，登记该 IDE 兼容入口。
+
+**决策 / 计划变更：** 无科学路线变化；`ss-screen-gui` 和 `python -m ssscreen.gui.app` 仍是正式包入口，直接运行 `app.py` 只是面向 IDE 的兼容方式。
+
+**下一步：** 在安装 `.[gui]` 的项目解释器中从 PyCharm 运行 `app.py`，检查窗口启动和 CLI 子进程调用。
+
+**阻塞项 / 上游问题：** 当前 Windows Python 未安装项目包和 PySide6，因此本次只做语法级验证，不做 GUI 视觉启动。
+
 ## 2026-09-02 — 发布当前完整工作树到远程 master
 
 **本次工作目标：** 将当前工作副本中经约定纳入版本控制的源码、测试、Web 平台、文档与 ZMD 发布到 `bonan-group/ss-screen` 的新远程 `master` 分支。

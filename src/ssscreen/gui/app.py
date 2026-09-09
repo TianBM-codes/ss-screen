@@ -61,9 +61,17 @@ except ImportError as exc:  # pragma: no cover - exercised only without GUI extr
         "or `pip install \"ss-screen[gui]\"`."
     ) from exc
 
-from .. import __version__
-from ..cli.app import cli
-from .metadata import COMMANDS, PATH_PRESETS, STAGES, CommandPresentation
+if __package__ in {None, ""}:
+    src_root = Path(__file__).resolve().parents[2]
+    if str(src_root) not in sys.path:
+        sys.path.insert(0, str(src_root))
+    from ssscreen import __version__
+    from ssscreen.cli.app import cli
+    from ssscreen.gui.metadata import COMMANDS, PATH_PRESETS, STAGES, CommandPresentation
+else:
+    from .. import __version__
+    from ..cli.app import cli
+    from .metadata import COMMANDS, PATH_PRESETS, STAGES, CommandPresentation
 
 
 APP_TITLE = f"SS-Screen V{__version__} · Materials Engineering Workbench"

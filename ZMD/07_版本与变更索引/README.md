@@ -64,6 +64,14 @@
 
 ## 同步记录
 
+### 2026-09-09 — GUI 支持 IDE 直接运行 app.py
+
+- 真实变更：`src/ssscreen/gui/app.py` — 增加直接脚本运行时的 `src` 路径注入和绝对导入分支，
+  保留包模式相对导入。
+- ZMD 更新：`ZMD/02_正式源码/gui.md` — 记录 `app.py` 可由 PyCharm 直接启动，且 GUI 仍调用真实 CLI。
+- 验证：`python -m py_compile src\ssscreen\gui\app.py` 通过；当前 Windows Python 未安装项目包和
+  PySide6，未执行 GUI 视觉启动。
+
 ### 2026-09-01 — 固化 Web 科学核心版本与源码身份门禁
 
 - 真实变更：新增科学运行时身份模块；Stage 1 Run冻结源码/distribution版本、部署修订和核心源码
