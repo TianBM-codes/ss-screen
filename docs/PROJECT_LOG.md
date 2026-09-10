@@ -7,6 +7,20 @@
 
 **Read first at the start of every session:** `AGENTS.md` → this file → `PROJECT_PLAN.md`.
 
+## 2026-09-10 — 整理 CLI 前中段流程验证交接单
+
+**本次工作目标：** 将 WSL CLI 前中段 smoke run 的可运行范围、操作流水和真实运行缺口整理成可交给同事核对的 Markdown。
+
+**已完成：**
+- 新增 `docs/cli_front_mid_smoke_2026-09-10.md`，按 Word 手册流程列出已跑通阶段、产物目录、关键命令、模拟数据边界和需同事提供的真实 MP/WBM 数据、高精度 gap 结果、MACE/Torch/模型、phonopy 与 OpenBabel 可选依赖。
+- 更新 `ZMD/04_项目文档与开发计划/README.md` 和 `ZMD/07_版本与变更索引/README.md`，登记该交接单入口和同步记录。
+
+**决策 / 计划变更：** 无科学路线变化；本次文档明确当前 CLI 主链路可运行，真实阻塞在数据源、外部高精度计算结果和 GPU/MLP/phonon 依赖。
+
+**下一步：** 根据同事提供的最小真实数据包，执行一轮“小真实数据”端到端 CLI 验证，再把 GUI 节点绑定到对应命令、输入和输出。
+
+**阻塞项 / 上游问题：** 当前无真实 MP/WBM 数据源、真实 gap 返回结果、MACE 模型/Torch 环境和 phonopy 环境；本次未运行 notebook、DFT、MACE、Phonopy 或 AiiDA daemon。
+
 ## 2026-09-10 — 配置 WSL 后台 CLI 环境
 
 **本次工作目标：** 在 WSL 中为 `ss-screen` 创建可运行后台 CLI 的 Python 3.11 环境。

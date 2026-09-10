@@ -64,6 +64,14 @@
 
 ## 同步记录
 
+### 2026-09-10 — 整理 CLI 前中段流程验证交接单
+
+- 真实变更：新增 `docs/cli_front_mid_smoke_2026-09-10.md`，按 Word 流程整理 WSL CLI 已跑通阶段、
+  测试产物、操作流水和真实运行需补齐的数据源、MACE、phonopy、高精度 gap 结果。
+- ZMD 更新：`ZMD/04_项目文档与开发计划/README.md` 登记该交接单入口；本页记录同步。
+- 验证：基于本轮已完成的 WSL CLI smoke run 输出整理；未新增源码改动，未运行 notebook、DFT、
+  MACE、Phonopy 或 AiiDA daemon。
+
 ### 2026-09-09 — GUI 支持 IDE 直接运行 app.py
 
 - 真实变更：`src/ssscreen/gui/app.py` — 增加直接脚本运行时的 `src` 路径注入和绝对导入分支，
