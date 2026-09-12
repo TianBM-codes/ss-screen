@@ -40,6 +40,7 @@ STAGES: tuple[tuple[str, str, str], ...] = (
 COMMANDS: tuple[CommandPresentation, ...] = (
     CommandPresentation("01", "Materials Project 数据获取", ("dataset", "mp")),
     CommandPresentation("01", "WBM 数据获取", ("dataset", "wbm")),
+    CommandPresentation("01", "本地 POSCAR 结构导入", ("dataset", "structures")),
     CommandPresentation("02", "价态过滤", ("valence-filter",)),
     CommandPresentation("02", "组成模板筛选", ("composition-screen",)),
     CommandPresentation("03", "生成结构描述", ("condense",)),
@@ -75,6 +76,11 @@ PATH_PRESETS: dict[tuple[str, ...], dict[str, Any]] = {
         "--provenance": "01_dataset/mp.df.provenance.json",
     },
     ("dataset", "wbm"): {"--output": "01_dataset/wbm.df"},
+    ("dataset", "structures"): {
+        "--input-dir": ("data/CaS_CaSe_CaTe_POSCAR",),
+        "--output": "01_dataset/local_structures.df",
+        "--provenance": "01_dataset/local_structures.provenance.json",
+    },
     ("valence-filter",): {
         "--df-mp": "01_dataset/mp.df",
         "--output": "02_composition/valid_ids.json",

@@ -9,6 +9,7 @@ dist/
 
 # Virtual envs
 .venv/
+.venv-*/
 .venv-broken-*/
 venv/
 
@@ -23,6 +24,7 @@ htmlcov/
 .tox/
 .mypy_cache/
 .ruff_cache/
+data/
 
 # Web frontend and browser-test outputs
 web/frontend/node_modules/

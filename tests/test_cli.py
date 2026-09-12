@@ -410,6 +410,65 @@ def test_dataset_wbm_command_invokes_loader(monkeypatch, tmp_path):
     assert "Wrote 1 WBM rows" in result.output
 
 
+def test_dataset_structures_command_invokes_loader(monkeypatch, tmp_path):
+    runner = CliRunner()
+    input_dir = tmp_path / "structures"
+    input_dir.mkdir()
+    output = tmp_path / "local.df"
+    provenance = tmp_path / "local.provenance.json"
+    metadata = tmp_path / "metadata.csv"
+    metadata.write_text("material_id,band_gap,e_hull\n")
+    calls = []
+
+    def fake_load_structure_dataset(**kwargs):
+        calls.append(kwargs)
+        df = _screening_df([("CaS", "CaS", 0.0, 0.0)])
+        df.to_pickle(kwargs["output"])
+        return df
+
+    monkeypatch.setattr(
+        "ssscreen.data.structures.load_structure_dataset",
+        fake_load_structure_dataset,
+    )
+
+    result = runner.invoke(
+        cli,
+        [
+            "dataset",
+            "structures",
+            "--input-dir",
+            str(input_dir),
+            "--metadata",
+            str(metadata),
+            "--band-gap-default",
+            "0.1",
+            "--e-hull-default",
+            "0.02",
+            "--source",
+            "local-fixture",
+            "--output",
+            str(output),
+            "--provenance",
+            str(provenance),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert calls == [
+        {
+            "input_dirs": [input_dir],
+            "inputs": [],
+            "metadata_path": metadata,
+            "band_gap_default": 0.1,
+            "e_hull_default": 0.02,
+            "source": "local-fixture",
+            "output": output,
+            "provenance_path": provenance,
+        }
+    ]
+    assert "Wrote 1 local structure rows" in result.output
+
+
 def test_structure_match_command_writes_groups_and_summary(monkeypatch, tmp_path):
     runner = CliRunner()
     candidates = tmp_path / "composition_candidates.csv"

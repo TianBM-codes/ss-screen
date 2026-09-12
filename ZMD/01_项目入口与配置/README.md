@@ -55,6 +55,8 @@
 
 ## 最近同步
 
+- 2026-09-11：WSL 下新增被忽略的 `.venv-mlp/`，安装 `torch 2.5.1+cu121`、`mace-torch 0.3.14`、
+  `phonopy 4.5.0` 和项目 `[mlp,phonon]` 依赖；`.gitignore` 增加 `.venv-*/`，避免专用环境入库。
 - 2026-09-07：新增 `requirements.txt` 作为 Ubuntu/Linux 开发安装入口；根包新增 `[gui]` extra 和
   `ss-screen-gui` 脚本，CLI 入口保持 `ss-screen` 不变。
 - 2026-09-02：提交前将前端 `*.tsbuildinfo` 增量编译缓存加入 `.gitignore`；虚拟环境、缓存、

@@ -16,6 +16,7 @@
 |---|---|---|
 | `dataset mp` | MP 数据标准化及数据库/query provenance | [`data/mp.py`](../../src/ssscreen/data/mp.py) |
 | `dataset wbm` | WBM extxyz 标准化 | [`data/wbm.py`](../../src/ssscreen/data/wbm.py) |
+| `dataset structures` | 本地 POSCAR/CIF/vasp/json 结构文件夹标准化 | [`data/structures.py`](../../src/ssscreen/data/structures.py) |
 | `valence-filter` | 价态预过滤 | [`pair/filters.py`](../../src/ssscreen/pair/filters.py) |
 | `composition-screen` | 组成模板候选 | [`pair/grouping.py`](../../src/ssscreen/pair/grouping.py) |
 | `condense` | 生成 robocrys 描述 | [`data/condense.py`](../../src/ssscreen/data/condense.py) |
@@ -49,6 +50,8 @@
 
 ## 最近同步
 
+- 2026-09-11：新增 `dataset structures`，支持从本地 POSCAR/CIF 文件夹或单文件生成 Stage 1 DataFrame；
+  GUI 数据源页可调用该命令作为本地结构初筛入口。
 - 2026-09-07：恢复并保留真实 CLI 入口，新增独立 `ss-screen-gui`；GUI 集成不改变
   `ss-screen` 的科学命令行为。
 - 2026-08-24：完善批量优先的 `gap-collect-vasp`；增加 `--method-metadata`，`--report` 可省略，missing任务保留结果行，报告增加逐任务错误和未知目录。

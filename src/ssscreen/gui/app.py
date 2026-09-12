@@ -16,7 +16,7 @@ import shlex
 import sys
 from dataclasses import dataclass
 from datetime import datetime
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 
 import click
@@ -516,6 +516,7 @@ class DatasetSourcePage(QWidget):
         self.tabs.setMinimumHeight(520)
         self.tabs.addTab(self._build_mp_tab(), "Materials Project")
         self.tabs.addTab(self._build_wbm_tab(), "WBM Dataset")
+        self.tabs.addTab(self._build_structures_tab(), "Local POSCAR / 本地结构")
         self.tabs.addTab(self._build_local_tab(), "Local Datasets / 本地数据")
         root.addWidget(self.tabs, 1)
 
@@ -535,6 +536,7 @@ class DatasetSourcePage(QWidget):
         self.refresh_sources()
         self._refresh_mp_preview()
         self._refresh_wbm_preview()
+        self._refresh_structures_preview()
 
     # ------------------------------------------------------------------
     # Common helpers
@@ -559,6 +561,7 @@ class DatasetSourcePage(QWidget):
         self,
         default: str,
         *,
+        directory: bool = False,
         save_file: bool = False,
     ) -> tuple[QWidget, QLineEdit]:
         host = QWidget()
@@ -572,7 +575,13 @@ class DatasetSourcePage(QWidget):
 
         def choose() -> None:
             base = str(self._project_root())
-            if save_file:
+            if directory:
+                value = QFileDialog.getExistingDirectory(
+                    self,
+                    "选择目录",
+                    base,
+                )
+            elif save_file:
                 value, _ = QFileDialog.getSaveFileName(
                     self,
                     "选择输出文件",
@@ -828,6 +837,12 @@ class DatasetSourcePage(QWidget):
         form.setHorizontalSpacing(12)
         form.setVerticalSpacing(8)
 
+        host, self.wbm_xyz = self._path_editor("")
+        form.addRow("WBM extxyz", host)
+
+        host, self.wbm_summary = self._path_editor("")
+        form.addRow("Summary CSV/TSV", host)
+
         host, self.wbm_output = self._path_editor(
             "01_dataset/wbm.df",
             save_file=True,
@@ -870,17 +885,23 @@ class DatasetSourcePage(QWidget):
         layout.addLayout(actions)
         layout.addStretch(1)
 
-        self.wbm_output.textChanged.connect(self._refresh_wbm_preview)
+        for editor in (self.wbm_xyz, self.wbm_summary, self.wbm_output):
+            editor.textChanged.connect(self._refresh_wbm_preview)
 
         return _wrap_in_scroll_area(page, min_width=840, min_height=560)
 
     def _wbm_argv(self) -> list[str]:
-        return [
+        argv = [
             "dataset",
             "wbm",
+            "--xyz",
+            self.wbm_xyz.text().strip(),
             "--output",
             self.wbm_output.text().strip(),
         ]
+        if self.wbm_summary.text().strip():
+            argv.extend(["--summary", self.wbm_summary.text().strip()])
+        return argv
 
     def _refresh_wbm_preview(self) -> None:
         if hasattr(self, "wbm_preview"):
@@ -889,6 +910,13 @@ class DatasetSourcePage(QWidget):
             )
 
     def _run_wbm(self) -> None:
+        if not self.wbm_xyz.text().strip():
+            QMessageBox.warning(
+                self,
+                "缺少 WBM 文件",
+                "请先选择 WBM extxyz 输入文件。",
+            )
+            return
         if not self.wbm_output.text().strip():
             QMessageBox.warning(
                 self,
@@ -900,6 +928,146 @@ class DatasetSourcePage(QWidget):
             self._wbm_argv(),
             "WBM 数据获取",
         )
+
+    # ------------------------------------------------------------------
+    # Local structure folder
+    # ------------------------------------------------------------------
+
+    def _build_structures_tab(self) -> QWidget:
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        layout.setContentsMargins(6, 8, 6, 6)
+        layout.setSpacing(7)
+
+        identity = QGroupBox("Local Structures / 本地结构输入")
+        identity_layout = QVBoxLayout(identity)
+        intro = QLabel(
+            "把本地 POSCAR/CIF/vasp/json 结构文件夹导入为标准 DataFrame。"
+            "该入口适合把甲方或同事提供的小批量结构作为 Stage 01 初筛数据；"
+            "若结构文件不含 band gap 和 hull 信息，可先用默认值跑通流程，真实筛选应提供 metadata 表。"
+        )
+        intro.setWordWrap(True)
+        identity_layout.addWidget(intro)
+        layout.addWidget(identity)
+
+        input_box = QGroupBox("Input / 输入")
+        form = QFormLayout(input_box)
+        form.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
+        form.setLabelAlignment(Qt.AlignRight | Qt.AlignVCenter)
+
+        host, self.structures_input_dir = self._path_editor(
+            "data/CaS_CaSe_CaTe_POSCAR",
+            directory=True,
+        )
+        form.addRow("结构文件夹", host)
+
+        host, self.structures_metadata = self._path_editor("")
+        form.addRow("Metadata CSV/TSV", host)
+
+        self.structures_gap_default = QLineEdit("0.0")
+        self.structures_gap_default.setMaximumWidth(180)
+        form.addRow("默认 band gap", self.structures_gap_default)
+
+        self.structures_hull_default = QLineEdit("0.0")
+        self.structures_hull_default.setMaximumWidth(180)
+        form.addRow("默认 e_hull", self.structures_hull_default)
+
+        self.structures_source = QLineEdit("local-structures")
+        form.addRow("数据源标签", self.structures_source)
+        layout.addWidget(input_box)
+
+        output_box = QGroupBox("Output / 输出")
+        out_form = QFormLayout(output_box)
+        out_form.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
+        out_form.setLabelAlignment(Qt.AlignRight | Qt.AlignVCenter)
+
+        host, self.structures_output = self._path_editor(
+            "01_dataset/local_structures.df",
+            save_file=True,
+        )
+        out_form.addRow("本地标准化数据", host)
+
+        host, self.structures_provenance = self._path_editor(
+            "01_dataset/local_structures.provenance.json",
+            save_file=True,
+        )
+        out_form.addRow("Provenance / 来源记录", host)
+        layout.addWidget(output_box)
+
+        self.structures_preview = QPlainTextEdit()
+        self.structures_preview.setReadOnly(True)
+        self.structures_preview.setMaximumHeight(82)
+        self.structures_preview.setObjectName("commandPreview")
+        layout.addWidget(QLabel("Command Preview / 命令预览"))
+        layout.addWidget(self.structures_preview)
+
+        actions = QHBoxLayout()
+        refresh = QPushButton("检查本地结果")
+        refresh.clicked.connect(self.refresh_sources)
+        copy = QPushButton("复制命令")
+        copy.clicked.connect(
+            lambda: QApplication.clipboard().setText(
+                self.structures_preview.toPlainText()
+            )
+        )
+        run = QPushButton("导入本地结构")
+        run.setObjectName("primaryButton")
+        run.clicked.connect(self._run_structures)
+        actions.addWidget(refresh)
+        actions.addStretch(1)
+        actions.addWidget(copy)
+        actions.addWidget(run)
+        layout.addLayout(actions)
+        layout.addStretch(1)
+
+        for editor in (
+            self.structures_input_dir,
+            self.structures_metadata,
+            self.structures_gap_default,
+            self.structures_hull_default,
+            self.structures_source,
+            self.structures_output,
+            self.structures_provenance,
+        ):
+            editor.textChanged.connect(self._refresh_structures_preview)
+
+        return _wrap_in_scroll_area(page, min_width=840, min_height=650)
+
+    def _structures_argv(self) -> list[str]:
+        argv = [
+            "dataset",
+            "structures",
+            "--input-dir",
+            self.structures_input_dir.text().strip(),
+            "--band-gap-default",
+            self.structures_gap_default.text().strip() or "0.0",
+            "--e-hull-default",
+            self.structures_hull_default.text().strip() or "0.0",
+            "--source",
+            self.structures_source.text().strip() or "local-structures",
+            "--output",
+            self.structures_output.text().strip(),
+            "--provenance",
+            self.structures_provenance.text().strip(),
+        ]
+        if self.structures_metadata.text().strip():
+            argv.extend(["--metadata", self.structures_metadata.text().strip()])
+        return argv
+
+    def _refresh_structures_preview(self) -> None:
+        if hasattr(self, "structures_preview"):
+            self.structures_preview.setPlainText(
+                shlex.join(["ss-screen", *self._structures_argv()])
+            )
+
+    def _run_structures(self) -> None:
+        if not self.structures_input_dir.text().strip():
+            QMessageBox.warning(self, "缺少输入目录", "请先选择 POSCAR/CIF 结构文件夹。")
+            return
+        if not self.structures_output.text().strip():
+            QMessageBox.warning(self, "缺少输出路径", "请设置本地 DataFrame 输出路径。")
+            return
+        self.run_requested.emit(self._structures_argv(), "本地 POSCAR 结构导入")
 
     # ------------------------------------------------------------------
     # Local project data
@@ -973,6 +1141,7 @@ class DatasetSourcePage(QWidget):
 
         mp_path = self._resolve(self.mp_output.text())
         wbm_path = self._resolve(self.wbm_output.text())
+        structures_path = self._resolve(self.structures_output.text())
         provenance_path = self._resolve(self.mp_provenance.text())
 
         self.mp_status.setText(
@@ -1007,6 +1176,13 @@ class DatasetSourcePage(QWidget):
                 "Ready" if wbm_path.exists() else "未生成",
                 self._format_size(wbm_path),
                 "组成模板筛选",
+            ),
+            (
+                "Local POSCAR",
+                structures_path,
+                "Ready" if structures_path.exists() else "未生成",
+                self._format_size(structures_path),
+                "组成模板筛选 / 结构描述",
             ),
         ]
         self.local_table.setRowCount(len(records))
@@ -1067,6 +1243,7 @@ class DatasetSourcePage(QWidget):
 
         self._refresh_mp_preview()
         self._refresh_wbm_preview()
+        self._refresh_structures_preview()
 
     def _open_dataset_dir(self) -> None:
         path = self._project_root() / "01_dataset"
@@ -1078,8 +1255,10 @@ class DatasetSourcePage(QWidget):
             self.tabs.setCurrentIndex(0)
         elif section in {"wbm", "wbm_fetch"}:
             self.tabs.setCurrentIndex(1)
-        else:
+        elif section in {"structures", "local_structures"}:
             self.tabs.setCurrentIndex(2)
+        else:
+            self.tabs.setCurrentIndex(3)
         self.refresh_sources()
 
 
@@ -1437,6 +1616,7 @@ class CompositionScreenPage(QWidget):
         self.df_table.setRowCount(0)
         self._append_dataframe("01_dataset/mp.df")
         self._append_dataframe("01_dataset/wbm.df")
+        self._append_dataframe("01_dataset/local_structures.df")
         if not initial:
             self.refresh_inputs()
 
@@ -2397,7 +2577,7 @@ class StructureArchivePage(QWidget):
 
         folder = Path(value)
         supported = {".cif", ".vasp", ".poscar", ".json"}
-        for path in sorted(folder.iterdir()):
+        for path in sorted(folder.rglob("*")):
             if not path.is_file():
                 continue
             if path.suffix.lower() in supported or path.name.upper().startswith(("POSCAR", "CONTCAR")):
@@ -3554,11 +3734,25 @@ class InspectorPanel(QWidget):
         runtime_box = QGroupBox("Connection / 连接设置")
         runtime_form = QFormLayout(runtime_box)
         runtime_form.setContentsMargins(8, 10, 8, 8)
+        self.runtime_backend = QComboBox()
+        self.runtime_backend.addItem("Windows Python / 当前解释器", ("windows", ""))
+        self.runtime_backend.addItem("WSL Python / .venv", ("wsl", ".venv/bin/activate"))
+        self.runtime_backend.addItem("WSL Python / .venv-mlp", ("wsl", ".venv-mlp/bin/activate"))
+        self.runtime_backend.setCurrentIndex(1)
+        runtime_form.addRow("运行后端", self.runtime_backend)
+
+        self.wsl_root = QLineEdit()
+        self.wsl_root.setPlaceholderText("留空 = 自动把当前工程路径转换为 /mnt/<drive>/...")
+        runtime_form.addRow("WSL 工程路径", self.wsl_root)
+
         self.api_key = QLineEdit()
         self.api_key.setEchoMode(QLineEdit.Password)
         self.api_key.setPlaceholderText("MP_API_KEY（可选）")
         runtime_form.addRow("MP API Key", self.api_key)
-        note = QLabel("仅注入当前任务进程，不写入命令或项目文件。")
+        note = QLabel(
+            "MP API Key 仅注入当前任务进程，不写入命令或项目文件。"
+            "WSL 模式会调用 wsl.exe 并在工程目录中激活所选虚拟环境。"
+        )
         note.setWordWrap(True)
         note.setObjectName("optionHelp")
         runtime_form.addRow("", note)
@@ -3789,6 +3983,8 @@ class MainWindow(QMainWindow):
         self.inspector = InspectorPanel()
         inspector_layout.addWidget(self.inspector, 1)
         self.api_key = self.inspector.api_key
+        self.runtime_backend = self.inspector.runtime_backend
+        self.wsl_root = self.inspector.wsl_root
         workspace.addWidget(inspector_frame)
 
         workspace.setSizes([300, 1020, 280])
@@ -4607,6 +4803,11 @@ class MainWindow(QMainWindow):
             self.stack.setCurrentWidget(self.dataset_source_page)
             return
 
+        if path == ("dataset", "structures"):
+            self.dataset_source_page.select_section("structures")
+            self.stack.setCurrentWidget(self.dataset_source_page)
+            return
+
         if path == ("composition-screen",):
             self.composition_screen_page.select_section("screen")
             self.stack.setCurrentWidget(self.composition_screen_page)
@@ -4667,7 +4868,8 @@ class MainWindow(QMainWindow):
         root.mkdir(parents=True, exist_ok=True)
         (root / "logs").mkdir(exist_ok=True)
 
-        preview = shlex.join(["ss-screen", *argv])
+        backend_kind, backend_activate = self.runtime_backend.currentData()
+        preview = self._command_preview(argv, backend_kind, backend_activate, root)
         self._current_run = RunRecord(
             started=datetime.now().isoformat(timespec="seconds"),
             command=preview,
@@ -4689,10 +4891,78 @@ class MainWindow(QMainWindow):
 
         self.process.setProcessEnvironment(env)
         self.process.setWorkingDirectory(str(root))
-        program = sys.executable
-        args = ["-m", "ssscreen.cli.app", *argv]
+        if backend_kind == "wsl":
+            program, args = self._wsl_process(argv, root, backend_activate)
+        else:
+            program = sys.executable
+            args = ["-m", "ssscreen.cli.app", *argv]
         self.process.start(program, args)
         self.statusBar().showMessage(f"{project.name} · 运行中：{title}")
+
+    def _command_preview(
+        self,
+        argv: list[str],
+        backend_kind: str,
+        backend_activate: str,
+        root: Path,
+    ) -> str:
+        if backend_kind != "wsl":
+            return shlex.join(["ss-screen", *argv])
+        wsl_root = self._wsl_root_for_project(root)
+        converted = [self._windows_arg_to_wsl(value) for value in argv]
+        command = [
+            "cd",
+            shlex.quote(wsl_root),
+            "&&",
+            "source",
+            shlex.quote(backend_activate),
+            "&&",
+            "PYTHONUNBUFFERED=1",
+            "ss-screen",
+            *[shlex.quote(value) for value in converted],
+        ]
+        return "wsl.exe bash -lc " + shlex.quote(" ".join(command))
+
+    def _wsl_process(
+        self,
+        argv: list[str],
+        root: Path,
+        backend_activate: str,
+    ) -> tuple[str, list[str]]:
+        key = self.api_key.text().strip()
+        exports = ["export PYTHONUNBUFFERED=1"]
+        if key:
+            exports.append(f"export MP_API_KEY={shlex.quote(key)}")
+        converted = [self._windows_arg_to_wsl(value) for value in argv]
+        command = " && ".join(
+            [
+                f"cd {shlex.quote(self._wsl_root_for_project(root))}",
+                f"source {shlex.quote(backend_activate)}",
+                *exports,
+                shlex.join(["ss-screen", *converted]),
+            ]
+        )
+        return "wsl.exe", ["bash", "-lc", command]
+
+    def _wsl_root_for_project(self, root: Path) -> str:
+        override = self.wsl_root.text().strip()
+        if override:
+            return override
+        return self._windows_path_to_wsl(str(root))
+
+    def _windows_arg_to_wsl(self, value: str) -> str:
+        if len(value) >= 3 and value[1] == ":" and value[2] in {"\\", "/"}:
+            return self._windows_path_to_wsl(value)
+        return value
+
+    def _windows_path_to_wsl(self, value: str) -> str:
+        path = PureWindowsPath(value)
+        drive = path.drive.rstrip(":").lower()
+        if not drive:
+            return value.replace("\\", "/")
+        parts = [part for part in path.parts[1:]]
+        suffix = "/".join(part.replace("\\", "/") for part in parts)
+        return f"/mnt/{drive}/{suffix}" if suffix else f"/mnt/{drive}"
 
     def stop_process(self) -> None:
         if self.process.state() == QProcess.NotRunning:
@@ -4755,6 +5025,13 @@ class MainWindow(QMainWindow):
         if exit_code == 0 and " dataset wbm " in f" {finished_command} ":
             if self.dataset_source_page._resolve(
                 self.dataset_source_page.wbm_output.text()
+            ).exists():
+                self.dataset_source_page.select_section("local")
+                self.stack.setCurrentWidget(self.dataset_source_page)
+
+        if exit_code == 0 and " dataset structures " in f" {finished_command} ":
+            if self.dataset_source_page._resolve(
+                self.dataset_source_page.structures_output.text()
             ).exists():
                 self.dataset_source_page.select_section("local")
                 self.stack.setCurrentWidget(self.dataset_source_page)

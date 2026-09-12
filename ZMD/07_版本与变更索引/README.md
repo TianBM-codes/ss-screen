@@ -64,6 +64,29 @@
 
 ## 同步记录
 
+### 2026-09-11 — 接入本地 POSCAR 数据源与 GUI/WSL 后端
+
+- 真实变更：新增 `src/ssscreen/data/structures.py` 和 `ss-screen dataset structures`，支持递归读取
+  POSCAR/CIF/vasp/json 文件夹为 Stage 1 DataFrame；`src/ssscreen/gui/app.py` 新增 Windows/WSL 运行
+  后端选择、本地 POSCAR 数据源页、WBM 必填 `--xyz` 输入和结构归档递归文件夹扫描；`metadata.py`
+  登记 `dataset structures`；新增 `tests/test_data_structures.py`，扩展 `tests/test_cli.py`。
+- 文档更新：`README.md`、`docs/cli_front_mid_smoke_2026-09-10.md`、`ZMD/02_正式源码/data.md`、
+  `ZMD/02_正式源码/cli.md` 和 `ZMD/02_正式源码/gui.md` 同步新入口、GUI 联动和 POSCAR smoke 结果。
+- 验证：`data/CaS_CaSe_CaTe_POSCAR` 三个 POSCAR 从 `dataset structures` 跑到 Stage 12 推荐；
+  GUI headless Qt 通过 `wsl.exe` 调用 `ss-screen --version` 和 `dataset structures` 成功；
+  相关 py_compile、18 项 pytest 和 Ruff 通过。真实 MACE/Phonopy 计算仍缺 checkpoint。
+
+### 2026-09-11 — 配置 WSL MLP/phonopy 专用环境
+
+- 真实变更：新增本地忽略环境 `.venv-mlp/`，安装 `torch 2.5.1+cu121`、`mace-torch 0.3.14`、
+  `phonopy 4.5.0`、项目 `[wbm,mp,condense,sqs,mlp,phonon]` extras 和 `pytest`；`.gitignore`
+  增加 `.venv-*/`，避免专用虚拟环境被误加入版本控制。
+- ZMD 更新：`ZMD/01_项目入口与配置/README.md` 登记 WSL MLP 专用环境和忽略规则；本页记录同步。
+- 验证：WSL `nvidia-smi` 可见 RTX 4060；`torch.cuda.is_available()` 为 True；`mace.calculators.MACECalculator`
+  导入成功；`uv pip check` 通过；`stability relax`、`phonon-run`、`phase-diagram` help 通过；
+  `tests/test_e2e_pipeline.py`、`tests/test_stability_relax.py`、`tests/test_stability_phonon.py` 共 14 项通过。
+  `mp_offline` 包和数据库仍需同事提供。
+
 ### 2026-09-10 — 整理 CLI 前中段流程验证交接单
 
 - 真实变更：新增 `docs/cli_front_mid_smoke_2026-09-10.md`，按 Word 流程整理 WSL CLI 已跑通阶段、

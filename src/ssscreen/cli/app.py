@@ -4,6 +4,7 @@ Subcommands mirroring the implemented pipeline stages:
 
   ``ss-screen valence-filter``  pre-filter metallic / mixed-valence structures
   ``ss-screen dataset mp``      build normalized MP dataset DataFrames
+  ``ss-screen dataset structures`` normalize local POSCAR/CIF inputs
   ``ss-screen composition-screen`` pre-screen composition-template candidates
   ``ss-screen condense``        build robocrys condensed JSON inputs
   ``ss-screen structure-match`` match candidates by condensed structure archive
@@ -205,6 +206,90 @@ def dataset_wbm_cmd(xyz_path: Path, summary_path: Path | None, output: Path) -> 
         raise click.ClickException(str(exc)) from exc
 
     click.echo(f"Wrote {len(df)} WBM rows to {output}")
+
+
+@dataset_cmd.command("structures")
+@click.option(
+    "--input-dir",
+    "input_dirs",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    multiple=True,
+    help="Directory to scan recursively for POSCAR/CIF/vasp/json structures.",
+)
+@click.option(
+    "--input",
+    "inputs",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    multiple=True,
+    help="Single structure file to include; may be repeated.",
+)
+@click.option(
+    "--metadata",
+    "metadata_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="Optional CSV/TSV with material_id, band_gap, e_hull, and source columns.",
+)
+@click.option(
+    "--band-gap-default",
+    type=float,
+    default=0.0,
+    show_default=True,
+    help="Band gap assigned when metadata is absent.",
+)
+@click.option(
+    "--e-hull-default",
+    type=float,
+    default=0.0,
+    show_default=True,
+    help="Energy above hull assigned when metadata is absent.",
+)
+@click.option(
+    "--source",
+    default="local-structures",
+    show_default=True,
+    help="Source label for rows without metadata source.",
+)
+@click.option(
+    "--output",
+    "output",
+    type=click.Path(path_type=Path),
+    required=True,
+    help="Where to write the normalized local structure pickle DataFrame.",
+)
+@click.option(
+    "--provenance",
+    "provenance_path",
+    type=click.Path(path_type=Path),
+    help="Optional provenance JSON for the local structure import.",
+)
+def dataset_structures_cmd(
+    input_dirs: tuple[Path, ...],
+    inputs: tuple[Path, ...],
+    metadata_path: Path | None,
+    band_gap_default: float,
+    e_hull_default: float,
+    source: str,
+    output: Path,
+    provenance_path: Path | None,
+) -> None:
+    """Load local POSCAR/CIF structures into the screening schema."""
+    from ..data.structures import load_structure_dataset
+
+    try:
+        df = load_structure_dataset(
+            input_dirs=list(input_dirs),
+            inputs=list(inputs),
+            metadata_path=metadata_path,
+            band_gap_default=band_gap_default,
+            e_hull_default=e_hull_default,
+            source=source,
+            output=output,
+            provenance_path=provenance_path,
+        )
+    except (ValueError, OSError) as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    click.echo(f"Wrote {len(df)} local structure rows to {output}")
 
 
 # ---------------------------------------------------------------------------

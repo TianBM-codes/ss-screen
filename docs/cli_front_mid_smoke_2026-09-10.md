@@ -350,3 +350,195 @@ ss-screen stability mixing-enthalpy \
 4. 一个可用的 MACE 模型文件和 CPU/GPU 运行说明。
 
 拿到这些后，可以先跑一轮“小真实数据”端到端流程，再把 GUI 每个节点绑定到对应 CLI 命令和产物路径。
+
+## 8. 2026-09-11 POSCAR 输入与 GUI/WSL 联动复测
+
+### 8.1 本轮新增能力
+
+本轮把用户提供的本地 POSCAR 文件夹纳入 Stage 01 数据源：
+
+```text
+D:\WorkSpace\OtherProjects\ss-screen\data\CaS_CaSe_CaTe_POSCAR
+```
+
+目录中包含：
+
+```text
+CaS/POSCAR
+CaSe/POSCAR
+CaTe/POSCAR
+```
+
+新增 CLI：
+
+```bash
+ss-screen dataset structures \
+  --input-dir data/CaS_CaSe_CaTe_POSCAR \
+  --band-gap-default 0.0 \
+  --e-hull-default 0.0 \
+  --source local-poscar \
+  --output work/poscar-gui-cli-20260911/01_local_structures.df \
+  --provenance work/poscar-gui-cli-20260911/01_local_structures.provenance.json
+```
+
+说明：
+
+- 该命令递归扫描 POSCAR/CIF/vasp/json 文件。
+- 对 `POSCAR`/`CONTCAR`，默认使用父目录名作为 `material_id`，例如 `CaS/POSCAR` → `CaS`。
+- POSCAR 文件本身只有结构，没有真实 band gap 和 e_hull；本轮用默认值跑通流程。
+- 真实筛选时应提供 metadata CSV/TSV，至少包含 `material_id`、`band_gap`、`e_hull`，可选 `source`。
+
+### 8.2 GUI 与 WSL 后端连接
+
+GUI 已改为可选择运行后端：
+
+- Windows Python / 当前解释器
+- WSL Python / `.venv`
+- WSL Python / `.venv-mlp`
+
+WSL 模式下 GUI 实际执行形式：
+
+```bash
+wsl.exe bash -lc 'cd /mnt/d/WorkSpace/OtherProjects/ss-screen && source .venv/bin/activate && PYTHONUNBUFFERED=1 ss-screen ...'
+```
+
+已做 headless Qt smoke：
+
+```text
+GUI → QProcess → wsl.exe → source .venv/bin/activate → ss-screen --version
+```
+
+结果：exit code = 0，GUI 日志中收到 `SS-Screen version 1.0`。
+
+另做了更贴近真实入口的 GUI/WSL 文件夹导入 smoke：
+
+```text
+GUI → QProcess → WSL → ss-screen dataset structures --input-dir data/CaS_CaSe_CaTe_POSCAR
+```
+
+结果：exit code = 0，生成：
+
+```text
+work/gui-wsl-link-20260911/01_local_structures.df
+```
+
+### 8.3 POSCAR 文件夹实际流程测试
+
+本轮输出目录：
+
+```text
+D:\WorkSpace\OtherProjects\ss-screen\work\poscar-gui-cli-20260911
+```
+
+对应 WSL 路径：
+
+```text
+/mnt/d/WorkSpace/OtherProjects/ss-screen/work/poscar-gui-cli-20260911
+```
+
+已跑通：
+
+| 阶段 | 命令 / 产物 | 结果 |
+|---|---|---|
+| 本地结构数据导入 | `dataset structures` → `01_local_structures.df` | 3 行：CaS、CaSe、CaTe |
+| 组成模板筛选 | `composition-screen` → `02_composition_candidates.csv` | 3 条候选，1 个模板 |
+| 结构描述归档 | `condense` → `03_condensed/` | 3 写出、0 跳过、0 失败 |
+| 结构描述校验 | `condense-validate` → `03_condensed_validation.csv` | 3 有效、0 无效 |
+| 结构匹配 | `structure-match` → `04_groups.json` | 1 个结构组，无缺失描述 |
+| 高精度 gap 任务导出 | `gap-export` → `05_gap_tasks.csv` | 3 个任务，导出 JSON/POSCAR 结构 |
+| gap 结果校验 | `gap-validate` → `05_gap_results_normalized.csv` | 3 accepted、0 rejected |
+| 端元配对 | `pair` → `06_final_pairs.csv` | 2 对 |
+| SQS 生成 | `stability sqs-generate` → `07_sqs_manifest.jsonl` | 2 条 manifest |
+| 混合焓 | `stability mixing-enthalpy` → `09_mixing_enthalpy.csv` | 2 成功、0 失败 |
+| 综合推荐 | `recommend` → `12_recommendations.csv` | 1 promising、1 low-priority |
+
+端元配对结果：
+
+| comp_a | comp_b | gap_a | gap_b | direct_a | direct_b | method |
+|---|---|---:|---:|---|---|---|
+| CaS | CaSe | 0.00 | 0.45 | true | true | `poscar-fixture-hse-v1` |
+| CaS | CaTe | 0.00 | 0.65 | true | false | `poscar-fixture-hse-v1` |
+
+推荐结果：
+
+| comp_a | comp_b | classification | evidence_level |
+|---|---|---|---|
+| CaS | CaSe | promising | L5 |
+| CaS | CaTe | low-priority | L5 |
+
+注意：gap、relaxation、phonon 和 phase-stability 是本轮手工 fixture 证据，用于验证文件契约和流程联通，不代表真实材料结论。
+
+### 8.4 PyTorch / MACE / phonopy 状态
+
+WSL `.venv-mlp` 当前状态：
+
+| 项 | 状态 |
+|---|---|
+| Python | 3.11.16 |
+| torch | 2.5.1+cu121 |
+| CUDA | 可用 |
+| GPU | NVIDIA GeForce RTX 4060 |
+| mace-torch | 0.3.14 |
+| phonopy | 4.5.0 |
+| numpy | 1.26.4 |
+| `MACECalculator` 导入 | 成功 |
+| `stability relax --help` | 成功 |
+| `stability phonon-run --help` | 成功 |
+| `stability phase-diagram --help` | 成功 |
+
+未做真实 MACE/phonopy 计算，原因是：
+
+- `models/mace-mpa-0-medium.model` 仍缺失；
+- 当前没有同事确认的真实 checkpoint、模型 SHA 和运行设置。
+
+### 8.5 本轮新增测试与验证
+
+已通过：
+
+```bash
+python -m py_compile \
+  src/ssscreen/data/structures.py \
+  src/ssscreen/cli/app.py \
+  src/ssscreen/gui/app.py \
+  src/ssscreen/gui/metadata.py
+
+python -m pytest \
+  tests/test_data_structures.py \
+  tests/test_cli.py::test_dataset_structures_command_invokes_loader \
+  tests/test_e2e_pipeline.py \
+  tests/test_stability_relax.py \
+  tests/test_stability_phonon.py \
+  -q
+```
+
+结果：
+
+```text
+18 passed
+```
+
+另跑：
+
+```bash
+ruff check \
+  src/ssscreen/data/structures.py \
+  src/ssscreen/cli/app.py \
+  src/ssscreen/gui/app.py \
+  src/ssscreen/gui/metadata.py \
+  tests/test_data_structures.py \
+  tests/test_cli.py
+```
+
+结果：
+
+```text
+All checks passed
+```
+
+### 8.6 现阶段仍需要同事提供
+
+1. 真实 gap 结果：最好是按 `gap-export` 生成的 `tasks.csv` 目录结构返回 VASP `vasprun.xml` 或 `vasprun.xml.gz`。
+2. 本地结构 metadata：如果继续用 POSCAR 文件夹作为 Stage 01 数据源，需要每个结构的 `material_id, band_gap, e_hull, source`。
+3. MACE checkpoint：例如 `mace-mpa-0-medium.model`，以及模型 SHA、模型名称、推荐 dtype、device、fmax、max steps。
+4. `mp_offline` 包和 SQLite 数据库：用于离线 Materials Project 数据和 Stage 10 竞争相查询。
+5. OpenBabel Python bindings 安装方案：当前 robocrys 可运行，但会提示缺少 OpenBabel；该项暂不阻塞无机结构测试。

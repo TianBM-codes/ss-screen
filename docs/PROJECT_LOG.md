@@ -7,6 +7,39 @@
 
 **Read first at the start of every session:** `AGENTS.md` → this file → `PROJECT_PLAN.md`.
 
+## 2026-09-11 — 接入本地 POSCAR 数据源与 GUI/WSL 后端
+
+**本次工作目标：** 让 `data/CaS_CaSe_CaTe_POSCAR` 作为 Stage 01 输入参与初筛，并把 Windows GUI 与 WSL CLI 后端连通。
+
+**已完成：**
+- 新增 `src/ssscreen/data/structures.py` 和 `ss-screen dataset structures`，支持递归读取 POSCAR/CIF/vasp/json 文件夹或单文件，生成规范化 Stage 1 DataFrame；无 metadata 时可用显式默认 `band_gap` 和 `e_hull` 做流程联调。
+- 更新 `src/ssscreen/gui/app.py`：右侧连接设置新增 Windows Python、WSL `.venv`、WSL `.venv-mlp` 后端；WSL 后端通过 `wsl.exe bash -lc` 进入工程目录并执行 `ss-screen ...`；数据源页新增本地 POSCAR 导入页；WBM 页补齐必填 `--xyz`；结构归档页递归扫描子目录 POSCAR。
+- 更新 `src/ssscreen/gui/metadata.py`、`README.md`、`docs/cli_front_mid_smoke_2026-09-10.md`、相关 ZMD 导航和版本索引；新增 `tests/test_data_structures.py`，扩展 `tests/test_cli.py`。
+- 使用 `data/CaS_CaSe_CaTe_POSCAR` 完成 `dataset structures`、`composition-screen`、`condense`、`condense-validate`、`structure-match`、`gap-export`、fixture `gap-validate`、`pair`、`sqs-generate`、fixture `mixing-enthalpy` 和 fixture `recommend`，产物位于 `work/poscar-gui-cli-20260911/`。
+- 使用 headless Qt 验证 Windows GUI 可通过 WSL 后端调用 `ss-screen --version` 和 `dataset structures`，并生成 `work/gui-wsl-link-20260911/01_local_structures.df`。
+
+**决策 / 计划变更：** 本地 POSCAR 数据源作为 Stage 01 的本地结构导入入口，不替代 MP/WBM 真实数据；无 metadata 默认 gap/hull 只用于流程联调，真实筛选必须提供 gap/hull 来源。GUI 仍只调用真实 CLI，不实现第二套科学逻辑。
+
+**下一步：** 等同事提供真实 VASP gap 结果、POSCAR metadata、MACE checkpoint 和 `mp_offline` 包/SQLite 数据库后，运行真实 gap 收集、真实 MACE 单结构冒烟和离线 MP/竞争相流程。
+
+**阻塞项 / 上游问题：** 当前缺真实 `mace-mpa-0-medium.model` checkpoint、`mp_offline` 包和数据库，以及 POSCAR 对应真实 `band_gap/e_hull` metadata；robocrys 仍提示缺少 OpenBabel Python bindings，但本轮无机结构 condense 可成功。未运行 notebook、DFT、真实 MACE 驰豫、真实 Phonopy 后处理或 AiiDA daemon。
+
+## 2026-09-11 — 配置 WSL MLP/phonopy 专用环境
+
+**本次工作目标：** 在不破坏已跑通轻量 CLI `.venv` 的前提下，为 MACE/Torch/phonopy 建立 WSL 专用运行环境。
+
+**已完成：**
+- 在 `/mnt/d/WorkSpace/OtherProjects/ss-screen/.venv-mlp` 创建 CPython 3.11.16 环境，安装 `torch 2.5.1+cu121`、`mace-torch 0.3.14`、`phonopy 4.5.0`、项目 `[wbm,mp,condense,sqs,mlp,phonon]` extras 和 `pytest`。
+- 验证 WSL 可见 RTX 4060，`torch.cuda.is_available()` 为 True，CUDA runtime 为 12.1，`mace.calculators.MACECalculator` 可导入，`uv pip check` 通过。
+- 验证 `ss-screen stability relax --help`、`ss-screen stability phonon-run --help`、`ss-screen stability phase-diagram --help` 可启动；`tests/test_e2e_pipeline.py`、`tests/test_stability_relax.py`、`tests/test_stability_phonon.py` 共 14 项通过。
+- 更新 `.gitignore` 增加 `.venv-*/`，避免 `.venv-mlp/` 等专用虚拟环境进入版本控制；同步 `ZMD/01_项目入口与配置/README.md` 和 `ZMD/07_版本与变更索引/README.md`。
+
+**决策 / 计划变更：** 无科学路线变化；保留轻量 `.venv` 作为前中段 CLI 环境，新增 `.venv-mlp` 作为 MACE/phonopy/GPU 专用环境，以避免 `numpy 2.x` 与 MACE 所需 `numpy<2` 冲突。
+
+**下一步：** 等同事提供 MACE checkpoint 和 `mp_offline` 包/SQLite 数据库后，执行真实 MACE 单结构冒烟、离线 MP 数据读取和小真实数据端到端验证。
+
+**阻塞项 / 上游问题：** 当前未发现本地 `mp_offline` 包或数据库；`models/` 目录仅有 README，缺少 `mace-mpa-0-medium.model` 等真实 checkpoint。本次未运行 notebook、DFT、真实 MACE 驰豫、Phonopy 后处理或 AiiDA daemon。
+
 ## 2026-09-10 — 整理 CLI 前中段流程验证交接单
 
 **本次工作目标：** 将 WSL CLI 前中段 smoke run 的可运行范围、操作流水和真实运行缺口整理成可交给同事核对的 Markdown。

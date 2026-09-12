@@ -59,9 +59,17 @@ ss-screen dataset mp --backend api --output mp.df
 # Stage 1: build a normalized WBM DataFrame from extxyz
 ss-screen dataset wbm --xyz wbm-dataset.xyz --output wbm.df
 
+# Stage 1: build a normalized DataFrame from local POSCAR/CIF structure folders
+ss-screen dataset structures \
+  --input-dir data/CaS_CaSe_CaTe_POSCAR \
+  --band-gap-default 0.0 \
+  --e-hull-default 0.0 \
+  --output local_structures.df \
+  --provenance local_structures.provenance.json
+
 # Stage 1a: screen composition-template candidates before structure matching
 ss-screen composition-screen \
-  --df mp.df --nelems 2 \
+  --df mp.df --df local_structures.df --nelems 2 \
   --output composition_candidates.csv \
   --summary composition_summary.json
 
