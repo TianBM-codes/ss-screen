@@ -81,6 +81,26 @@ PROJECT_DIRS = tuple(directory for _sid, _name, directory in STAGES if directory
 )
 
 
+def _find_project_root(path: Path) -> Path:
+    """Return the nearest repository/package root for a GUI launch path."""
+    current = path.expanduser().resolve()
+    if current.is_file():
+        current = current.parent
+
+    for candidate in (current, *current.parents):
+        pyproject = candidate / "pyproject.toml"
+        if (
+            (candidate / ".ssscreen-project.json").exists()
+            or (candidate / ".git").exists()
+            or (
+                pyproject.exists()
+                and (candidate / "src" / "ssscreen").exists()
+            )
+        ):
+            return candidate
+    return current
+
+
 @dataclass
 class RunRecord:
     """Small in-memory summary of a GUI-launched CLI process."""
@@ -1614,11 +1634,57 @@ class CompositionScreenPage(QWidget):
         initial: bool = False,
     ) -> None:
         self.df_table.setRowCount(0)
-        self._append_dataframe("01_dataset/mp.df")
-        self._append_dataframe("01_dataset/wbm.df")
-        self._append_dataframe("01_dataset/local_structures.df")
+        defaults = [
+            "01_dataset/mp.df",
+            "01_dataset/wbm.df",
+            "01_dataset/local_structures.df",
+        ]
+        existing = [
+            value for value in defaults if (self._project_root() / value).exists()
+        ]
+        for value in existing:
+            self._append_dataframe(value)
         if not initial:
             self.refresh_inputs()
+
+    def _prune_stale_default_dataframes(self) -> None:
+        root = self._project_root()
+        default_names = {
+            "01_dataset/mp.df",
+            "01_dataset/wbm.df",
+            "01_dataset/local_structures.df",
+        }
+        local_df = root / "01_dataset" / "local_structures.df"
+        if not local_df.exists():
+            return
+
+        keep: list[Path | str] = []
+        changed = False
+        for raw in self._dataframe_paths():
+            normalized = raw.replace("\\", "/")
+            path = Path(raw)
+            if not path.is_absolute():
+                path = root / path
+            is_default = (
+                normalized in default_names
+                or "/01_dataset/mp.df" in normalized
+                or "/01_dataset/wbm.df" in normalized
+                or "/01_dataset/local_structures.df" in normalized
+            )
+            is_stale_gui_child = "/src/ssscreen/gui/01_dataset/" in normalized
+            if path.exists():
+                keep.append(path)
+            elif is_default or is_stale_gui_child:
+                changed = True
+            else:
+                keep.append(raw)
+
+        if changed:
+            if not keep:
+                keep = [local_df]
+            self.df_table.setRowCount(0)
+            for value in keep:
+                self._append_dataframe(value)
 
     def _add_dataframe(self) -> None:
         values, _ = QFileDialog.getOpenFileNames(
@@ -1644,6 +1710,10 @@ class CompositionScreenPage(QWidget):
         if not hasattr(self, "df_table"):
             return
 
+        if self.df_table.rowCount() == 0:
+            self._reset_dataframes(initial=True)
+        self._prune_stale_default_dataframes()
+
         for row in range(self.df_table.rowCount()):
             item = self.df_table.item(row, 0)
             if item is None:
@@ -1652,6 +1722,9 @@ class CompositionScreenPage(QWidget):
             path = Path(raw)
             if not path.is_absolute():
                 path = self._project_root() / path
+            display = self._display_path(path)
+            item.setText(display.replace("\\", "/"))
+            item.setData(Qt.UserRole, str(path.resolve()))
             self.df_table.setItem(
                 row,
                 1,
@@ -1674,6 +1747,7 @@ class CompositionScreenPage(QWidget):
         for raw in self._dataframe_paths():
             path = Path(raw)
             value = self._display_path(path) if path.is_absolute() else raw
+            value = value.replace("\\", "/")
             argv.extend(["--df", value])
 
         if self.use_valence.isChecked() and self.valence_edit.text().strip():
@@ -1685,8 +1759,8 @@ class CompositionScreenPage(QWidget):
             "--max-e-hull", self.max_e_hull_edit.text().strip() or "0.01",
             "--min-group-size", self.min_group_size_edit.text().strip() or "2",
             "--min-x-elements", self.min_x_elements_edit.text().strip() or "2",
-            "--output", self.candidates_output.text().strip(),
-            "--summary", self.summary_output.text().strip(),
+            "--output", self.candidates_output.text().strip().replace("\\", "/"),
+            "--summary", self.summary_output.text().strip().replace("\\", "/"),
         ])
         return argv
 
@@ -3800,6 +3874,7 @@ class MainWindow(QMainWindow):
         self._build_ui()
 
         initial = Path(project_dir).expanduser() if project_dir else Path.cwd()
+        initial = _find_project_root(initial)
         self._add_project(initial.resolve(), initialize=False, activate=True)
         self._apply_style()
 
@@ -4948,12 +5023,12 @@ class MainWindow(QMainWindow):
         override = self.wsl_root.text().strip()
         if override:
             return override
-        return self._windows_path_to_wsl(str(root))
+        return self._windows_path_to_wsl(str(_find_project_root(root)))
 
     def _windows_arg_to_wsl(self, value: str) -> str:
         if len(value) >= 3 and value[1] == ":" and value[2] in {"\\", "/"}:
             return self._windows_path_to_wsl(value)
-        return value
+        return value.replace("\\", "/")
 
     def _windows_path_to_wsl(self, value: str) -> str:
         path = PureWindowsPath(value)
@@ -4976,16 +5051,40 @@ class MainWindow(QMainWindow):
 
     def _read_stdout(self) -> None:
         raw = bytes(self.process.readAllStandardOutput())
-        self._append_log(raw.decode("utf-8", errors="replace"))
+        self._append_log(self._decode_process_output(raw))
 
     def _read_stderr(self) -> None:
         raw = bytes(self.process.readAllStandardError())
-        self._append_log(raw.decode("utf-8", errors="replace"))
+        self._append_log(self._decode_process_output(raw))
+
+    def _decode_process_output(self, raw: bytes) -> str:
+        if not raw:
+            return ""
+        # Some WSL startup diagnostics are emitted with NUL bytes on this
+        # Windows setup.  Decode them separately so the task log stays legible.
+        if raw.count(b"\x00") > len(raw) // 8:
+            return raw.decode("utf-16-le", errors="replace")
+        return raw.decode("utf-8", errors="replace")
 
     def _append_log(self, text: str) -> None:
         if not text:
             return
         text = text.replace("\r", "\n")
+        lines: list[str] = []
+        suppressed_wsl_warning = False
+        for line in text.splitlines(keepends=True):
+            if "localhost" in line and ("WSL" in line or "�" in line):
+                suppressed_wsl_warning = True
+                continue
+            lines.append(line)
+        if suppressed_wsl_warning:
+            lines.insert(
+                0,
+                "[WSL] Suppressed a Windows localhost/NAT startup warning.\n",
+            )
+        text = "".join(lines)
+        if not text:
+            return
         self.log.moveCursor(QTextCursor.End)
         self.log.insertPlainText(text)
         self.log.moveCursor(QTextCursor.End)

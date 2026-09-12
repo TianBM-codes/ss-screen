@@ -7,6 +7,65 @@
 
 **Read first at the start of every session:** `AGENTS.md` → this file → `PROJECT_PLAN.md`.
 
+## 2026-09-12 — 修复 GUI 组成筛选路径与 WSL 日志可读性
+
+**本次工作目标：** 解决组成筛选页继续带入旧 `src/ssscreen/gui/01_dataset/...` 路径、缺失 `mp.df/wbm.df` 路径报错，以及 WSL 日志乱码影响阅读的问题。
+
+**已完成：**
+- 更新 `src/ssscreen/gui/app.py`：组成筛选页只自动加入真实存在的 `01_dataset/*.df`，刷新时清理旧子目录默认路径；发往 WSL 的相对路径统一把 `\` 转成 `/`；WSL localhost/NAT 启动警告在日志中压缩为英文提示。
+- 更新 `.gitignore`，忽略工程根下 `01_dataset/` 到 `12_recommend/` 的 GUI/CLI 运行产物目录。
+- 更新 `docs/gui_wsl_poscar_demo_runbook_2026-09-12.md`、`ZMD/02_正式源码/gui.md` 和 `ZMD/07_版本与变更索引/README.md`。
+
+**决策 / 计划变更：** GUI 默认不再把不存在的 `mp.df/wbm.df` 加入组成筛选命令；没有 DataFrame 时应先完成 Stage 01 或手动添加真实文件。
+
+**下一步：** 在 GUI 中重启后从 Stage 01 到 Stage 05 按默认路径演示；后续收到真实 VASP 结果后再验证 gap 回填和后段稳定性流程。
+
+**阻塞项 / 上游问题：** OpenBabel Python bindings 仍是可选缺口，condense 会显示非致命 warning；真实 VASP gap、MACE checkpoint 和 `mp_offline` 仍需同事提供。
+
+## 2026-09-12 — 修复 GUI 直接启动时 WSL 工程根目录识别
+
+**本次工作目标：** 解决 PyCharm 直接运行 `src/ssscreen/gui/app.py` 后，GUI 在 WSL 后端误从 `src/ssscreen/gui` 子目录激活 `.venv` 的问题。
+
+**已完成：**
+- 更新 `src/ssscreen/gui/app.py`，新增 `_find_project_root()`；启动默认工程和 WSL 自动工程路径都会向上识别 `.ssscreen-project.json`、`.git` 或含 `src/ssscreen` 的 `pyproject.toml`。
+- 更新 `ZMD/02_正式源码/gui.md` 和 `ZMD/07_版本与变更索引/README.md`，记录 PyCharm 直接启动与 WSL 后端路径修复。
+
+**决策 / 计划变更：** 无科学路线变化；该修复只改变 GUI 默认工程根目录推断，仍然由真实 CLI 执行后端流程。
+
+**下一步：** 重新启动 GUI 后，保持右侧 `WSL 工程路径` 为空，使用 `WSL Python / .venv` 再运行本地 POSCAR 导入；预期命令会进入 `/mnt/d/WorkSpace/OtherProjects/ss-screen` 后再激活 `.venv`。
+
+**阻塞项 / 上游问题：** WSL 仍会输出一段 localhost/NAT 编码警告，但此前已验证命令 exit code 为 0 时不影响流程。
+
+## 2026-09-12 — 整理 GUI/WSL/POSCAR 现场演示 runbook
+
+**本次工作目标：** 将当前可实际运行和可向同事汇报的 GUI + WSL + POSCAR 流程整理为可照着操作的过程文件。
+
+**已完成：**
+- 新增 `docs/gui_wsl_poscar_demo_runbook_2026-09-12.md`，记录 PyCharm 启动 GUI、WSL 后端选择、本地 POSCAR 导入、组成筛选、结构描述、结构匹配、gap 任务导出、CLI 备用命令、同事材料清单和汇报建议。
+- 更新 `ZMD/04_项目文档与开发计划/README.md` 和 `ZMD/07_版本与变更索引/README.md`，登记该现场演示 runbook。
+
+**决策 / 计划变更：**
+- 现场演示建议停在真实 gap 任务导出交接点；Stage 06 以后可展示已联调产物，但必须明确当前后段结果是 fixture，不作为真实材料结论。
+- 当前 WSL 实际演示路径使用 `/mnt/d/WorkSpace/OtherProjects/ss-screen`；历史 AGENTS.md 中的 `/home/zuolong/projects/ss-screen-learning-20260722` 当前不存在，后续若迁移到 WSL 原生目录需同步文档。
+
+**下一步：** 等同事提供 VASP gap 结果、计算方法说明、可选 metadata、MACE checkpoint 和 MP 离线/API 数据后，重新从 gap-validate 开始跑真实后段流程。
+
+**阻塞项 / 上游问题：** 缺真实 VASP gap 结果、MACE checkpoint、`mp_offline` 包/数据库；当前未运行 DFT、notebook、MACE、Phonopy 或 AiiDA daemon。
+
+## 2026-09-12 — 整理当前能力与同事交接清单
+
+**本次工作目标：** 将当前 GUI/CLI/WSL/POSCAR/PyTorch 能力、已测试方法和需同事提供材料整理为 Markdown 交接文档。
+
+**已完成：**
+- 新增 `docs/current_capability_and_handoff_2026-09-12.md`，列出 GUI 可运行范围、GUI 调 WSL 后端、POSCAR 文件夹 Stage 01 输入、POSCAR 流程跑通范围、PyTorch/CUDA/MACE/phonopy 环境、具体测试方法、仍非真实科研结果的部分和需同事提供的 VASP/metadata/MACE/mp_offline/WBM/OpenBabel 材料。
+- 更新 `ZMD/04_项目文档与开发计划/README.md` 和 `ZMD/07_版本与变更索引/README.md`，登记该交接文档入口和同步记录。
+
+**决策 / 计划变更：** 无科学路线变化；该文档是对 2026-09-11 已验证状态的沟通整理，不新增代码能力。
+
+**下一步：** 根据同事返回的真实 VASP 结果、metadata、MACE checkpoint 和 `mp_offline` 数据继续做真实计算链路验证。
+
+**阻塞项 / 上游问题：** 当前真实 gap、真实 MACE、真实 phonopy 和离线 MP 竞争相仍依赖外部材料提供。
+
 ## 2026-09-11 — 接入本地 POSCAR 数据源与 GUI/WSL 后端
 
 **本次工作目标：** 让 `data/CaS_CaSe_CaTe_POSCAR` 作为 Stage 01 输入参与初筛，并把 Windows GUI 与 WSL CLI 后端连通。

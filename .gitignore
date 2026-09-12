@@ -52,6 +52,19 @@ web/frontend/*.tsbuildinfo
 mp-offline/
 # Local workflow runs contain generated structures and calculation results.
 /work/
+# GUI/CLI project-root workflow outputs.
+/01_dataset/
+/02_composition/
+/03_condensed/
+/04_groups/
+/05_gap/
+/06_pairs/
+/07_sqs/
+/08_relax/
+/09_mixing/
+/10_phonon/
+/11_phase/
+/12_recommend/
 # Local MLP checkpoints are large runtime assets; keep provenance sidecars tracked.
 models/*.model
 # Large AiiDA dumps and archives (reference only, live outside this repo anyway)

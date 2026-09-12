@@ -20,7 +20,10 @@
 - `ss-screen` 仍映射到 [`src/ssscreen/cli/app.py`](../../src/ssscreen/cli/app.py)，是科研行为的权威入口。
 - `ss-screen-gui` 只启动 GUI；运行任务时调用真实 CLI。Windows 后端使用当前解释器，WSL 后端通过
   `wsl.exe bash -lc` 进入工程目录、激活 `.venv` 或 `.venv-mlp` 后执行 `ss-screen ...`。
-- `src/ssscreen/gui/app.py` 可被 PyCharm 直接运行；此兼容入口只修正导入路径，不改变 GUI 调用 CLI 的行为。
+- `src/ssscreen/gui/app.py` 可被 PyCharm 直接运行；启动时会从脚本目录向上识别仓库根目录，
+  避免 WSL 后端误在 `src/ssscreen/gui` 子目录中查找 `.venv`。
+- GUI 发往 WSL 的相对路径会统一把 Windows 反斜杠转换为 `/`；组成筛选页只自动加入真实存在的
+  `01_dataset/*.df`，避免不存在的 `mp.df/wbm.df` 被带入命令。
 - 数据源页支持 `dataset structures`，可把本地 POSCAR/CIF 文件夹导入为 Stage 1 DataFrame；结构归档页的
   “添加文件夹”会递归扫描子目录中的 POSCAR/CONTCAR。
 - GUI 可以保存界面流程和用户输入体验，但不得引入 preview-only/mock CLI 替代正式命令。
@@ -36,5 +39,9 @@
 
 ## 最近同步
 
+- 2026-09-12：修复 PyCharm 直接运行 `app.py` 时默认工程落在 `src/ssscreen/gui` 的问题；GUI 现在会
+  自动识别仓库根目录，WSL 后端留空工程路径时会进入仓库根再激活 `.venv` 或 `.venv-mlp`。
+- 2026-09-12：修复组成筛选页残留旧子目录 DataFrame 路径、默认带入缺失 `mp.df/wbm.df` 和 WSL
+  相对路径反斜杠问题；日志中 WSL localhost/NAT 启动警告会压缩成英文提示。
 - 2026-09-11：GUI 右侧连接设置新增 Windows/WSL `.venv`/WSL `.venv-mlp` 后端选择；数据源页新增
   本地 POSCAR 结构导入；结构归档页递归扫描子目录 POSCAR；已用 headless Qt 验证 GUI 调 WSL CLI 成功。

@@ -64,6 +64,45 @@
 
 ## 同步记录
 
+### 2026-09-12 — 修复 GUI 组成筛选路径与 WSL 日志可读性
+
+- 真实变更：`src/ssscreen/gui/app.py` 组成筛选页只自动加入真实存在的 `01_dataset/*.df`，
+  自动清理旧的 `src/ssscreen/gui/01_dataset/...` 残留默认项；发往 WSL 的相对路径统一转换为
+  POSIX `/` 分隔；WSL localhost/NAT 启动乱码警告在 GUI 日志中压缩为英文说明。
+- 忽略规则：`.gitignore` 增加工程根阶段输出目录 `01_dataset/` 至 `12_recommend/`，防止 GUI/CLI
+  现场演示产物误进入版本控制。
+- 验证：从错误子目录实例化 GUI 后，项目根自动识别为 `D:\WorkSpace\OtherProjects\ss-screen`；
+  组成筛选命令预览为 `--df 01_dataset/local_structures.df`；按 GUI 默认相对路径实际跑通
+  Stage 01 POSCAR 导入、Stage 02 composition、Stage 03 condense/validate、Stage 04 structure-match
+  和 Stage 05 gap-export。
+
+### 2026-09-12 — 修复 GUI 直接启动时 WSL 工程根目录识别
+
+- 真实变更：`src/ssscreen/gui/app.py` 新增项目根目录识别逻辑；从 PyCharm 直接运行
+  `src/ssscreen/gui/app.py` 时，会向上查找 `.ssscreen-project.json`、`.git` 或含 `src/ssscreen`
+  的 `pyproject.toml`，避免默认工程停在 `src/ssscreen/gui` 导致 WSL 后端找不到 `.venv`。
+- ZMD 更新：`ZMD/02_正式源码/gui.md` 记录该启动路径修复；本页记录同步。
+- 验证：Windows Python 和 WSL `.venv` 下 `python -m py_compile src/ssscreen/gui/app.py` 通过；
+  Windows Python 直接调用 `_find_project_root(D:\WorkSpace\OtherProjects\ss-screen\src\ssscreen\gui)`
+  返回 `D:\WorkSpace\OtherProjects\ss-screen`。
+
+### 2026-09-12 — 新增 GUI/WSL/POSCAR 现场演示 runbook
+
+- 真实变更：新增 `docs/gui_wsl_poscar_demo_runbook_2026-09-12.md`，把 Windows GUI 启动、
+  WSL 后端选择、本地 POSCAR 导入、组成筛选、结构描述、结构匹配、gap 任务导出、CLI 备用命令、
+  同事材料清单和汇报话术整理为现场可执行步骤。
+- ZMD 更新：`ZMD/04_项目文档与开发计划/README.md` 登记该 runbook 入口；本页记录同步。
+- 验证：基于已存在的 `work/poscar-gui-cli-20260911` 产物和当前 `ss-screen --version`、
+  `dataset structures --help` 检查整理；本次未运行 DFT、notebook、MACE、Phonopy 或 AiiDA daemon。
+
+### 2026-09-12 — 整理当前能力与同事交接清单
+
+- 真实变更：新增 `docs/current_capability_and_handoff_2026-09-12.md`，集中整理当前 GUI、
+  WSL 后端、POSCAR 输入、前中段流程、PyTorch/CUDA/MACE/phonopy 环境、已测试方法和需同事提供材料。
+- ZMD 更新：`ZMD/04_项目文档与开发计划/README.md` 登记该交接清单入口；本页记录同步。
+- 验证：文档内容基于 2026-09-11 已完成的 POSCAR smoke、GUI/WSL smoke、18 项 pytest、
+  Ruff 和 CUDA/MACECalculator 导入验证；本次仅新增文档。
+
 ### 2026-09-11 — 接入本地 POSCAR 数据源与 GUI/WSL 后端
 
 - 真实变更：新增 `src/ssscreen/data/structures.py` 和 `ss-screen dataset structures`，支持递归读取
