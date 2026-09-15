@@ -22,6 +22,7 @@ hard-coded.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import click
@@ -102,6 +103,9 @@ def _parse_optional_supercell(
 
 def _prompt_mp_api_key() -> str:
     """Read an MP API key without echoing it or accepting a leaky CLI option."""
+    key = os.environ.get("MP_API_KEY", "").strip()
+    if key:
+        return key
     return click.prompt("Materials Project API key", hide_input=True, type=str)
 
 

@@ -7,6 +7,60 @@
 
 **Read first at the start of every session:** `AGENTS.md` → this file → `PROJECT_PLAN.md`.
 
+## 2026-09-14 — 调整 GUI 默认参数并生成全流程操作单
+
+**本次工作目标：** 将 GUI 默认选项调整为当前 CaS/CaSe/CaTe 真实 VASP + MACE + MP API 演示链路可直接使用的参数，并生成逐步操作 Markdown。
+
+**已完成：**
+- 更新 `src/ssscreen/gui/metadata.py` 与 `src/ssscreen/gui/app.py`：默认本地结构输入切换到 PBE relaxed 结构，结构描述归档默认 `03_condensed/local`，gap / pair / SQS / MACE / mixing / phonon / phase / recommend 默认路径统一为当前可跑通链路；MACE 默认使用 `data/mace-mpa-0-medium.model`、`cuda:0`、`float32`，phase 默认 `--mp-backend api`。
+- 更新 `src/ssscreen/cli/app.py`：Materials Project API Key 读取改为优先使用 `MP_API_KEY` 环境变量，缺失时才交互提示；GUI 右侧 Properties 注入 Key 后可运行 Stage 11，不会卡在隐藏输入提示。
+- 新增 `data/CaS_CaSe_CaTe_PBE_relaxed_CONTCAR/`，只放三个 PBE relaxed 结构，避免完整 VASP 结果目录中的 `POSCAR` 和 `CONTCAR` 被递归重复导入。
+- 新增 `docs/gui_full_pipeline_runbook_2026-09-14.md`，列出 PyCharm 启动、WSL 后端切换、每个 GUI 节点的具体选择、默认参数和最终输出文件。
+- 更新 `ZMD/02_正式源码/gui.md`、`ZMD/04_项目文档与开发计划/README.md` 和 `ZMD/07_版本与变更索引/README.md`。
+
+**决策 / 计划变更：**
+- 当前 GUI 现场演示以 repo 根目录作为活动工程，使用 `01_dataset` 到 `12_recommend` 作为被 `.gitignore` 忽略的阶段输出目录。
+- 真实 VASP gap 收集默认读取已整理好的 `work/real-pbe-mace-20260914-run4/05_gap/vasp_by_task_id`，因为新默认导出的 task-id 已验证与该目录完全匹配。
+
+**下一步：** 用户可按 `docs/gui_full_pipeline_runbook_2026-09-14.md` 从 GUI 完整跑一遍；若 Stage 11 因网络或 MP 服务失败，可单独重跑 `phase-diagram --mp-backend api`，不需要重跑前面阶段。
+
+**阻塞项 / 上游问题：** 本次没有重跑 GPU MACE、phonon 或 MP API phase 全流程；只验证前中段默认链路和 gap 收集/校验/pair。Stage 11 在线运行仍依赖 MP API 服务和本地网络。
+
+## 2026-09-14 — 校验 MP API Key 可用于当前项目
+
+**本次工作目标：** 只检查当前项目中涉及 Materials Project API 的入口，不重跑完整流程，并更新真实 VASP + MACE 流程记录。
+
+**已完成：**
+- 检查 `data/API Key.txt`：文件存在、内容非空；未在日志或文档中记录具体 Key。
+- 确认当前 `.venv` 中 `mp_api.client.MPRester` 可导入；此前最小 live 查询 `CaSe` 返回 2 条 MP summary 文档，说明该 Key 可用于当前项目在线 MP 后端。
+- 审计 MP API 使用位置：`src/ssscreen/data/mp.py` 的 `dataset mp --backend api`、`src/ssscreen/stability/competing.py` 的 `--mp-backend api`、`src/ssscreen/cli/app.py` 的隐藏 Key 提示，以及 `src/ssscreen/gui/app.py` 的当前子进程环境注入。
+- 更新 `docs/real_vasp_mace_pipeline_2026-09-14.md`，将 Stage 11 状态修正为“`mp_offline` 仍缺失，MP API Key 已验证可用，但本轮尚未补跑 API 后端 phase-diagram”。
+
+**决策 / 计划变更：**
+- 在线 MP API 现在可作为下一步补跑 Stage 10/11 竞争相与 convex hull 的可用路径；若需要离线可复现，仍需同事提供 `mp_offline` SQLite 数据库。
+
+**下一步：** 用户确认后，可只基于 `work/real-pbe-mace-20260914-run4/08_relax/relaxation_results.jsonl` 补跑 `stability phase-diagram --mp-backend api`，不需要重跑前面所有阶段。
+
+**阻塞项 / 上游问题：** 本次未重跑 phase-diagram、MACE、phonon、DFT、notebook 或 AiiDA daemon；当前报告中的 convex hull 证据仍是缺失状态，直到 API 后端 phase-diagram 实际跑完。
+
+## 2026-09-14 — 真实 VASP + MACE 流程验证
+
+**本次工作目标：** 使用同事提供的 PBE VASP 带隙结果和 `data/mace-mpa-0-medium.model` 重新跑通真实 gap 校验、MACE 后段和推荐报告，并整理交接文档。
+
+**已完成：**
+- 校核 `data/CaS_CaSe_CaTe_PBE_final_bandgap_calculations/`：CaS/CaSe/CaTe 均有 `vasprun.xml`、`OUTCAR`、`EIGENVAL`、`CONTCAR` 等；VASP 均收敛，PBE、`ENCUT=550`、`ISPIN=1`、无 SOC。
+- 使用 `work/real-pbe-mace-20260914-run4/` 从 PBE relaxed `CONTCAR` 重新跑通 Stage 01--05、VASP gap collect/validate、manifest gap validate、pair、SQS、MACE relaxation、mixing enthalpy、phonon 和 recommendation。
+- 结果：manifest 口径得到 CaSe-CaTe 一对；MACE relaxation 三条记录均 `usable_for_thermodynamics=True`；混合焓 `26.9009 meV/atom`；phonon 判定 `unstable`；推荐报告给出 `low-priority`。
+- 新增 `docs/real_vasp_mace_pipeline_2026-09-14.md`，并更新 `ZMD/04_项目文档与开发计划/README.md` 与 `ZMD/07_版本与变更索引/README.md`。
+
+**决策 / 计划变更：**
+- 后续真实稳定性链路应使用 VASP PBE relaxed `CONTCAR`，而不是最初 POSCAR；初始 POSCAR 在 MACE relaxation 后体积质量控制失败。
+- CaTe gap 采用同事 manifest 口径：`gap_eV=0.0`、`signed_gap_eV=-0.0143`；直接解析 `vasprun.xml` 会得到小正 gap `0.0064 eV`，仅作为对照保留。
+
+**下一步：** 使用已验证的 MP API Key 补跑 Stage 10 competing phase / convex hull，或获取 `mp_offline` SQLite 数据库后走离线后端；对 CaSe-CaTe 的 phonon 虚频用更大超胞或 DFT 进一步复核。
+
+**阻塞项 / 上游问题：** `mp_offline` 数据库仍缺失；MP API Key 已验证可用，但真实 API 后端 convex hull 尚未补跑；缺陷证据仍未接入。本次未运行 DFT 作业或 AiiDA daemon，只读取同事已有 VASP 结果。
+
 ## 2026-09-12 — 修复 GUI 组成筛选路径与 WSL 日志可读性
 
 **本次工作目标：** 解决组成筛选页继续带入旧 `src/ssscreen/gui/01_dataset/...` 路径、缺失 `mp.df/wbm.df` 路径报错，以及 WSL 日志乱码影响阅读的问题。

@@ -1242,6 +1242,51 @@ def test_stability_competing_export_prompts_for_hidden_api_key(monkeypatch, tmp_
     assert "written=3" in result.output
 
 
+def test_stability_competing_export_uses_mp_api_key_env(monkeypatch, tmp_path):
+    runner = CliRunner()
+    relax_results = tmp_path / "relaxation_results.jsonl"
+    relax_results.write_text("{}\n")
+    calls = []
+
+    def fake_export_competing_phases(**kwargs):
+        calls.append(kwargs)
+        return (
+            [{"status": "written"}],
+            {
+                "chemical_systems": ["Li-O"],
+                "fetched_entry_count": 3,
+                "status_counts": {"written": 3},
+                "query_failure_count": 0,
+            },
+        )
+
+    monkeypatch.setenv("MP_API_KEY", "env-secret")
+    monkeypatch.setattr(
+        "ssscreen.stability.competing.export_competing_phases",
+        fake_export_competing_phases,
+    )
+    result = runner.invoke(
+        cli,
+        [
+            "stability",
+            "competing-export",
+            "--relax-results",
+            str(relax_results),
+            "--output-dir",
+            str(tmp_path / "inputs"),
+            "--manifest",
+            str(tmp_path / "manifest.jsonl"),
+            "--report",
+            str(tmp_path / "report.json"),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Materials Project API key" not in result.output
+    assert "env-secret" not in result.output
+    assert calls[0]["api_key"] == "env-secret"
+
+
 def test_stability_competing_export_uses_offline_database_without_prompt(monkeypatch, tmp_path):
     runner = CliRunner()
     relax_results = tmp_path / "relaxation_results.jsonl"

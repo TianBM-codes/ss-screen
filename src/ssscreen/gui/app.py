@@ -976,7 +976,7 @@ class DatasetSourcePage(QWidget):
         form.setLabelAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
         host, self.structures_input_dir = self._path_editor(
-            "data/CaS_CaSe_CaTe_POSCAR",
+            "data/CaS_CaSe_CaTe_PBE_relaxed_CONTCAR",
             directory=True,
         )
         form.addRow("结构文件夹", host)
@@ -992,7 +992,7 @@ class DatasetSourcePage(QWidget):
         self.structures_hull_default.setMaximumWidth(180)
         form.addRow("默认 e_hull", self.structures_hull_default)
 
-        self.structures_source = QLineEdit("local-structures")
+        self.structures_source = QLineEdit("pbe-vasp-relaxed")
         form.addRow("数据源标签", self.structures_source)
         layout.addWidget(input_box)
 
@@ -2377,7 +2377,7 @@ class StructureArchivePage(QWidget):
         form.setHorizontalSpacing(12)
         form.setVerticalSpacing(7)
 
-        host, self.df_path = self._path_editor("01_dataset/mp.df")
+        host, self.df_path = self._path_editor("01_dataset/local_structures.df")
         form.addRow("DataFrame", host)
 
         self.structure_column = QLineEdit("structure")
@@ -2403,11 +2403,11 @@ class StructureArchivePage(QWidget):
         out_form.setHorizontalSpacing(12)
         out_form.setVerticalSpacing(7)
 
-        host, self.df_output_dir = self._path_editor("03_condensed/mp", directory=True)
+        host, self.df_output_dir = self._path_editor("03_condensed/local", directory=True)
         out_form.addRow("结构描述目录", host)
-        host, self.df_manifest = self._path_editor("03_condensed/mp_manifest.jsonl", save_file=True)
+        host, self.df_manifest = self._path_editor("03_condensed/local_manifest.jsonl", save_file=True)
         out_form.addRow("Manifest", host)
-        host, self.df_index = self._path_editor("03_condensed/mp_index.csv", save_file=True)
+        host, self.df_index = self._path_editor("03_condensed/local_index.csv", save_file=True)
         out_form.addRow("Index", host)
         layout.addWidget(output_box)
 
@@ -2554,11 +2554,11 @@ class StructureArchivePage(QWidget):
         out_form.setHorizontalSpacing(12)
         out_form.setVerticalSpacing(7)
 
-        host, self.files_output_dir = self._path_editor("03_condensed/user", directory=True)
+        host, self.files_output_dir = self._path_editor("03_condensed/local", directory=True)
         out_form.addRow("结构描述目录", host)
-        host, self.files_manifest = self._path_editor("03_condensed/user_manifest.jsonl", save_file=True)
+        host, self.files_manifest = self._path_editor("03_condensed/local_manifest.jsonl", save_file=True)
         out_form.addRow("Manifest", host)
-        host, self.files_index = self._path_editor("03_condensed/user_index.csv", save_file=True)
+        host, self.files_index = self._path_editor("03_condensed/local_index.csv", save_file=True)
         out_form.addRow("Index", host)
         self.files_stop_on_error = QCheckBox("首个错误即停止")
         out_form.addRow("错误策略", self.files_stop_on_error)
@@ -2744,11 +2744,11 @@ class StructureArchivePage(QWidget):
         tools.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
         tools.setLabelAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
-        host, self.archive_dir_edit = self._path_editor("03_condensed/mp", directory=True)
+        host, self.archive_dir_edit = self._path_editor("03_condensed/local", directory=True)
         tools.addRow("归档目录", host)
-        host, self.archive_index_output = self._path_editor("03_condensed/mp_index.csv", save_file=True)
+        host, self.archive_index_output = self._path_editor("03_condensed/local_index.csv", save_file=True)
         tools.addRow("索引输出", host)
-        host, self.archive_validation_output = self._path_editor("03_condensed/validation.csv", save_file=True)
+        host, self.archive_validation_output = self._path_editor("03_condensed/local_validation.csv", save_file=True)
         tools.addRow("校验输出", host)
         layout.addWidget(tools_box)
 
@@ -2773,7 +2773,7 @@ class StructureArchivePage(QWidget):
     def _find_archive_json(self) -> list[tuple[str, Path]]:
         base = self._project_root() / "03_condensed"
         result: list[tuple[str, Path]] = []
-        for source in ("mp", "user"):
+        for source in ("local", "mp", "user"):
             folder = base / source
             if not folder.exists():
                 continue
@@ -3179,7 +3179,7 @@ class StructureMatchPage(QWidget):
 
     def _reset_archives(self, checked: bool = False, initial: bool = False) -> None:
         self.archive_table.setRowCount(0)
-        default = self._project_root() / "03_condensed" / "mp"
+        default = self._project_root() / "03_condensed" / "local"
         self._append_archive(default)
         if not initial:
             self.refresh_inputs()

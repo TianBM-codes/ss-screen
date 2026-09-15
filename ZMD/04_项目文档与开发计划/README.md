@@ -18,6 +18,8 @@
 | [`docs/cli_front_mid_smoke_2026-09-10.md`](../../docs/cli_front_mid_smoke_2026-09-10.md) | WSL 中 CLI 前中段流程验证交接单，列出已跑通阶段、测试产物、操作流水和需同事提供的真实数据/模型/结果 | GUI 串接 CLI 前的后台流程核对材料 |
 | [`docs/current_capability_and_handoff_2026-09-12.md`](../../docs/current_capability_and_handoff_2026-09-12.md) | 当前 GUI/CLI/WSL/POSCAR/PyTorch 能力、已测方法和需同事提供材料的对外交接清单 | 面向同事沟通当前软件能力与缺口 |
 | [`docs/gui_wsl_poscar_demo_runbook_2026-09-12.md`](../../docs/gui_wsl_poscar_demo_runbook_2026-09-12.md) | Windows GUI 调 WSL 后端、导入 POSCAR 文件夹、导出 VASP gap 任务的现场演示步骤、字段选择和汇报话术 | 面向同事现场演示与下一步交接 |
+| [`docs/real_vasp_mace_pipeline_2026-09-14.md`](../../docs/real_vasp_mace_pipeline_2026-09-14.md) | 使用同事 PBE VASP 结果和 `mace-mpa-0-medium.model` 跑通真实 gap 校验、pair、SQS、MACE relaxation、混合焓、phonon 和推荐报告的验证记录 | 当前真实数据链路能力和剩余阻塞 |
+| [`docs/gui_full_pipeline_runbook_2026-09-14.md`](../../docs/gui_full_pipeline_runbook_2026-09-14.md) | 按 GUI 左侧流程逐步运行 CaS/CaSe/CaTe 真实 VASP + MACE + MP API 演示的具体点击顺序和默认参数说明 | 面向现场完整 GUI 演示 |
 | [`docs/adr/`](../../docs/adr/) | Web/核心边界、元数据/制品分工、状态机、身份、Stage 1 数据源与 Stage 1a Artifact 输入决策 | 已接受架构决策 |
 | [`docs/software_status_report_2026-08-04.md`](../../docs/software_status_report_2026-08-04.md) | 面向导师汇报的软件定位、完成度、教学证据、限制、下一步和决策问题 | 2026-08-04 阶段性软件汇报材料 |
 | [`docs/review_upstream_completeness_2026-07-19.md`](../../docs/review_upstream_completeness_2026-07-19.md) | 逐研究家族比较已迁移/缺失能力 | 完整性与优先级审计 |
@@ -75,6 +77,12 @@
   与 PyTorch/MACE/phonopy 环境能力、已测方法和需同事提供的真实材料。
 - 2026-09-12：新增 `docs/gui_wsl_poscar_demo_runbook_2026-09-12.md`，整理 GUI 现场演示顺序、
   每一步字段选择、CLI 备用命令和面向同事的汇报建议。
+- 2026-09-14：新增 `docs/real_vasp_mace_pipeline_2026-09-14.md`，记录真实 PBE VASP gap、
+  MACE relaxation、混合焓、phonon 和 recommendation 结果，以及缺 `mp_offline` 的 phase 阻塞。
+- 2026-09-14：更新 `docs/real_vasp_mace_pipeline_2026-09-14.md`，补充 `data/API Key.txt`
+  已验证可用于当前项目在线 Materials Project 后端；Stage 11 仍未补跑，离线 `mp_offline` 数据库仍缺。
+- 2026-09-14：新增 `docs/gui_full_pipeline_runbook_2026-09-14.md`，并将 GUI 默认参数调整到
+  CaS/CaSe/CaTe 真实 VASP + MACE + MP API 演示链路。
 - 2026-09-02：项目日志登记当前完整工作树以提交 `33f9cc3` 发布到新远程 `master`；远程 `main`
   保持在原基线，科学路线与下一步 Stage 3 structure-match 不变。
 - 2026-09-02：远程前端保持运行；定位本地页面`Failed to fetch`为远程API进程退出，改用脱离交互

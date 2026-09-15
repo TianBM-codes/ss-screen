@@ -64,6 +64,45 @@
 
 ## 同步记录
 
+### 2026-09-14 — 调整 GUI 默认参数并新增全流程操作单
+
+- 真实变更：`src/ssscreen/gui/metadata.py` 和 `src/ssscreen/gui/app.py` 的默认路径/参数切换为
+  CaS/CaSe/CaTe PBE relaxed 结构、真实 VASP task-id 结果、`data/mace-mpa-0-medium.model`、
+  CUDA MACE、快速 phonon 和 MP API phase-diagram 演示链路。
+- 真实变更：`src/ssscreen/cli/app.py` 的 Materials Project API Key 读取改为优先使用
+  `MP_API_KEY` 环境变量，环境变量缺失时才交互提示；GUI 可通过右侧 Properties 注入 Key 后运行
+  Stage 11。
+- 真实变更：新增 `data/CaS_CaSe_CaTe_PBE_relaxed_CONTCAR/`，只保留同事 VASP 结果中的三个 PBE
+  relaxed `CONTCAR` 结构，避免 GUI 递归扫描完整 VASP 目录时重复读取 `POSCAR` 和 `CONTCAR`。
+- 真实变更：新增 `docs/gui_full_pipeline_runbook_2026-09-14.md`，列出 GUI 每一步具体选择、默认参数、
+  后端切换和最终输出文件。
+- ZMD 更新：同步 GUI 源码导航、项目文档导航和本页；项目日志记录该演示链路。
+- 验证：默认前中段实际跑到 `gap-export`，得到 3 条 dataset、3 条候选、3 个 condensed JSON、
+  1 个 structure group 和 3 个 gap task；新 task-id 与既有 VASP by-task 目录完全匹配。继续用
+  默认 VASP 收集/校验/pair 得到 `success=3`、`accepted=3 rejected=0`、1 对 pair。相关 CLI 测试
+  `pytest tests/test_cli.py -k "competing_export or phase_diagram"` 为 5 passed；GUI/CLI 文件
+  `py_compile` 通过。
+
+### 2026-09-14 — 校验 MP API Key 并更新真实流程文档
+
+- 真实变更：更新 `docs/real_vasp_mace_pipeline_2026-09-14.md`，记录 `data/API Key.txt`
+  可用于当前项目的在线 Materials Project 后端；明确 `dataset mp --backend api`、
+  `stability phase-diagram --mp-backend api` 和 GUI 子进程环境注入的使用边界。
+- ZMD 更新：`ZMD/04_项目文档与开发计划/README.md` 登记该文档状态修正；本页记录同步。
+- 验证：确认当前 WSL `.venv` 为 Python 3.11、`ssscreen 1.0` 可导入，`mp_api.client.MPRester`
+  可导入，Key 文件存在且非空；本次未重跑完整流程、phase-diagram、MACE、phonon、DFT 或 AiiDA。
+
+### 2026-09-14 — 记录真实 VASP + MACE 流程验证
+
+- 真实变更：新增 `docs/real_vasp_mace_pipeline_2026-09-14.md`，整理同事 PBE VASP 结果、
+  `data/mace-mpa-0-medium.model`、PBE relaxed `CONTCAR` 输入、两种 gap 口径、MACE relaxation、
+  混合焓、phonon、recommendation 和 phase 阻塞状态。
+- 运行产物：最终有效目录为 `work/real-pbe-mace-20260914-run4/`；`run3` 保留为初始 POSCAR
+  体积质量控制失败的对照。
+- 验证：真实 VASP gap 收集/校验 `accepted=3 rejected=0`；MACE relaxation `success=3` 且均 usable；
+  mixing enthalpy `success=1`；phonon `success=1` 且 dynamical status 为 `unstable`；recommendation
+  输出 1 条 `low-priority`。
+
 ### 2026-09-12 — 修复 GUI 组成筛选路径与 WSL 日志可读性
 
 - 真实变更：`src/ssscreen/gui/app.py` 组成筛选页只自动加入真实存在的 `01_dataset/*.df`，
