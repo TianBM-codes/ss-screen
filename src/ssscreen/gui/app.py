@@ -24,8 +24,8 @@ from typing import Any
 import click
 
 try:
-    from PySide6.QtCore import QSize, QProcess, QProcessEnvironment, Qt, QUrl, Signal
-    from PySide6.QtGui import QDesktopServices, QFont, QTextCursor
+    from PySide6.QtCore import QProcess, QProcessEnvironment, QSettings, QSize, Qt, QUrl, Signal
+    from PySide6.QtGui import QActionGroup, QDesktopServices, QFont, QTextCursor
     from PySide6.QtWidgets import (
         QAbstractItemView,
         QApplication,
@@ -41,6 +41,7 @@ try:
         QLabel,
         QLineEdit,
         QMainWindow,
+        QMenu,
         QMessageBox,
         QPlainTextEdit,
         QProgressBar,
@@ -53,12 +54,13 @@ try:
         QTableWidgetItem,
         QTabWidget,
         QTextBrowser,
+        QToolBar,
+        QToolButton,
         QTreeView,
         QTreeWidget,
         QTreeWidgetItem,
         QVBoxLayout,
         QWidget,
-        QMenu,
     )
 except ImportError as exc:  # pragma: no cover - exercised only without GUI extra
     raise RuntimeError(
@@ -72,6 +74,15 @@ if __package__ in {None, ""}:
         sys.path.insert(0, str(src_root))
     from ssscreen import __version__
     from ssscreen.cli.app import cli
+    from ssscreen.gui.appearance import (
+        DEFAULT_FONT_SIZE,
+        FONT_SETTINGS_KEY,
+        MAX_FONT_SIZE,
+        MIN_FONT_SIZE,
+        adapt_font_layout,
+        font_size,
+        font_stylesheet,
+    )
     from ssscreen.gui.icons import app_icon, stage_icon
     from ssscreen.gui.metadata import (
         COMMANDS,
@@ -85,14 +96,33 @@ if __package__ in {None, ""}:
         extract_project_file,
         inspect_project_file,
     )
-    from ssscreen.gui.visualization import PhaseResultsPage, PhononResultsPage, StructureResultsPage
+    from ssscreen.gui.visualization import (
+        MatterVizView,
+        PhaseResultsPage,
+        PhononResultsPage,
+        StructureResultsPage,
+    )
 else:
     from .. import __version__
     from ..cli.app import cli
+    from .appearance import (
+        DEFAULT_FONT_SIZE,
+        FONT_SETTINGS_KEY,
+        MAX_FONT_SIZE,
+        MIN_FONT_SIZE,
+        adapt_font_layout,
+        font_size,
+        font_stylesheet,
+    )
+    from .icons import app_icon, stage_icon
     from .metadata import COMMANDS, PATH_PRESETS, STAGES, CommandPresentation, option_label_zh
     from .project_file import create_project_file, extract_project_file, inspect_project_file
-    from .visualization import PhaseResultsPage, PhononResultsPage, StructureResultsPage
-    from .icons import app_icon, stage_icon
+    from .visualization import (
+        MatterVizView,
+        PhaseResultsPage,
+        PhononResultsPage,
+        StructureResultsPage,
+    )
 
 
 APP_TITLE = f"SS-Screen V{__version__} · Materials Engineering Workbench"
@@ -284,7 +314,7 @@ class ValueEditor(QWidget):
                 self.widget.setPlainText(str(value))
         else:
             self.widget.setText("" if value is None else str(value))
-    
+
     def set_value(self, value: Any) -> None:
         """Restore a value previously saved in a project snapshot."""
 
@@ -525,7 +555,7 @@ class CommandPage(QWidget):
         if extra:
             argv.extend(shlex.split(extra))
         return argv
-    
+
     def restore_argv(self, argv: list[str]) -> None:
         """Restore GUI editors from a previously saved command argv."""
 
@@ -4285,11 +4315,23 @@ class InspectorPanel(QWidget):
 class MainWindow(QMainWindow):
     """SS-Screen desktop engineering workbench with multi-project roots."""
 
-    def __init__(self, project_dir: str | None = None) -> None:
+    def __init__(self, project_dir: str | None = None, *, settings: QSettings | None = None) -> None:
         super().__init__()
+        self._display_settings = (
+            settings if settings is not None else QSettings("SS-Screen", "Desktop")
+        )
+        self._font_size = font_size(self._display_settings.value(FONT_SETTINGS_KEY, DEFAULT_FONT_SIZE))
         self.setWindowTitle(APP_TITLE)
-        self.resize(1600, 1000)
-        self.setMinimumSize(1180, 720)
+        screen = QApplication.primaryScreen()
+        available = screen.availableGeometry() if screen else None
+        self.setMinimumSize(
+            min(960, available.width()) if available else 960,
+            min(600, available.height()) if available else 600,
+        )
+        self.resize(
+            min(1600, available.width()) if available else 1600,
+            min(1000, available.height()) if available else 1000,
+        )
 
         self._pages: dict[tuple[str, ...], CommandPage] = {}
         self._command_lookup = self._collect_commands()
@@ -4333,6 +4375,25 @@ class MainWindow(QMainWindow):
         root.setSpacing(0)
         self.setCentralWidget(central)
 
+        self.view_menu = QMenu("视图", self)
+        self.font_menu = self.view_menu.addMenu("界面字号")
+        self.font_action_group = QActionGroup(self)
+        self.font_action_group.setExclusive(True)
+        self.font_size_actions = {}
+        for points in range(MIN_FONT_SIZE, MAX_FONT_SIZE + 1):
+            action = self.font_menu.addAction(f"{points} pt")
+            action.setCheckable(True)
+            action.setData(points)
+            action.setChecked(points == self._font_size)
+            self.font_action_group.addAction(action)
+            self.font_size_actions[points] = action
+        self.font_action_group.triggered.connect(
+            lambda action: self._set_font_size(action.data())
+        )
+        self.font_menu.addSeparator()
+        self.font_reset_action = self.font_menu.addAction("恢复默认字号（10 pt）")
+        self.font_reset_action.triggered.connect(lambda: self._set_font_size(DEFAULT_FONT_SIZE))
+
         # Title strip: compact, neutral, engineering-software style.
         title_bar = QFrame()
         title_bar.setObjectName("titleBar")
@@ -4345,19 +4406,21 @@ class MainWindow(QMainWindow):
         title_layout.addWidget(product)
         subtitle = QLabel("新材料计算筛选工程工作台")
         subtitle.setObjectName("productSubtitle")
+        subtitle.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
         title_layout.addWidget(subtitle)
         title_layout.addStretch(1)
         self.active_project_label = QLabel("当前工程：—")
         self.active_project_label.setObjectName("activeProjectLabel")
+        self.active_project_label.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
         title_layout.addWidget(self.active_project_label)
         root.addWidget(title_bar)
 
         # Dense command toolbar.
-        toolbar = QFrame()
+        toolbar = QToolBar()
+        self.command_toolbar = toolbar
+        toolbar.setMovable(False)
+        toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         toolbar.setObjectName("toolBar")
-        tools = QHBoxLayout(toolbar)
-        tools.setContentsMargins(6, 4, 6, 4)
-        tools.setSpacing(4)
 
         def add_tool(
             text,
@@ -4365,16 +4428,14 @@ class MainWindow(QMainWindow):
             object_name="toolButton",
             icon_name=None,
         ):
-            button = QPushButton(text)
-            button.setObjectName(object_name)
-
-            if icon_name:
-                button.setIcon(app_icon(icon_name))
-                button.setIconSize(QSize(17, 17))
-
-            button.clicked.connect(slot)
-            tools.addWidget(button)
-            return button
+            action = (
+                toolbar.addAction(app_icon(icon_name), text)
+                if icon_name else toolbar.addAction(text)
+            )
+            action.triggered.connect(slot)
+            action.setToolTip(text)
+            toolbar.widgetForAction(action).setObjectName(object_name)
+            return action
 
         add_tool(
             "新建工程",
@@ -4405,32 +4466,33 @@ class MainWindow(QMainWindow):
             self.open_project,
             icon_name="open_directory",
         )
-        sep = QFrame()
-        sep.setFrameShape(QFrame.VLine)
-        sep.setObjectName("toolbarSeparator")
-        tools.addWidget(sep)
+        toolbar.addSeparator()
         add_tool(
             "从工作区移除",
             self.remove_active_project,
             icon_name="remove",
         )
-        tools.addStretch(1)
+        toolbar.addSeparator()
+        self.view_action = toolbar.addAction("视图")
+        self.view_action.setMenu(self.view_menu)
+        self.view_button = toolbar.widgetForAction(self.view_action)
+        self.view_button.setObjectName("toolButton")
+        self.view_button.setPopupMode(QToolButton.InstantPopup)
+        self.view_button.setToolTip("视图")
         self.run_state_label = QLabel("空闲")
         self.run_state_label.setObjectName("runStateLabel")
-        tools.addWidget(self.run_state_label)
         self.run_progress = QProgressBar()
         self.run_progress.setObjectName("runProgress")
         self.run_progress.setRange(0, 0)
         self.run_progress.setFixedWidth(150)
         self.run_progress.setVisible(False)
-        tools.addWidget(self.run_progress)
         add_tool(
             "停止",
             self.stop_process,
             "stopButton",
             icon_name="stop",
         )
-        root.addWidget(toolbar)
+        self.addToolBar(Qt.TopToolBarArea, toolbar)
 
         workspace = QSplitter(Qt.Horizontal)
         workspace.setHandleWidth(4)
@@ -4444,6 +4506,8 @@ class MainWindow(QMainWindow):
 
         project_header = QLabel("工程树 / Project Explorer")
         project_header.setObjectName("panelHeader")
+        project_header.setWordWrap(True)
+        project_header.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
         project_layout.addWidget(project_header)
 
         self.nav = QTreeWidget()
@@ -4465,7 +4529,7 @@ class MainWindow(QMainWindow):
 
         document_frame = QFrame()
         document_frame.setObjectName("documentFrame")
-        document_frame.setMinimumHeight(500)
+        document_frame.setMinimumHeight(320)
         document_layout = QVBoxLayout(document_frame)
         document_layout.setContentsMargins(0, 0, 0, 0)
         document_layout.setSpacing(0)
@@ -4481,6 +4545,7 @@ class MainWindow(QMainWindow):
         document_layout.addWidget(document_header)
 
         self.stack = QStackedWidget()
+        self.stack.currentChanged.connect(self._refresh_font_layout)
         self.dashboard = Dashboard(self.project_root)
         self.stack.addWidget(self.dashboard)
 
@@ -4513,7 +4578,11 @@ class MainWindow(QMainWindow):
         self.recommendation_report_page.run_requested.connect(self.run_command)
         self.stack.addWidget(self.recommendation_report_page)
 
-        document_layout.addWidget(self.stack, 1)
+        self.document_scroll = QScrollArea()
+        self.document_scroll.setWidgetResizable(True)
+        self.document_scroll.setFrameShape(QFrame.NoFrame)
+        self.document_scroll.setWidget(self.stack)
+        document_layout.addWidget(self.document_scroll, 1)
         center_split.addWidget(document_frame)
 
         self.bottom_tabs = QTabWidget()
@@ -4562,9 +4631,15 @@ class MainWindow(QMainWindow):
         inspector_layout.setSpacing(0)
         inspector_header = QLabel("属性 / Properties")
         inspector_header.setObjectName("panelHeader")
+        inspector_header.setWordWrap(True)
+        inspector_header.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
         inspector_layout.addWidget(inspector_header)
         self.inspector = InspectorPanel()
-        inspector_layout.addWidget(self.inspector, 1)
+        self.inspector_scroll = QScrollArea()
+        self.inspector_scroll.setWidgetResizable(True)
+        self.inspector_scroll.setFrameShape(QFrame.NoFrame)
+        self.inspector_scroll.setWidget(self.inspector)
+        inspector_layout.addWidget(self.inspector_scroll, 1)
         self.api_key = self.inspector.api_key
         self.runtime_backend = self.inspector.runtime_backend
         self.wsl_root = self.inspector.wsl_root
@@ -4575,6 +4650,8 @@ class MainWindow(QMainWindow):
         root.addWidget(workspace, 1)
 
         self.statusBar().setObjectName("statusBar")
+        self.statusBar().addPermanentWidget(self.run_state_label)
+        self.statusBar().addPermanentWidget(self.run_progress)
         self.statusBar().showMessage("就绪")
 
     # ---------------- Project tree ----------------
@@ -5391,7 +5468,7 @@ class MainWindow(QMainWindow):
 
             "commands": commands,
         }
-    
+
     def _apply_project_settings(
         self,
         settings: dict[str, Any] | None,
@@ -5674,7 +5751,7 @@ class MainWindow(QMainWindow):
         path = Path(self.file_model.filePath(index))
         if path.is_file():
             QDesktopServices.openUrl(QUrl.fromLocalFile(str(path)))
-    
+
     def _show_file_context_menu(self, position) -> None:
         index = self.files.indexAt(position)
 
@@ -5707,8 +5784,8 @@ class MainWindow(QMainWindow):
 
         if action == delete_action:
             self._delete_project_file(path)
-    
-    
+
+
     def _delete_project_file(self, path: Path) -> None:
         if not path.is_file():
             return
@@ -6074,11 +6151,28 @@ class MainWindow(QMainWindow):
         else:
             event.ignore()
 
+    def _set_font_size(self, value: int) -> None:
+        self._font_size = font_size(value)
+        self.font_size_actions[self._font_size].setChecked(True)
+        self._display_settings.setValue(FONT_SETTINGS_KEY, self._font_size)
+        self._display_settings.sync()
+        self._apply_style()
+
+    def _refresh_font_layout(self, _index: int = 0) -> None:
+        adapt_font_layout(self, self._font_size)
+        if hasattr(self, "inspector"):
+            for form in self.inspector.findChildren(QFormLayout):
+                form.setRowWrapPolicy(QFormLayout.WrapAllRows)
+            self.runtime_backend.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+            self.runtime_backend.setMinimumContentsLength(12)
+
     def _apply_style(self) -> None:
         # Dense neutral palette inspired by CAE/engineering desktop tools.
-        QApplication.instance().setFont(QFont("Segoe UI", 9))
-        self.setStyleSheet(
-            """
+        font = QFont(QApplication.instance().font())
+        font.setPointSize(self._font_size)
+        QApplication.instance().setFont(font)
+        self.setFont(font)
+        stylesheet = """
             QMainWindow, QWidget {
                 background: #e9eaec;
                 color: #202428;
@@ -6087,13 +6181,12 @@ class MainWindow(QMainWindow):
                 background: #30353a;
                 border-bottom: 1px solid #1f2327;
                 min-height: 28px;
-                max-height: 28px;
             }
             #productMark {
                 color: #ffffff;
                 font-size: 13px;
                 font-weight: 700;
-                letter-spacing: 1px;
+                letter-spacing: 0;
             }
             #productSubtitle {
                 color: #cbd0d5;
@@ -6122,9 +6215,8 @@ class MainWindow(QMainWindow):
                 background: #d7d9dc;
                 border-bottom: 1px solid #aeb2b7;
                 min-height: 34px;
-                max-height: 34px;
             }
-            #toolButton, #stopButton {
+            #toolButton, #stopButton, QToolButton {
                 background: transparent;
                 border: 1px solid transparent;
                 border-radius: 2px;
@@ -6165,7 +6257,6 @@ class MainWindow(QMainWindow):
                 font-weight: 600;
                 padding: 5px 7px;
                 min-height: 18px;
-                max-height: 18px;
             }
             #navigation {
                 background: #f5f6f7;
@@ -6204,7 +6295,6 @@ class MainWindow(QMainWindow):
                 background: #e0e2e4;
                 border-bottom: 1px solid #aeb2b7;
                 min-height: 25px;
-                max-height: 25px;
             }
             #documentTitle {
                 color: #30353a;
@@ -6258,7 +6348,7 @@ class MainWindow(QMainWindow):
                 padding: 0 3px;
                 color: #384047;
             }
-            QLineEdit, QComboBox, QPlainTextEdit, QTextBrowser, QTableWidget, QTreeView {
+            QLineEdit, QComboBox, QSpinBox, QPlainTextEdit, QTextBrowser, QTableWidget, QTreeView {
                 background: #ffffff;
                 border: 1px solid #adb2b7;
                 border-radius: 1px;
@@ -6363,14 +6453,56 @@ class MainWindow(QMainWindow):
             QSplitter::handle {
                 background: #aeb2b7;
             }
+            QMenuBar, QMenu {
+                background: #f5f6f7;
+                color: #202428;
+            }
+            QMenuBar {
+                border-bottom: 1px solid #aeb2b7;
+            }
+            QMenuBar::item {
+                background: transparent;
+                padding: 4px 12px;
+            }
+            QMenuBar::item:selected, QMenu::item:selected {
+                background: #dce4eb;
+                color: #17212b;
+            }
+            QMenu {
+                border: 1px solid #aeb2b7;
+            }
+            QMenu::item {
+                padding: 5px 24px;
+            }
+            QMenu::indicator:exclusive {
+                width: 10px;
+                height: 10px;
+                border: 1px solid #9ea3a8;
+                border-radius: 5px;
+                background: #ffffff;
+            }
+            QMenu::indicator:exclusive:checked {
+                background: #506d86;
+                border-color: #3e596f;
+            }
+            QMenu::separator {
+                height: 1px;
+                background: #c6c9cc;
+                margin: 4px 8px;
+            }
             """
-        )
+        self.setStyleSheet(font_stylesheet(stylesheet, self._font_size))
+        self.command_toolbar.setIconSize(QSize(self.fontMetrics().height(), self.fontMetrics().height()))
+        self._refresh_font_layout()
+        for viewer in self.findChildren(MatterVizView):
+            viewer.setZoomFactor(self._font_size / DEFAULT_FONT_SIZE)
 
 
 def run_gui(project_dir: str | None = None) -> int:
     """Run the desktop workbench and return the Qt application exit code."""
     app = QApplication.instance()
     if app is None:
+        QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
         app = QApplication([sys.argv[0]])
     app.setApplicationName("SS-Screen")
     window = MainWindow(project_dir=project_dir)

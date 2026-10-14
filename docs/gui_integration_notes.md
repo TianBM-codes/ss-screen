@@ -69,6 +69,20 @@ zoom, and pan remain available.
 
 ## Near-Term Follow-Up
 
+The desktop toolbar places a View / 视图 dropdown beside the project actions.
+It provides 界面字号, with exclusive 9--18 pt
+choices (default 10 pt) and a restore-default action. Changes apply immediately and persist through Qt application
+settings, independently of `.ssproject` scientific parameters. Native text,
+table rows/columns, command previews, and embedded MatterViz zoom follow the
+chosen size. Qt 6 uses native high-DPI rendering with fractional scale factors
+preserved at startup. This addresses small text; actual monitor sharpness still
+depends on the system's display scaling and native resolution.
+
+Toolbar actions use Qt's overflow menu on narrow windows. The central work area
+and inspector scroll when content exceeds the available size; inspector fields
+are arranged vertically and long form rows wrap. Wide scientific tables remain
+horizontally scrollable at large font sizes.
+
 - Add a small import/launcher smoke test once a GUI-capable CI environment is
   available, or keep it guarded so headless Linux does not need a display server.
 - Review each specialized GUI page against the restored real Click command

@@ -14,6 +14,7 @@
 | [`app.py`](../../src/ssscreen/gui/app.py) | PySide6 主窗口、工程树、专用阶段页面、命令日志和 `QProcess` 子进程执行；支持 IDE 直接按脚本启动、Windows GUI 调 WSL 后端、递归导入本地 POSCAR 文件夹 |
 | [`launcher.py`](../../src/ssscreen/gui/launcher.py) | `ss-screen-gui` 控制台入口 |
 | [`metadata.py`](../../src/ssscreen/gui/metadata.py) | 阶段标题、命令展示顺序和工程内默认路径预设 |
+| [`appearance.py`](../../src/ssscreen/gui/appearance.py) | 字号范围、点数字体样式和随字号变化的控件/表格布局 |
 | [`project_file.py`](../../src/ssscreen/gui/project_file.py) | `.ssproject` ZIP64 项目容器、SHA-256 清单、安全解包与原子保存 |
 | [`visualization.py`](../../src/ssscreen/gui/visualization.py) | MatterViz 晶体、声子图表和竞争相/凸包结果页 |
 | [`matterviz_dist/`](../../src/ssscreen/gui/matterviz_dist/) | 随 Python wheel 分发的 MatterViz 0.7.0 静态前端与第三方许可证 |
@@ -60,6 +61,11 @@
 
 ## 最近同步
 
+- 2026-10-15：按后续反馈，“视图”下拉入口改为与“新建工程”同一工具栏，不再单独占顶层菜单栏；字号子菜单保留。
+- 2026-10-15：字号入口移到“视图 → 界面字号”菜单，9--18 pt单选并提供恢复默认；移除标题条上的字号
+  输入框和恢复图标，保留历史已有的`SS-SCREEN`产品标识。字号记忆与布局联动继续生效。
+- 2026-10-14：顶部新增字号设置（9--18 pt，默认10 pt）及恢复按钮，Qt 设置自动记忆；工具栏支持溢出菜单，
+  属性区与工作区可滚动，表格/预览随字号调整，MatterViz 同步缩放。新增可选 Qt 字体回归测试。
 - 2026-09-28：修正结果可视化布局；Stage 11 竞争相表格显示条目数量、中文角色/目标值和格式化凸包距离，
   列宽填满可视区域；Stage 10/11 的 MatterViz 改为完整标签页并使用扩展尺寸策略。
 - 2026-09-27：新增 `.ssproject` 单文件项目、MatterViz 晶体视图、声子与竞争相可视化、CPU 默认设备、

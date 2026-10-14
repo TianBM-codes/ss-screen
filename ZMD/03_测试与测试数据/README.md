@@ -32,6 +32,7 @@ Web 基线另有 54 项后端 pytest、1 项 Vitest 和 20 项 Playwright 四宽
 | [`test_reference_curation.py`](../../tests/test_reference_curation.py) | 历史资料发现、脱敏、别名、manifest 和 tamper 检测 |
 | [`test_project_config.py`](../../tests/test_project_config.py) | 开发依赖和 CI 配置约束 |
 | [`test_gui_project_file.py`](../../tests/test_gui_project_file.py) | `.ssproject` 01--12 打包回读、元数据保持和 SHA-256 篡改检测 |
+| [`test_gui_appearance.py`](../../tests/test_gui_appearance.py) | 6 项可选 Qt 测试：字号持久化/恢复、小窗口溢出、表格尺寸、后创建页面与无效设置 |
 
 ## Web 测试映射
 
@@ -70,6 +71,10 @@ npm --prefix web/frontend run test:e2e
 
 ## 最近同步
 
+- 2026-10-15：字号测试补查“视图”位于工程工具栏且不创建独立菜单栏；保留字号选择、记忆与恢复验证。
+- 2026-10-15：更新字号回归测试，通过菜单操作验证单选状态、持久化和恢复默认，6项Windows Qt测试通过。
+- 2026-10-14：Windows Qt 字体测试在100%、125%、150%、200%缩放分别6项通过；WSL核心174项通过，
+  未安装PySide6的环境跳过新增Qt测试模块。截图检查1366×768/14pt与1024×768/18pt。
 - 2026-09-27：新增 2 项 `.ssproject` 容器测试；核心完整套件为 174 项，并通过 GUI Ruff、MatterViz
   生产构建、真实 187 制品项目回读和 wheel 静态资源包含性检查。
 - 2026-09-02：远程发布前重新运行核心172项pytest、Ruff、Black，Web后端54项pytest/Ruff/Black，
