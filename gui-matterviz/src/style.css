@@ -56,3 +56,51 @@ section canvas {
   color: #65717a;
   font-size: 13px;
 }
+
+/* SS-Screen embedded MatterViz: fill the QWebEngineView, not the docs page. */
+:root {
+  --struct-width: 100%;
+  --struct-height: 100%;
+  --struct-max-width: 100%;
+}
+html, body, #app {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+body { display: block !important; }
+#app > main {
+  box-sizing: border-box;
+  display: grid !important;
+  grid-template-rows: 38px minmax(0, 1fr) !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: none !important;
+}
+#app > main > section {
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  overflow: hidden;
+}
+#app > main > section > .structure {
+  --struct-width: 100%;
+  --struct-height: 100%;
+  --struct-max-width: 100%;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  min-width: 0;
+  min-height: 0;
+}

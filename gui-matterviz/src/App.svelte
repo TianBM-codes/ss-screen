@@ -4,38 +4,60 @@
   import { open_material } from 'matterviz/file-viewer/open'
 
   let structure = null
-  let structureKey = 0
+
   let title = '请选择结构文件'
   let message = '支持 pymatgen JSON、POSCAR、CONTCAR、CIF 和 XYZ。'
 
+  // SS-Screen JSON switch cache: reuse the parsed data and the mounted viewer.
+  let latestLoadId = 0
+  const parsedStructures = new Map()
+  const MAX_CACHED = 4
+
   window.ssScreenLoadStructure = async (
-	  content,
-	  filename = 'structure.json',
-	  label = filename
-	) => {
-	  try {
-		const opened = await open_material({
-		  data: content,
-		  filename
-		})
-
-		if (opened.type === 'structure') {
-		  structure = opened.data
-		  structureKey += 1
-
-		  title = label
-		  message = ''
-		} else {
-		  structure = null
-		  message = 'MatterViz 未能识别该结构。'
-		}
-	  } catch (error) {
-		structure = null
-		message = `结构加载失败：${error?.message ?? error}`
-	  }
-	}
+    content,
+    filename = 'structure.json',
+    label = filename,
+  ) => {
+    const id = ++latestLoadId
+    try {
+      const cached = parsedStructures.get(filename)
+      let nextStructure
+      if (cached && cached.content === content) {
+        // Updating the same structure twice need not re-run the parser.
+        nextStructure = cached.structure
+        parsedStructures.delete(filename)
+        parsedStructures.set(filename, cached)
+      } else {
+        const opened = await open_material({ data: content, filename })
+        if (id !== latestLoadId) return  // A more recent selection won.
+        if (opened.type !== 'structure') {
+          structure = null
+          title = label
+          message = 'MatterViz could not recognize this structure.'
+          return
+        }
+        nextStructure = opened.data
+        parsedStructures.delete(filename)
+        parsedStructures.set(filename, { content, structure: nextStructure })
+        while (parsedStructures.size > MAX_CACHED) {
+          parsedStructures.delete(parsedStructures.keys().next().value)
+        }
+      }
+      if (id !== latestLoadId) return
+      structure = nextStructure  // Reactive prop update; no component remount.
+      title = label
+      message = ''
+    } catch (error) {
+      if (id !== latestLoadId) return
+      structure = null
+      title = label
+      message = `Structure load failed: ${error?.message ?? error}`
+      console.error('SSSCREEN_STRUCTURE_LOAD_ERROR', error)
+    }
+  }
 
   window.ssScreenClearStructure = () => {
+    latestLoadId += 1
     structure = null
     title = '请选择结构文件'
     message = '支持 pymatgen JSON、POSCAR、CONTCAR、CIF 和 XYZ。'
@@ -67,13 +89,11 @@
   </header>
   <section>
     {#if structure}
-	  {#key structureKey}
-		<Structure
+	  <Structure
 		  {structure}
 		  show_controls={false}
 		  style="width: 100%; height: 100%;"
 		/>
-	  {/key}
 	{:else}
       <div class="empty">{message}</div>
     {/if}
