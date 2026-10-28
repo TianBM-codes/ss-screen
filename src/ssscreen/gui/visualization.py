@@ -8,8 +8,9 @@ import math
 from pathlib import Path
 
 from pymatgen.core import Composition
-from PySide6.QtCore import QPointF, Qt, QUrl
+from PySide6.QtCore import QPointF, Qt, QUrl, QTimer
 from PySide6.QtGui import QColor, QPainter, QPen, QPixmap, QPolygonF
+from PySide6.QtWebEngineCore import QWebEngineSettings
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -43,6 +44,12 @@ class MatterVizView(QWebEngineView):
         super().__init__(parent)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setMinimumSize(360, 320)
+        self.settings().setAttribute(
+            QWebEngineSettings.WebAttribute.WebGLEnabled, True
+        )
+        self.settings().setAttribute(
+            QWebEngineSettings.WebAttribute.LocalContentCanAccessFileUrls, True
+        )
         self._pending: tuple[str, str, str] | None = None
         self._ready = False
         self.loadFinished.connect(self._loaded)
@@ -53,72 +60,23 @@ class MatterVizView(QWebEngineView):
             self.setHtml("<h3>MatterViz resources are not built.</h3>")
 
     def _loaded(self, ok: bool) -> None:
+        """Wait for the JS bridge after HTML load; do not override MatterViz CSS.
+
+        loadFinished only means index.html loaded, not that Svelte's
+        ssScreenLoadStructure global is already registered.
+        """
         self._ready = ok
-        if ok:
-            self.page().runJavaScript("""
-            (() => {
-                const style = document.createElement('style');
-
-                style.textContent = `
-                    html,
-                    body,
-                    #app {
-                        width: 100% !important;
-                        height: 100% !important;
-                        min-width: 0 !important;
-                        min-height: 0 !important;
-
-                        margin: 0 !important;
-                        padding: 0 !important;
-
-                        overflow: hidden !important;
-
-                        background:
-                            radial-gradient(
-                            circle at 50% 45%,
-                            rgba(255, 255, 255, 0.95) 0%,
-                            rgba(238, 244, 250, 0.85) 40%,
-                            rgba(218, 229, 240, 0.90) 100%
-                        ),
-                            linear-gradient(
-                                135deg,
-                                #f7f9fc 0%,
-                                #dce7f1 100%
-                        )!important;nt;
-                    }
-
-                    #app > * {
-                        width: 100% !important;
-                        height: 100% !important;
-
-                        max-width: none !important;
-                        max-height: none !important;
-
-                        margin: 0 !important;
-
-                        background: transparent !important;
-                    }
-
-                    canvas {
-                        width: 100% !important;
-                        height: 100% !important;
-                        background: transparent !important;
-                    }
-                `;
-
-                document.head.appendChild(style);
-
-                window.dispatchEvent(new Event('resize'));
-            })();
-            """)
-
-        if ok and self._pending:
-            content, filename, label = self._pending
+        if not ok:
+            print("[SS-Screen MatterViz] index.html load failed", flush=True)
+            return
+        if self._pending is not None:
+            payload = self._pending
             self._pending = None
-            self._send(content, filename, label)
+            self._send(*payload)
 
     def load_structure(self, path: Path, label: str | None = None) -> None:
         if not path.is_file():
+            print(f"[SS-Screen MatterViz] missing file: {path}", flush=True)
             return
         content = path.read_text(encoding="utf-8", errors="replace")
         payload = (content, path.name, label or path.stem)
@@ -131,7 +89,27 @@ class MatterVizView(QWebEngineView):
         arguments = ", ".join(
             json.dumps(value, ensure_ascii=False) for value in (content, filename, label)
         )
-        self.page().runJavaScript(f"window.ssScreenLoadStructure({arguments})")
+        # The retry runs *inside the webpage* and does not depend on Qt's
+        # runJavaScript return-value callback, which can be unreliable on WSL.
+        script = f"""(() => {{
+          const values = [{arguments}];
+          let retries = 0;
+          const deliver = () => {{
+            if (typeof window.ssScreenLoadStructure !== 'function') {{
+              if (retries++ < 100) {{
+                setTimeout(deliver, 100);
+              }} else {{
+                console.error('SSSCREEN_BRIDGE_NOT_READY after 10 seconds');
+              }}
+              return;
+            }}
+            Promise.resolve(window.ssScreenLoadStructure(...values))
+              .then(() => console.info('SSSCREEN_JSON_LOADED ' + values[1]))
+              .catch(err => console.error('SSSCREEN_JSON_LOAD_FAILED', err));
+          }};
+          deliver();
+        }})()"""
+        self.page().runJavaScript(script)
 
 
 class StructureResultsPage(QWidget):
@@ -153,7 +131,14 @@ class StructureResultsPage(QWidget):
         layout.addLayout(header)
 
         self.selector = QComboBox()
-        self.selector.activated.connect(self._selection_changed)
+        # Debounce rapid combo-box choices; only the last one is rendered.
+        self._pending_selection_index = -1
+        self._last_structure_signature = None
+        self._selection_timer = QTimer(self)
+        self._selection_timer.setSingleShot(True)
+        self._selection_timer.setInterval(160)
+        self._selection_timer.timeout.connect(self._apply_pending_selection)
+        self.selector.activated.connect(self._queue_selection_change)
         layout.addWidget(self.selector)
         self.viewer = MatterVizView()
         self.viewer.setMinimumHeight(460)
@@ -164,6 +149,8 @@ class StructureResultsPage(QWidget):
         return Path(self.project_provider()).expanduser().resolve()
 
     def refresh(self) -> None:
+        self._selection_timer.stop()
+        self._pending_selection_index = -1
         current = self.selector.currentData()
 
         self.selector.blockSignals(True)
@@ -214,6 +201,16 @@ class StructureResultsPage(QWidget):
         if target_index >= 0:
             self._selection_changed(target_index)
 
+    def _queue_selection_change(self, index: int) -> None:
+        self._pending_selection_index = index
+        self._selection_timer.start()
+
+    def _apply_pending_selection(self) -> None:
+        index = self._pending_selection_index
+        self._pending_selection_index = -1
+        if index >= 0:
+            self._selection_changed(index)
+
     def _selection_changed(self, index: int) -> None:
         if index < 0:
             return
@@ -224,9 +221,22 @@ class StructureResultsPage(QWidget):
             return
 
         path = Path(str(data))
+        print("=" * 60, flush=True)
+        print("当前工程根目录:", self._root(), flush=True)
+        print("当前选择的结构:", self.selector.itemText(index), flush=True)
+        print("实际 JSON 路径:", path.resolve(), flush=True)
+        print("文件是否存在:", path.is_file(), flush=True)
+        print("=" * 60, flush=True)
 
         if not path.is_file():
             return
+
+        # Re-selecting an unchanged file should not rebuild its 3D scene.
+        file_stat = path.stat()
+        signature = (str(path.resolve()), file_stat.st_mtime_ns, file_stat.st_size)
+        if signature == self._last_structure_signature:
+            return
+        self._last_structure_signature = signature
 
         self.viewer.load_structure(
             path,
