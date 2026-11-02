@@ -20,7 +20,6 @@
 | [`docs/gui_wsl_poscar_demo_runbook_2026-09-12.md`](../../docs/gui_wsl_poscar_demo_runbook_2026-09-12.md) | Windows GUI 调 WSL 后端、导入 POSCAR 文件夹、导出 VASP gap 任务的现场演示步骤、字段选择和汇报话术 | 面向同事现场演示与下一步交接 |
 | [`docs/real_vasp_mace_pipeline_2026-09-14.md`](../../docs/real_vasp_mace_pipeline_2026-09-14.md) | 使用同事 PBE VASP 结果和 `mace-mpa-0-medium.model` 跑通真实 gap 校验、pair、SQS、MACE relaxation、混合焓、phonon 和推荐报告的验证记录 | 当前真实数据链路能力和剩余阻塞 |
 | [`docs/gui_full_pipeline_runbook_2026-09-14.md`](../../docs/gui_full_pipeline_runbook_2026-09-14.md) | 按 GUI 左侧流程逐步运行 CaS/CaSe/CaTe 真实 VASP + MACE + MP API 演示的具体点击顺序和默认参数说明 | 面向现场完整 GUI 演示 |
-| [`软著/软件著作权_20261028/SS-Screen_V1.0_测试大纲.docx`](../../软著/软件著作权_20261028/SS-Screen_V1.0_测试大纲.docx) | V1.0 测试范围、验收依据与 CaS–CaSe–CaTe 案例操作步骤；逐步列明输入、产物格式和相对路径 | 软著测试大纲 |
 | [`docs/adr/`](../../docs/adr/) | Web/核心边界、元数据/制品分工、状态机、身份、Stage 1 数据源与 Stage 1a Artifact 输入决策 | 已接受架构决策 |
 | [`docs/software_status_report_2026-08-04.md`](../../docs/software_status_report_2026-08-04.md) | 面向导师汇报的软件定位、完成度、教学证据、限制、下一步和决策问题 | 2026-08-04 阶段性软件汇报材料 |
 | [`docs/review_upstream_completeness_2026-07-19.md`](../../docs/review_upstream_completeness_2026-07-19.md) | 逐研究家族比较已迁移/缺失能力 | 完整性与优先级审计 |

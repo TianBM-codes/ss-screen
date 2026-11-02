@@ -1,3 +1,18 @@
+## 2026-11-01 — 新增GUI Stage 13探测器性能预筛与演示
+
+**本次工作目标：** 在现有Stage 12之后展示探测器应用性能指标及数据来源。
+
+**已完成：**
+- 新增`src/ssscreen/detector.py`和`src/ssscreen/gui/detector_page.py`；修改GUI阶段元数据、工程树和图标。
+- 使用名义截止波长与现有稳定性证据做展示和预筛；器件级指标仅接受外部数据输入；演示示例明确标注非真实。
+- 新增`tests/test_detector.py`及`docs/gui_stage13_detector.md`，同步ZMD页面。
+
+**决策 / 计划变更：** Stage 13为GUI只读结果与外部器件证据关联，不新增科研计算CLI。
+
+**下一步：** 在具有PySide6的项目环境中进行GUI交互冒烟测试，补充实际器件指标及来源数据。
+
+**阻塞项 / 上游问题：** 当前归档未附带可运行的项目`.venv`及真实Stage 12结果，需在本地安装环境复核。
+
 # PROJECT_LOG.md — Cross-session project log for `ss-screen`
 
 > **Purpose:** Keep this long-running project on track across many sessions.
@@ -6,23 +21,6 @@
 > for *where we are* — do not rely on conversation history surviving.
 
 **Read first at the start of every session:** `AGENTS.md` → this file → `PROJECT_PLAN.md`.
-
-
-## 2026-11-01 — 扩写软著测试大纲完整案例文件流
-
-**本次工作目标：** 在现有测试大纲中补全 CaS–CaSe–CaTe 全流程案例的输入、阶段产物格式及保存位置。
-
-**已完成：**
-- 更新 `软著/软件著作权_20261028/SS-Screen_V1.0_测试大纲.docx`：细化 15 个操作步骤，列明本地结构、task-id 对齐的 VASP 结果、MACE 模型、各阶段输入/输出相对路径和 CSV/JSON/JSONL/Pickle/CIF/VASP/图像等格式；加入 API Key 单独配置和 `.ssproject` 归档检查说明。
-- 丰富材料应用性能评估的输入字段与待确认边界；保留现有文档样式、截图和流程结构。
-- 使用 Microsoft Word 导出 18 页 PDF 做案例段落、图注、表格和换页视觉检查；DOCX 自带渲染器因缺少 LibreOffice 未能运行。
-
-**决策 / 计划变更：** 测试大纲只记录可核对的当前算例产物；具体应用性能评估仍须等甲方提供用途、指标、条件和阈值。
-
-**下一步：** 按细化后的步骤执行一次 GUI 完整案例，并填写附表中的实际输入、产物路径、截图编号和判定。
-
-**阻塞项 / 上游问题：** 当前机器未安装 LibreOffice；已用 Microsoft Word 导出 PDF 完成版面核对。无上游代码问题。
-
 
 ## 2026-10-15 — 视图入口放入工程工具栏
 
