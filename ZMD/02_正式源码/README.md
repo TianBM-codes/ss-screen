@@ -11,6 +11,7 @@
 | [data.md](data.md) | [`src/ssscreen/data/`](../../src/ssscreen/data/) | MP/WBM 数据标准化、robocrys condensation、文件 I/O |
 | [pair.md](pair.md) | [`src/ssscreen/pair/`](../../src/ssscreen/pair/) | 组成模板、环境匹配、过滤、带隙反馈和材料对枚举 |
 | [stability.md](stability.md) | [`src/ssscreen/stability/`](../../src/ssscreen/stability/) | SQS、MACE 弛豫/混合焓、有限位移声子谱、MP 竞争相凸包与综合推荐 |
+| [geometry.md](geometry.md) | [`src/ssscreen/geometry_pipeline.py`](../../src/ssscreen/geometry_pipeline.py)、[`geometry_core.py`](../../src/ssscreen/geometry_core.py) | Stage 13端元晶格对应、衬底ZSL匹配、面内主应变与审计输出 |
 | [cli.md](cli.md) | [`src/ssscreen/cli/`](../../src/ssscreen/cli/) | Click 命令、参数校验和阶段编排 |
 | [gui.md](gui.md) | [`src/ssscreen/gui/`](../../src/ssscreen/gui/) | 可选 PySide6 桌面工作台、工程树、参数页和 CLI 子进程调用 |
 | 配置 | [`src/ssscreen/config.py`](../../src/ssscreen/config.py) | 所有筛选/推荐阈值、元素排除集合和组成排列 |
@@ -40,7 +41,8 @@ gui/app.py 作为可选前端调用真实 CLI
 4. [cli.md](cli.md)
 5. [gui.md](gui.md)
 6. [stability.md](stability.md)
-7. [测试导航](../03_测试与测试数据/README.md)
+7. [geometry.md](geometry.md)
+8. [测试导航](../03_测试与测试数据/README.md)
 
 ## 最近同步
 

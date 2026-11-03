@@ -19,7 +19,7 @@
 - 包发布名：`ss-screen`
 - Python 导入名：`ssscreen`
 - 当前版本：`1.0`
-- Python 要求：3.10 及以上；当前 WSL 环境为 3.11.15
+- Python 要求：3.10 及以上；PyCharm 在 Windows 运行 GUI，CLI/材料计算由 GUI 调用 WSL 项目环境执行
 - CLI 入口：`ss-screen = ssscreen.cli.app:cli`
 - GUI 入口：`ss-screen-gui = ssscreen.gui.launcher:main`
 - 核心依赖：pymatgen、pandas、numpy、monty、click、tqdm
@@ -52,6 +52,12 @@
 3. [`pyproject.toml`](../../pyproject.toml)
 4. [项目文档与开发计划](../04_项目文档与开发计划/README.md)
 5. [正式源码](../02_正式源码/README.md)
+
+## Windows/WSL运行方式
+
+- 项目工作副本位于 `D:\WorkSpace\OtherProjects\ss-screen`；WSL 使用 `/mnt/d/WorkSpace/OtherProjects/ss-screen` 访问同一目录。
+- 用户在 PyCharm 中用 Windows 解释器运行 `src/ssscreen/gui/app.py`；GUI 将 CLI 命令通过 `wsl.exe` 发往共享仓库中的 `.venv` 或 `.venv-mlp`。
+- 不需要在 `/home/zuolong` 或其他 Linux home 目录创建第二份项目副本。
 
 ## 最近同步
 

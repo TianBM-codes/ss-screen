@@ -83,8 +83,8 @@ if __package__ in {None, ""}:
         font_size,
         font_stylesheet,
     )
-    from ssscreen.gui.icons import app_icon, stage_icon
     from ssscreen.gui.detector_page import DetectorAssessmentPage
+    from ssscreen.gui.icons import app_icon, stage_icon
     from ssscreen.gui.metadata import (
         COMMANDS,
         PATH_PRESETS,
@@ -115,8 +115,8 @@ else:
         font_size,
         font_stylesheet,
     )
-    from .icons import app_icon, stage_icon
     from .detector_page import DetectorAssessmentPage
+    from .icons import app_icon, stage_icon
     from .metadata import COMMANDS, PATH_PRESETS, STAGES, CommandPresentation, option_label_zh
     from .project_file import create_project_file, extract_project_file, inspect_project_file
     from .visualization import (
@@ -4582,6 +4582,7 @@ class MainWindow(QMainWindow):
 
         # Stage 13 is a local GUI assessment, not a Click/DFT computation.
         self.detector_assessment_page = DetectorAssessmentPage(self.project_root)
+        self.detector_assessment_page.run_requested.connect(self.run_command)
         self.stack.addWidget(self.detector_assessment_page)
 
         self.document_scroll = QScrollArea()
@@ -5230,10 +5231,10 @@ class MainWindow(QMainWindow):
             elif sid == "13":
                 self.detector_assessment_page.refresh()
                 self.stack.setCurrentWidget(self.detector_assessment_page)
-                self.document_label.setText(f"{project.name} / 探测器性能评估")
+                self.document_label.setText(f"{project.name} / 固溶体候选评价")
                 self.inspector.set_selection(
-                    item_type="应用适配性评估",
-                    name="Stage 13：探测器性能评估（展示/预筛）",
+                    item_type="候选评价",
+                    name="Stage 13：固溶体候选几何评价与材料级预筛",
                     path=str(project.path / directory),
                     status=status if count == 0 else f"{status} · {count} 项",
                 )
@@ -6131,6 +6132,10 @@ class MainWindow(QMainWindow):
         if exit_code == 0 and " recommend " in f" {finished_command} ":
             self.recommendation_report_page.refresh()
             self.stack.setCurrentWidget(self.recommendation_report_page)
+
+        if exit_code == 0 and " geometry-evaluate " in f" {finished_command} ":
+            self.detector_assessment_page.refresh()
+            self.stack.setCurrentWidget(self.detector_assessment_page)
 
     def _write_run_audit(self, record: RunRecord) -> None:
         path = self.project_root() / "logs" / "gui_commands.jsonl"

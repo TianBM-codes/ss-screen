@@ -2,36 +2,34 @@
 
 本文件为所有在本仓库中工作的 AI 助手提供跨会话、稳定且权威的操作规则。开始任何工作前，必须先完整阅读本文件。
 
-## 0. 激活 WSL 项目环境（强制）
+## 0. Windows GUI 与 WSL 计算环境
 
 当前工作副本位于：
 
 ```text
-/home/zuolong/projects/ss-screen-learning-20260722
+D:\WorkSpace\OtherProjects\ss-screen
 ```
 
-本项目使用项目目录内的独立 Python 环境。每次开始工作时，必须先进入仓库并激活环境：
+软件采用 Windows GUI + WSL 计算后端的混合运行方式：
 
-```bash
-cd /home/zuolong/projects/ss-screen-learning-20260722
-source .venv/bin/activate
-```
+- GUI 在 Windows 上由 PyCharm 启动 `src/ssscreen/gui/app.py`，使用 PyCharm 项目配置中的解释器。
+- CLI/材料计算由 GUI 调用 `wsl.exe`，在 WSL 项目环境中执行；WSL 项目路径应由当前 Windows 仓库路径转换得到（通常为 `/mnt/d/WorkSpace/OtherProjects/ss-screen`）。
+- 不得假设存在 `/home/zuolong` 或在该路径下创建项目副本。
 
-- Python、`pip`、`pytest`、`ruff`、`black`、`ss-screen` 以及所有项目脚本，都必须在已激活的项目环境中运行。
-- 禁止使用 WSL 系统 Python，禁止把项目依赖安装到全局环境。
-- 开始 Python 工作前，必须确认 `python --version` 显示 Python 3.11，并确认 `python -c "import ssscreen; print(ssscreen.__version__)"` 可以成功执行。
-- Shell 环境激活状态不会跨独立的非交互式工具调用保留。此类情况下，每次调用都必须重新激活环境，或者显式使用 `.venv/bin/` 下的对应程序。
-- 如果 `.venv` 缺失或损坏，必须停止工作并报告问题，不得静默切换到其他 Python 环境。
+- GUI 相关 Python 命令和界面启动使用 PyCharm 当前项目解释器；开始 Python 工作前确认解释器版本及 `ssscreen` 导入。
+- CLI、测试和计算命令使用 WSL 项目环境（常规流程为 `.venv`；MACE/Phonopy 等可选流程使用 `.venv-mlp`），不得使用 WSL 系统 Python或全局依赖。
+- 每次独立 WSL 命令都必须显式进入仓库并激活相应环境；环境缺失或损坏时停止并报告，不得静默切换解释器。
+- 只有用户明确要求时才改用纯 Windows 或其他 Linux 环境执行材料计算。
 
 ## 1. 仓库范围与只读边界（硬性规则）
 
-**只允许在以下目录内创建、修改或删除文件：**
+**只允许在以下目录内创建、修改或删除项目文件：**
 
 ```text
-/home/zuolong/projects/ss-screen-learning-20260722/
+D:\WorkSpace\OtherProjects\ss-screen\
 ```
 
-除非用户明确授权，否则该工作副本之外的所有路径均视为**只读**。下方提到的历史上游路径仅作为参考资料。
+除非用户明确授权，否则该工作副本之外的所有路径均视为**只读**。WSL 通过 `/mnt/d/WorkSpace/OtherProjects/ss-screen` 访问同一工作副本，不得另建 `/home/zuolong` 副本。下方提到的历史上游路径仅作为参考资料。
 
 下列路径均相对于本文件所在的 `ss-screen/` 目录；只读的同级目录位于 `../`。
 

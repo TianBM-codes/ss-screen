@@ -2,7 +2,7 @@
 
 真实目录：[`tests/`](../../tests/)、[`web/backend/tests/`](../../web/backend/tests/) 和 [`web/frontend/tests/`](../../web/frontend/tests/)
 
-当前有 23 个 Python 测试文件（含 `conftest.py`）；参数化展开后完整测试为 174 项。
+当前有 27 个 Python 测试文件（另有`conftest.py`）；参数化展开后完整测试数随分支更新。
 Web 基线另有 54 项后端 pytest、1 项 Vitest 和 20 项 Playwright 四宽度测试。
 
 ## 测试文件映射
@@ -28,6 +28,8 @@ Web 基线另有 54 项后端 pytest、1 项 Vitest 和 20 项 Playwright 四宽
 | [`test_stability_phonon.py`](../../tests/test_stability_phonon.py) | 自动超胞、位移/力/收集端到端、MACE 能量、续算、模型冲突和虚频阈值 |
 | [`test_stability_competing.py`](../../tests/test_stability_competing.py) | API key 不落盘、离线子体系查询/快照 SHA、MP 查询失败、竞争相 provenance、凸包负裕量和不完整竞争集拒算 |
 | [`test_stability_recommendation.py`](../../tests/test_stability_recommendation.py) | 完整/缺失证据分类、L2--L6、模型 SHA 冲突、可选/强制缺陷和阈值校验 |
+| [`test_geometry_core.py`](../../tests/test_geometry_core.py)、[`test_geometry_pipeline.py`](../../tests/test_geometry_pipeline.py) | 晶格/二维主应变、Miller 面、代表匹配、身份/SHA/性质来源校验；含ZSL约化超胞变换回归 |
+| [`test_detector.py`](../../tests/test_detector.py) | Stage 13端元带隙区间覆盖判断、目标光子能量换算、禁止插值为合金带隙及证据导出 |
 | [`test_e2e_pipeline.py`](../../tests/test_e2e_pipeline.py) | Stage 1--11 轻量 CLI 文件链、跨阶段 ID/schema、确定性替身和双运行复现 |
 | [`test_reference_curation.py`](../../tests/test_reference_curation.py) | 历史资料发现、脱敏、别名、manifest 和 tamper 检测 |
 | [`test_project_config.py`](../../tests/test_project_config.py) | 开发依赖和 CI 配置约束 |
@@ -71,6 +73,8 @@ npm --prefix web/frontend run test:e2e
 
 ## 最近同步
 
+- 2026-11-03：修复Stage 13性质长格式读取和Stage 12→Stage 13联结；真实CaSe–CaTe CLI重跑确认已有声子、混合焓及凸包值回填。未运行自动化测试。
+- 2026-11-03：Stage 13几何CLI合成最小算例通过（1候选、106匹配、0失败）；ZSL有效超胞矩阵回归测试通过。合成输出保存在忽略目录`work/stage13_minimal_smoke_2026-11-03/`，未运行完整测试套件或GUI。
 - 2026-10-15：字号测试补查“视图”位于工程工具栏且不创建独立菜单栏；保留字号选择、记忆与恢复验证。
 - 2026-10-15：更新字号回归测试，通过菜单操作验证单选状态、持久化和恢复默认，6项Windows Qt测试通过。
 - 2026-10-14：Windows Qt 字体测试在100%、125%、150%、200%缩放分别6项通过；WSL核心174项通过，

@@ -14,7 +14,7 @@
 | [`app.py`](../../src/ssscreen/gui/app.py) | PySide6 主窗口、工程树、专用阶段页面、命令日志和 `QProcess` 子进程执行；支持 IDE 直接按脚本启动、Windows GUI 调 WSL 后端、递归导入本地 POSCAR 文件夹 |
 | [`launcher.py`](../../src/ssscreen/gui/launcher.py) | `ss-screen-gui` 控制台入口 |
 | [`metadata.py`](../../src/ssscreen/gui/metadata.py) | 阶段标题、命令展示顺序和工程内默认路径预设 |
-| [`detector_page.py`](../../src/ssscreen/gui/detector_page.py) | Stage 13探测器应用预筛页面；CSV证据展示、虚构演示模式、导出 |
+| [`detector_page.py`](../../src/ssscreen/gui/detector_page.py) | Stage 13固溶体候选评价：执行几何匹配CLI、显示端元晶格失配及前三衬底的薄膜面内主应变、读取材料证据和Markdown报告；[使用说明](../../docs/gui_stage13_detector.md) |
 | [`appearance.py`](../../src/ssscreen/gui/appearance.py) | 字号范围、点数字体样式和随字号变化的控件/表格布局 |
 | [`project_file.py`](../../src/ssscreen/gui/project_file.py) | `.ssproject` ZIP64 项目容器、SHA-256 清单、安全解包与原子保存 |
 | [`visualization.py`](../../src/ssscreen/gui/visualization.py) | MatterViz 晶体、声子图表和竞争相/凸包结果页 |
@@ -31,7 +31,7 @@
   避免 WSL 后端误在 `src/ssscreen/gui` 子目录中查找 `.venv`。
 - GUI 发往 WSL 的相对路径会统一把 Windows 反斜杠转换为 `/`；组成筛选页只自动加入真实存在的
   `01_dataset/*.df`，避免不存在的 `mp.df/wbm.df` 被带入命令。
-- Stage 13探测器预筛纯计算逻辑位于`src/ssscreen/detector.py`，不依赖PySide6，可在无GUI环境单独测试。
+- Stage 13新增输入包驱动的端元晶格匹配和单代表SQS衬底主应变评价；主表最后一列显示前三种不同衬底及各自两个有符号薄膜面内主应变。已有材料性质只读，不显示或导出响应率、暗电流、NEP、D*、上升时间等器件性能字段。底层`src/ssscreen/detector.py`仍提供材料预览数据处理。
 - GUI 专用页面会把旧的 `src/ssscreen/gui/...` 阶段路径归一化为工程根目录相对路径；例如
   `src/ssscreen/gui/03_condensed/local` 会显示并执行为 `03_condensed/local`。
 - 数据源页支持 `dataset structures`，可把本地 POSCAR/CIF 文件夹导入为 Stage 1 DataFrame；结构归档页的
@@ -62,6 +62,17 @@
 - 在无显示服务器的 Linux CI 中，GUI 视觉/交互测试应显式跳过或使用合适的 headless Qt 配置。
 
 ## 最近同步
+
+- 2026-11-03：PyCharm重启GUI复核Stage 13：CaSe/CaTe端元带隙0.7877/0.0064 eV，2.0 μm目标能量0.61992 eV，范围覆盖；候选综合等级仍“待补充”。页面几何表路径仍是默认路径，真实几何CSV尚未在本次界面读取，详见项目日志。
+- 2026-11-03：Stage 13“候选等级（带隙）”按端元带隙范围设置为“优先/次优”；范围未覆盖及带隙缺失的Stage 12候选仍显示在表格，不要求直接合金带隙。
+- 2026-11-03：Stage 13主表按用户指定精简为材料、端元带隙、目标波长/能量、带隙候选判断、晶格失配、前三衬底应变和候选等级优先；几何数据读取几何评价CSV及同目录衬底匹配CSV。
+- 2026-11-03：Stage 13前三衬底启用多行显示，每个衬底一行；表格行高按内容自动调整，避免应变结果挤在一行。
+- 2026-11-03：Stage 13将端元A/B带隙分列显示；目标波长换算为光子能量后，按端元带隙闭区间判断覆盖情况，不插值生成合金带隙。直接合金带隙仍单独展示，详见Stage 13使用说明。
+- 2026-11-03：重启PyCharm GUI后从Stage 13实际运行WSL CLI，命令包含`--recommendations`，exit code 0；表格验证声子/混合焓/凸包和前三衬底回填，候选等级显示“待补充”。
+- 2026-11-03：Stage 13 GUI计算同时传入Stage 12推荐表；CLI按pair index、实际组分和structure ID关联已有性质，并由SQS清单SHA校验身份；端元带隙不作为合金带隙。
+- 2026-11-03：PyCharm启动的Windows GUI通过任务运行器调用WSL `geometry-evaluate`成功，exit code 0；Stage 13真实CaSe–CaTe候选已加载端元晶格匹配和前三衬底主应变，输出位于忽略目录`work/stage13_real_CaSe_CaTe_2026-11-03/output/`。
+- 2026-11-03：PyCharm启动Windows GUI并打开真实CaSe–CaTe Stage 13；页面显示Stage 12已有性质，几何评价因缺少Stage 13输入包未提交计算，前三衬底列为空。
+- 2026-11-03：合并PR #7的Stage 13几何评价，并由主窗口任务运行器调用`geometry-evaluate`，展示材料证据及几何结果；运行验证待执行。
 
 - 2026-10-15：按后续反馈，“视图”下拉入口改为与“新建工程”同一工具栏，不再单独占顶层菜单栏；字号子菜单保留。
 - 2026-10-15：字号入口移到“视图 → 界面字号”菜单，9--18 pt单选并提供恢复默认；移除标题条上的字号

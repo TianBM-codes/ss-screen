@@ -103,6 +103,8 @@ config.json               # 阈值、搜索范围和执行设置
 | 已有性质 | `structure_id`、性质数值与单位、对应结构 SHA、方法、状态、QC、来源；声子/能量参照等原有告警也要保留 |
 | 衬底库 | `substrate_id`、化学式、晶相、结构文件/SHA、来源/方法；可选允许的晶面列表 |
 
+Stage 13 GUI会在调用几何CLI时同时传入当前Stage 12推荐表。CLI仅按候选pair index、实际组分和structure ID精确关联性质，再用合金结构清单中的SHA绑定结构身份。推荐表中的端元带隙不会当作合金带隙。`properties.csv`接受`property,value,unit`长格式及兼容宽格式。
+
 同一个 `pair_id` 可有多个实际组分，用不同 `candidate_id` 区分。预期构型数量由输入清单规定，不能从成功计算的行数推断。
 
 组分 x 表示约定替换子晶格上 B 组分的占比；同时保存替换原子数与可替换位点数，用于核验实际比例。它不一定等于 B 元素占整个晶胞的原子分数。
@@ -217,7 +219,7 @@ F_{AB}=(L_A^{-1}L_B)^T,\qquad F_{AB}L_A^T=L_B^T.
 | 衬底对称识别 `symprec` | 0.01 Å | 保存进元数据 |
 | 优先主应变上限 | 0.01 | 1% |
 | 备选主应变上限 | 0.03 | 3% |
-| 每个候选展示的不同衬底数 | 5 | 可配置 |
+| 每个候选展示的不同衬底数 | 3 | 推荐数最多为三种不同衬底；较小配置值可减少数量 |
 
 显式检查双方未应变匹配面积均严格小于面积上限。800 Å² 不是物理通用界限，应允许用 400/800 Å² 等范围对照。搜索长度容差 3% 不意味着主应变一定≤3%，必须再计算主应变。
 
@@ -268,7 +270,7 @@ F_{2D}=(B_f^{-1}B_s)^T,\qquad F_{2D}B_f^T=B_s^T.
 3. 要求所选构型的最终弛豫收敛、QC 通过、晶胞有效。缺失返回 `representative_missing`，无效返回 `representative_invalid`，同一条件对应多个未指定版本返回 `representative_ambiguous`。数值为空，不自动换 seed202。
 4. 用户可显式配置其他 seed，或按候选指定唯一 `structure_id`；记录覆盖规则和实际选择。显式 ID 优先于默认 seed，但依然必须验证组分、参考版本和结构质量。
 5. 只对这一构型搜索；有≤1%解时选择该阈值内最小面积解，有≤3%解但无≤1%解时选择≤3%范围内最小面积解。其余分别报告较高应变或有限范围无解。
-6. 每个衬底选最佳晶面方案，再按“优先/备选、薄膜匹配面积、最大绝对主应变、固定身份键”排序，输出前 N 个不同衬底。面积和应变来自同一个 `match_id`。
+6. 每个薄膜—衬底组合选择最大绝对面内主应变最小的匹配方案；再按该最小应变从小到大排序，输出最多前三种不同衬底。面积和应变来自同一个 `match_id`，匹配面积只作应变相同时的次级排序条件。
 
 输出 `selected_seed`、`selected_structure_id`、`selected_structure_sha256`、`selection_reason`、`selection_status`、`available_configurations` 和 `substrate_configurations_evaluated`。后一字段正常为 1，报告范围固定为 `single_representative_configuration`。
 
@@ -292,7 +294,8 @@ F_{2D}=(B_f^{-1}B_s)^T,\qquad F_{2D}B_f^T=B_s^T.
 ss-screen geometry-evaluate \
   --input input/ \
   --config config.json \
-  --output output/
+  --output output/ \\
+  --recommendations 12_recommend/recommendations.csv
 ```
 
 若接收项目暂时没有 `ss-screen` CLI，可先提供等价的独立 Python 命令入口，并给出接入函数。不得将上述示例描述为已经存在的命令。
@@ -384,7 +387,7 @@ output/
     "symprec_A": 0.01,
     "preferred_max_principal_strain": 0.01,
     "alternative_max_principal_strain": 0.03,
-    "top_n": 5
+    "top_n": 3
   },
   "existing_property_thresholds": {
     "imaginary_frequency_tolerance_THz": 0.1,

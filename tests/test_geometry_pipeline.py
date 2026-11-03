@@ -3,11 +3,22 @@ from pathlib import Path
 import json
 import csv
 
+import numpy as np
 import pytest
-from ssscreen.geometry_pipeline import _config,evaluate
+from ssscreen.geometry_pipeline import _config,_effective_supercell_matrix,evaluate
 from ssscreen.detector import assess_rows,index_geometry,read_csv
 
 FIXTURES=Path(__file__).parent/'data'/'stage13_geometry'
+
+
+def test_effective_supercell_matrix_reconstructs_reduced_zsl_basis():
+    base=np.array([[4.,0.,0.],[0.,4.,0.]])
+    # The returned ZSL basis can differ from its original area-multiple matrix
+    # after the Zur reduction swaps vectors or adds/subtracts one row.
+    reduced=np.array([[2,2],[0,2]])@base
+    transform=_effective_supercell_matrix(base,reduced)
+    assert np.array_equal(transform,[[2,2],[0,2]])
+    assert np.allclose(transform@base,reduced)
 
 
 def test_offline_pipeline_never_invents_geometry(tmp_path):

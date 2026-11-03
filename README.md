@@ -219,6 +219,12 @@ ss-screen recommend \
   --report recommendation_report.md \
   --summary recommendation_summary.json
 
+# Stage 13: compare endmember lattices and search local substrate matches
+ss-screen geometry-evaluate \
+  --input 13_geometry/input \
+  --config 13_geometry/config.json \
+  --output 13_geometry
+
 # Legacy notebook-style gap CSVs are still accepted:
 ss-screen pair --groups group_df.json --gaps mbj_gaps.csv --output mbj_result.csv
 ```
@@ -281,6 +287,13 @@ opaque aggregate scientific score. Defect evidence can be supplied when
 available and is optional unless `--require-defects` is selected. The default
 mixing-enthalpy and same-MLIP hull thresholds are configurable triage values,
 not universal stability criteria.
+Stage 13 compares endmember lattice correspondence and evaluates one explicitly
+selected relaxed alloy SQS (default seed101) against a user-supplied local
+substrate library. It reports ZSL supercell matches and in-plane principal
+engineering strain, while reusing existing property evidence without launching
+DFT/MLP/phonon calculations. Its finite search is geometric screening evidence,
+not proof of epitaxy, synthesizability, or device performance; see
+`docs/lattice_substrate_matching_development.md`.
 
 ## Documentation
 
@@ -289,6 +302,7 @@ not universal stability criteria.
 - `docs/algorithm_gap_backfill_pairing.md` — external gap contract and pair algorithm
 - `docs/algorithm_competing_phase_hull.md` — Stage 10 MP/MLIP hull contract
 - `docs/algorithm_recommendation.md` — Stage 11 recommendation and evidence contract
+- `docs/lattice_substrate_matching_development.md` — Stage 13 lattice, substrate matching, strain, and file contract
 - `AGENTS.md` — operating rules for AI assistants (read-only boundaries)
 - `references/README.md` — curated historical notebooks/source with executed results
 - `references/manifest.json` — machine-readable provenance, hashes, aliases, redactions, and exclusions

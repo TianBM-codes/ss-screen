@@ -2014,6 +2014,7 @@ def composition_screen_cmd(
     excluded = (
         coerce_excluded(excluded_elements) if excluded_elements else thresholds.excluded_elements
     )
+
     candidates, report = screen_composition_candidates(
         df,
         nelems=nelems,

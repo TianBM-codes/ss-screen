@@ -11,10 +11,12 @@ from .geometry_pipeline import evaluate
 @click.option('--input', 'input_dir', type=click.Path(path_type=Path,exists=True,file_okay=False),required=True)
 @click.option('--config','config_path',type=click.Path(path_type=Path,exists=True,dir_okay=False),required=True)
 @click.option('--output','output_dir',type=click.Path(path_type=Path),required=True)
-def main(input_dir: Path, config_path: Path, output_dir: Path) -> None:
-    """Compute endmember lattice alignment and seed-selected substrate geometry."""
+@click.option('--recommendations', 'recommendations_path', type=click.Path(path_type=Path, exists=True, dir_okay=False), default=None,
+              help='Optional Stage 12 recommendations.csv; identity-matched existing properties are included.')
+def main(input_dir: Path, config_path: Path, output_dir: Path, recommendations_path: Path | None) -> None:
+    """Compute geometry and optionally import identity-matched Stage 12 evidence."""
     try:
-        summary=evaluate(input_dir,config_path,output_dir)
+        summary=evaluate(input_dir,config_path,output_dir,recommendations_path)
     except (ValueError,FileNotFoundError,ImportError,OSError) as exc:
         raise click.ClickException(str(exc)) from exc
     click.echo(f"Evaluated {summary['candidate_count']} candidates; "

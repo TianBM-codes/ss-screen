@@ -2,14 +2,14 @@
 
 > ZMD 是本仓库的路径导航与知识索引层。正式代码、测试、项目文档和历史资料仍以真实目录中的文件为准，ZMD 不复制这些内容。
 
-**工作区根路径：** `/vepfs-mlp2/project-battery/zuolong/ss-screen-learning-20260722`
+**工作区根路径：** `D:\WorkSpace\OtherProjects\ss-screen`（Windows GUI；WSL 通过 `/mnt/d/WorkSpace/OtherProjects/ss-screen` 访问同一目录）
 
 **初始同步日期：** 2026-07-22
 
 ## 每次工作的必经入口
 
 1. 阅读 [`AGENTS.md`](../AGENTS.md)。
-2. 执行 `source .venv/bin/activate`，确认 Python 3.11 和 `ss-screen` 可用。
+2. GUI 从 PyCharm 使用 Windows 项目解释器启动；CLI/计算从 WSL 进入上述共享仓库目录并激活 `.venv` 或 `.venv-mlp`。
 3. 回到本页，按任务类型进入对应分区。
 4. 先阅读分区导航，再打开真实文件。
 5. 修改真实文件后，同步更新对应 ZMD 页面和[版本与变更索引](07_版本与变更索引/README.md)。

@@ -22,13 +22,16 @@ BAND_PRESETS_UM = {
 }
 OUTPUT_COLUMNS = (
     'candidate_id','pair_index','comp_a','comp_b','fraction_b',
-    'gap_eV','gap_origin','gap_equivalent_wavelength_um','target_um','band_match',
+    'gap_a_eV','gap_b_eV','endpoint_gap_min_eV','endpoint_gap_max_eV',
+    'alloy_gap_eV','gap_origin','gap_equivalent_wavelength_um',
+    'target_um','target_gap_eV','band_match',
     'lattice_mismatch_pct','lattice_status',
     'phonon_min_THz','phonon_status',
     'mixing_enthalpy_meV_atom','mixing_status',
     'energy_above_hull_meV_atom','hull_status',
     'substrate_principal_strain_pct','substrate_status',
     'substrate_id','film_miller','substrate_miller','match_area_A2','match_id',
+    'substrate_recommendations',
     'candidate_grade','geometry_grade','evidence_completeness',
     'source_structure_id','data_origin','caution',
 )
@@ -74,17 +77,27 @@ def assess_candidate(row: Mapping[str,object], target_um: float,
     x=_number(row.get('actual_fraction_b'))
     if x is None: x=_number(row.get('target_fraction_b'))
     if x is not None and not 0 <= x <= 1: x=None
-    gap=None;gap_origin='缺少有效合金带隙'
+    gap_a=_number(row.get('gap_a_eV'))
+    gap_b=_number(row.get('gap_b_eV'))
+    if gap_a is not None and gap_a < 0: gap_a=None
+    if gap_b is not None and gap_b < 0: gap_b=None
+    target_gap=PHOTON_ENERGY_EV_UM/target
+    if gap_a is not None and gap_b is not None:
+        endpoint_gap_min=min(gap_a,gap_b)
+        endpoint_gap_max=max(gap_a,gap_b)
+        band_match=(
+            '端元范围覆盖'
+            if endpoint_gap_min <= target_gap <= endpoint_gap_max
+            else '端元范围未覆盖'
+        )
+    else:
+        endpoint_gap_min=endpoint_gap_max=None
+        band_match='端元带隙缺失'
+    gap=None;gap_origin='缺少直接合金带隙'
     for key in ('alloy_gap_eV','gap_alloy_eV','band_gap_eV'):
         n=_number(row.get(key))
         if n is not None and n>0:
             gap=n;gap_origin=f'输入合金带隙（{key}，仍需核验来源与QC）';break
-    if gap is None:
-        a,b=_number(row.get('gap_a_eV')),_number(row.get('gap_b_eV'))
-        if a is not None and a>=0 and b is not None and b>=0 and x is not None:
-            value=(1-x)*a+x*b
-            if value>0:
-                gap=value;gap_origin='端元带隙线性插值（探索性，未验证合金带隙）'
     geom=geometry or {}
     # Geometry results are joined by explicit candidate identity and actual composition.
     linked=bool(geom)
@@ -109,10 +122,13 @@ def assess_candidate(row: Mapping[str,object], target_um: float,
     result: dict[str,object] = {
         'candidate_id':candidate_id,'pair_index':row.get('pair_index',''),
         'comp_a':row.get('comp_a',''),'comp_b':row.get('comp_b',''),
-        'fraction_b':x,'gap_eV':gap,'gap_origin':gap_origin,
+        'fraction_b':x,'gap_a_eV':gap_a,'gap_b_eV':gap_b,
+        'endpoint_gap_min_eV':endpoint_gap_min,'endpoint_gap_max_eV':endpoint_gap_max,
+        'alloy_gap_eV':gap,'gap_origin':gap_origin,
         'gap_equivalent_wavelength_um':PHOTON_ENERGY_EV_UM/gap if gap else None,
-        'target_um':target,
-        'band_match':'待补充带隙' if gap is None else '带隙覆盖' if target<=PHOTON_ENERGY_EV_UM/gap else '带隙不覆盖',
+        'endpoint_gap_min_eV':endpoint_gap_min,
+        'endpoint_gap_max_eV':endpoint_gap_max,
+        'target_um':target,'target_gap_eV':target_gap,'band_match':band_match,
         'lattice_mismatch_pct':gnumber('lattice_mismatch_pct'),
         'lattice_status':display('lattice_status','待补充'),
         'phonon_min_THz':gnumber('phonon_min_THz') if gnumber('phonon_min_THz') is not None else phonon,
@@ -124,6 +140,7 @@ def assess_candidate(row: Mapping[str,object], target_um: float,
         'substrate_principal_strain_pct':gnumber('substrate_principal_strain_pct'),
         'substrate_status':display('substrate_status','待补充'),
         'substrate_id':display('substrate_id',''),
+        'substrate_recommendations':'',
         'film_miller':display('film_miller',''),
         'substrate_miller':display('substrate_miller',''),
         'match_area_A2':gnumber('match_area_A2'),
@@ -133,13 +150,14 @@ def assess_candidate(row: Mapping[str,object], target_um: float,
         'evidence_completeness':display('evidence_completeness','部分缺失'),
         'source_structure_id':row.get('structure_id',''),
         'data_origin':data_origin,
-        'caution':'材料级预筛；带隙等效波长不是实测截止波长。单seed衬底几何不证明实际外延或器件响应。',
+        'caution':'材料级预筛；端元带隙范围覆盖仅表示目标光子能量落在两端元带隙之间，不证明合金带隙单调变化或实际探测响应。单seed衬底几何不证明实际外延。',
     }
-    # A grade from geometry requires validated alloy-gaps; endmember interpolation
-    # must never be used to confer highest priority.
-    if result['candidate_grade']=='优先进一步验证' and '线性插值' in gap_origin:
-        result['candidate_grade']='待补充'
-        result['caution']+=' 合金带隙仅为端元插值。'
+    # Stage 13's candidate priority is the requested endpoint-gap-range rule.
+    # Keep every pair in the table: covered pairs are priority candidates;
+    # uncovered or incomplete endpoint evidence remains visible as secondary.
+    result['candidate_grade'] = '优先' if band_match == '端元范围覆盖' else '次优'
+    # Endpoint range is a pair-level screening estimate, never an alloy-gap
+    # interpolation. A direct alloy gap remains a separate evidence field.
     if data_origin.startswith('内置演示'):
         result['candidate_grade']='演示数据（不可评级）'
     return result

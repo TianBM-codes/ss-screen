@@ -4,14 +4,114 @@
 
 ## 当前基线
 
+### 2026-11-03 — Stage 13结果表按最终展示字段精简
+
+- 真实变更：主表按用户确认字段显示候选化学式、两个端元带隙、目标波长/能量、带隙候选判断、晶格失配、前三衬底应变和“候选等级优先”。读取Stage 13几何结果CSV以填充晶格和衬底项。
+- 当前GUI复核待完成；未运行自动化测试。
+
+### 2026-11-03 — Stage 13带隙候选优先级
+
+- 真实变更：Stage 13覆盖目标能量的候选标记“优先”；未覆盖或端元带隙缺失标记“次优”，Stage 12候选完整保留显示，不依赖直接合金带隙。
+- 覆盖：新增端元范围覆盖/未覆盖优先级断言；未执行自动化测试。
+
+### 2026-11-03 — PyCharm复核Stage 13候选评价
+
+- 验证：PyCharm启动Windows GUI成功，Stage 13显示CaSe/CaTe端元带隙和2.0 μm目标能量，端元区间覆盖；综合候选等级为“待补充”。
+- 限制：GUI几何结果路径仍为默认`13_geometry/candidate_evaluation.csv`，本次未载入已存在的真实几何CSV；详见`docs/PROJECT_LOG.md`。未重新运行计算或测试。
+
+### 2026-11-03 — 配对数量只读核查
+
+- 核查结果：三个端元均保留，但Stage 06历史命令的0.8 eV端元带隙上限排除了含CaS的两对；Stage 12输入已为1对，Stage 13输入也只有CaSe–CaTe。
+- 仅更新项目日志；未修改筛选参数、代码或结果数据。此前3对输出尚未定位，可见早期fixture结果为2对。
+
+### 2026-11-03 — Stage 13端元带隙区间评估目标波长
+
+- 真实变更：`src/ssscreen/detector.py`、`src/ssscreen/gui/detector_page.py` — 将目标波长换算为光子能量，并与端元A/B带隙闭区间比较；合金带隙只显示直接计算证据，不作线性插值。
+- 文档与覆盖：更新Stage 13使用说明、`tests/test_detector.py`断言和ZMD源码/测试导航。
+- 验证：未运行测试或GUI。
+
+### 2026-11-03 — Stage 13前三衬底分三行显示
+
+- 真实变更：`src/ssscreen/gui/detector_page.py`启用单元格换行和按内容自适应行高，移除固定行高；每个推荐衬底及其两个主应变独占一行。
+- 文档同步：更新Stage 13使用说明、GUI导航和项目日志。
+- 验证：静态核对换行拼接与Qt表格设置；未启动GUI或运行自动化测试。
+
+### 2026-11-03 — Stage 13分别展示端元带隙
+
+- 真实变更：`src/ssscreen/detector.py`和`src/ssscreen/gui/detector_page.py` — 增加端元A/B带隙列，去除端元带隙插值；合金带隙仅显示直接计算证据。
+- 文档/回归约定：更新`docs/gui_stage13_detector.md`和`tests/test_detector.py`；GUI导航已注明新列和带隙判断口径。
+- 验证：未运行测试；静态检查变更内容和输出字段引用。
+
+### 2026-11-03 — PyCharm GUI重跑Stage 13成功
+
+- 操作：重启PyCharm启动的GUI，在Stage 13设置真实算例路径并运行几何评价；GUI自动传入Stage 12推荐表，WSL任务exit code 0，1候选、372匹配。
+- 界面：已核对端元晶格失配、声子、混合焓、凸包上能和前三衬底均有数据；候选等级“待补充”符合缺直接合金带隙/未设带隙区间的状态。未运行自动化测试。
+- ZMD更新：同步GUI操作日志与导航。
+
+### 2026-11-03 — 修复Stage 12性质到Stage 13评价的传递
+
+- 真实变更：Stage 13 GUI调用`geometry-evaluate`时传入Stage 12推荐表；CLI仅按pair index、实际组分和structure ID联结已有性质，并使用SQS结构清单SHA验证身份；properties.csv长表、宽表均可读取。
+- 结果：真实CaSe–CaTe重跑后，Stage 13报告包含声子−1.3777 THz、混合焓26.901 meV/atom、凸包上能349.794 meV/atom。无直接合金带隙且未设目标区间，综合等级仍保持“待补充”。本次未运行自动化测试。
+- ZMD更新：同步geometry/GUI/CLI源码导航、Stage 13输入文档、测试导航和项目日志。
+
+### 2026-11-03 — GUI调用WSL完成真实CaSe–CaTe Stage 13计算
+
+- 运行：PyCharm Windows GUI调用WSL共享仓库中的`.venv`执行`geometry-evaluate`，退出码0；1个候选、372个几何匹配、0失败。
+- 结果：端元最大晶格失配7.4435%；匹配面积上限100 Å²时前三衬底为MgO（−0.7548/−0.7548%）、ZnS（+0.7853/+0.3531%）、InP（−1.2110/−1.2110%）。SQS为seed 7随机替位结构，非相关优化SQS。输出文件位于忽略目录`work/stage13_real_CaSe_CaTe_2026-11-03/output/`。
+- ZMD更新：同步项目日志、几何源码导航和GUI导航；早前记录的输入缺失状态已被本次成功运行取代。
+
+### 2026-11-03 — PyCharm GUI检查真实Stage 13页面
+
+- 验证：PyCharm启动Windows GUI，加载真实CaSe–CaTe工程并打开Stage 13；显示1条候选、带隙覆盖1、衬底几何证据0，以及已有声子/混合焓/凸包数值。
+- 结果：点击几何计算后GUI提示缺少`13_geometry`输入合同；未提交WSL计算，未更改工程产物。Stage 13末列布局可见，但真实前三衬底应变待输入结构与衬底库后生成。
+- ZMD更新：项目日志与GUI导航记录此次实际界面检查和输入阻塞。
+
+### 2026-11-03 — Windows/WSL说明修正及Stage 13前三衬底展示
+
+- 真实变更：`geometry_pipeline.py`默认`top_n=3`且最多写出前三项；每种衬底按最小最大绝对主应变择优并以该应变排序；Stage 13表格末列读取`substrate_top_matches.csv`并显示前三衬底及两个有符号薄膜面内主应变。
+- 运行架构：PyCharm在Windows运行GUI，GUI经`wsl.exe`在同一仓库挂载目录执行CLI；不创建`/home/zuolong`或其他Linux home副本。
+- 文档同步：更新`AGENTS.md`、Windows/WSL入口说明、Stage 13使用说明和开发任务书；本次未运行测试或材料计算。
+
+### 2026-11-03 — Stage 13截图空值与数据身份静态核查
+
+- 真实变更：仅更新`docs/PROJECT_LOG.md`；未改程序或计算数据，未运行GUI/CLI/测试。
+- 结果：定位截图空值来自GUI中的合成几何输出与临时不存在的Stage 12推荐路径；真实CaSe-CaTe Stage 12 CSV已有混合焓、声子和凸包等结果，但没有直接合金带隙。识别到几何与推荐按pair index及组分比例关联时可能跨材料误配，记录待处理。
+- ZMD更新：项目日志记录真实数据状态、映射风险和Stage 13输入缺项。
+
+### 2026-11-03 — Windows GUI展示Stage 13合成最小算例
+
+- 真实变更：仅更新`docs/PROJECT_LOG.md`；程序与工程结果数据未改动。
+- 验证：使用用户提供的Windows Python解释器启动GUI，Stage 13读取合成`candidate_evaluation.csv`并显示1个候选；带隙及稳定性值缺失、晶格失配1.9802%、衬底主应变0.0%。截图在会话中展示，左右列分图。
+- 数据隔离：Stage 12推荐表临时指向不存在路径，防止其真实材料记录和合成几何候选交叉关联。
+- ZMD更新：项目日志同步记录GUI启动与截图结果。
+
+### 2026-11-03 — Stage 13 GUI截图依赖检查
+
+- 真实变更：仅更新`docs/PROJECT_LOG.md`，记录GUI截图工作因项目`.venv`缺少PySide6/Qt WebEngine而受阻。
+- 验证：确认WSL `.venv`的Python 3.11.16和`ssscreen 1.0`可用；PySide6 wheel不在缓存，当前无法联网下载；未启动GUI或生成截图。
+- ZMD更新：本索引及项目日志同步记录阻塞状态；待依赖可安装后继续GUI验证。
+
+### 2026-11-03 — Stage 13最小算例验证与ZSL变换修复
+
+- 真实变更：`src/ssscreen/geometry_pipeline.py`修正ZSL约化基矢对应的有效超胞矩阵；`tests/test_geometry_pipeline.py`新增回归测试。
+- 验证：WSL `.venv`合成CLI算例1个候选产生106个几何匹配、0失败；目标回归测试通过。结果保存在忽略目录`work/stage13_minimal_smoke_2026-11-03/`。
+- ZMD更新：同步测试映射及项目日志；GUI尚未实测，合成数据不代表实际材料结论。
+
+### 2026-11-03 — 合并Stage 13晶格与衬底几何评价
+
+- 真实变更：快进合并PR #7，纳入`geometry_core.py`、`geometry_pipeline.py`、`geometry_cli.py`和几何测试；Stage 13 GUI通过主窗口任务运行器调用`geometry-evaluate`。
+- 结果：采用PR中的候选评价、端元晶格映射、衬底ZSL、面内主应变、性质证据汇总和审计报告实现；开发说明见`docs/lattice_substrate_matching_development.md`。
+- 验证状态：本次未运行测试或真实结构计算；需准备真实端元、代表SQS及本地衬底库输入。
+- ZMD更新：同步源码、CLI、GUI、测试、开发说明和项目计划导航。
+
 | 项目 | 当前值 |
 |---|---|
 | 初始同步日期 | 2026-07-22 |
-| 工作区 | `/vepfs-mlp2/project-battery/zuolong/ss-screen-learning-20260722` |
-| Git 分支 | 本地 `codex/web-platform`，跟踪远程 `origin/master` |
-| 基线提交 | `33f9cc3` — `feat: add screening workflow and web platform` |
+| 工作区 | `D:\WorkSpace\OtherProjects\ss-screen`（PyCharm Windows GUI + WSL共享目录计算） |
+| Git 分支 | 本地 `master`，跟踪远程 `origin/master`（以当前Git状态为准） |
+| 基线提交 | 当前工作树包含未提交改动；以 `git log` 为准 |
 | 包版本 | `ss-screen 1.0` |
-| Python 环境 | 项目本地 Python 3.11.15 |
+| Python 环境 | GUI使用PyCharm Windows解释器；WSL CLI使用共享仓库中的`.venv`/`.venv-mlp` |
 | 导航范围 | 根入口、26 个科学源码文件、Web 控制层/前端/部署、核心与 Web 测试、docs/plans、models、11 个历史资料家族、scripts 和 CI |
 
 ### 2026-09-02 — 发布当前完整工作树到远程 master
@@ -63,6 +163,12 @@
   四宽度Playwright 16项，Ruff/Black/ESLint/TypeScript/构建/OpenAPI生成和WBM页面视觉检查通过。
 
 ## 同步记录
+
+### 2026-11-03 — 高精度带隙任务导出前置核查
+
+- 真实变更：`docs/PROJECT_LOG.md` — 记录固定MP快照哈希核验结果和`mp_offline 0.1.0`依赖阻塞；未生成大规模任务输出。
+- ZMD更新：`ZMD/04_项目文档与开发计划/README.md` — 登记当前复现状态。
+- 验证：确认MP SQLite归档解压大小和SHA-256与复现文档一致；确认项目`.venv` Python 3.11.16及`ssscreen` 1.0可用；未运行测试或计算流程。
 
 ### 2026-10-15 — 视图入口与工程操作同排
 
@@ -599,7 +705,22 @@
 - [工作区目录树](../00_总览与使用规则/工作区目录树.md)
 - [`docs/PROJECT_LOG.md`](../../docs/PROJECT_LOG.md)
 
+### 2026-11-03 — 移除Stage 13未实现的器件性能展示
+
+- 真实变更：`src/ssscreen/gui/detector_page.py`、`metadata.py`、`app.py`、`icons.py`及`docs/gui_stage13_detector.md` — Stage 13改为固溶体候选材料级评价；移除器件指标输入、表格列与导出字段，并更新使用说明。
+- ZMD更新：`ZMD/02_正式源码/gui.md` — 记录当前页面边界，并说明晶格匹配与衬底主应变仍属待开发范围。
+- 验证：静态检查本次源码差异；按工作规则未运行测试或启动GUI。
+
 ### 2026-11-01 — Stage 13探测器性能评估（展示与预筛）
 
 - 新增工程树Stage 13及GUI独立面板，保存和展示可追溯的带隙/截止波长结果；缺失器件数据时不造数。
 - 新增测试`tests/test_detector.py`、文档`docs/gui_stage13_detector.md`，并更新GUI导航。源码提交由用户自行完成。
+
+### 2026-11-03 — MP全量复现前置条件复核
+
+- 更新项目日志和文档导航：Python 3.11.16及当前ssscreen导入正常，mp_offline仍缺失；已检查附件清单，未运行材料计算或自动化测试。
+- 下一步需提供mp_offline 0.1.0源码/安装包及获授权的仓库外运行目录。
+
+### 2026-11-03 — 本地mp_offline递归查找
+
+- 同步项目日志和文档导航：上一级工作空间及WSL补充路径均未找到依赖实现/安装包；未修改代码或运行计算。

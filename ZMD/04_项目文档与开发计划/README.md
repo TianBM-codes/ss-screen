@@ -12,6 +12,7 @@
 | [`docs/algorithm_gap_backfill_pairing.md`](../../docs/algorithm_gap_backfill_pairing.md) | gap 来源、回填、压缩和 pair 判据 | pairing 科学说明 |
 | [`docs/algorithm_competing_phase_hull.md`](../../docs/algorithm_competing_phase_hull.md) | MP 结构来源、统一 MLP 能量、凸包量和失败语义 | Stage 10 科学与文件契约 |
 | [`docs/algorithm_recommendation.md`](../../docs/algorithm_recommendation.md) | 推荐单元、L2--L6、三类判定、排序和输入输出 | Stage 11 科学与文件契约 |
+| [`docs/lattice_substrate_matching_development.md`](../../docs/lattice_substrate_matching_development.md) | 端元晶格对应、SQS衬底ZSL匹配、二维主应变和Stage 13产物契约 | Stage 13几何算法与输入输出 |
 | [`docs/web_platform_development_guide.md`](../../docs/web_platform_development_guide.md) | React/FastAPI 多用户 Web 平台的架构、状态机、API、页面、任务、存储、安全、测试和分阶段实施 | Phase 1、Stage 1 MP/WBM 与 Stage 1a composition 已接入 |
 | [`docs/web_platform_implementation_handoff.md`](../../docs/web_platform_implementation_handoff.md) | Phase 0/1 实施指令、schema、API、ArtifactStore、安全和验收清单 | 当前 Web 控制层实现的交付范围 |
 | [`docs/gui_integration_notes.md`](../../docs/gui_integration_notes.md) | 可选 PySide6 桌面 GUI 的集成边界、保留的界面流程思路和后续串通 CLI 的原则 | GUI 必须调用真实 CLI，不替换科学实现 |
@@ -68,6 +69,9 @@
 - Stage 11 默认阈值仍需使用更多真实体系校准；当前结果是决策支持，不是稳定性或可合成性证明。
 
 ## 最近同步
+
+- 2026-11-03：合并PR #7的Stage 13几何评估代码与开发说明；真实输入验证待执行。
+- 2026-11-03：核对`run/`中的2944任务复现资料和MP快照哈希；固定数据库正确，但`mp_offline 0.1.0`缺失，任务尚未生成。
 
 - 2026-09-07：新增 `docs/gui_integration_notes.md`，记录同事 GUI 评审包中保留的阶段化工作台思路，
   并明确 GUI 作为可选前端调用真实 CLI。
@@ -148,3 +152,7 @@
 - 2026-07-30：Stage 7 MACE 弛豫从预期接口转为当前能力；同步计划、路线图、README 和中文手册源稿。
 - 2026-07-22：交付完整功能版中文用户手册 Markdown 权威源稿和 46 页正式 Word 文档，并登记设计与实施计划。
 - 2026-07-22：根据当前 docs、plans 和完整性审计建立初始索引。
+
+- 2026-11-03：再次核查MP全量复现：WSL项目环境仍缺mp_offline；算法附件齐全，未启动筛选；需补依赖并明确授权仓库外输出目录。
+
+- 2026-11-03：递归检查OtherProjects及WSL /home、/opt，未发现mp_offline源码或安装包；另确认项目.venv缺pip模块，详见项目日志。

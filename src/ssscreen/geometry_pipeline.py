@@ -56,7 +56,7 @@ DEFAULT_CONFIG = {
         'symprec_A':0.01,
         'preferred_max_principal_strain':0.01,
         'alternative_max_principal_strain':0.03,
-        'top_n':5,
+        'top_n':3,
     },
     'existing_property_thresholds': {
         'imaginary_frequency_tolerance_THz':0.1,
@@ -289,6 +289,25 @@ def _plane_vectors(structure: Any, miller: tuple[int,int,int]) -> tuple[np.ndarr
     return vectors,np.asarray(slab_gen.slab_scale_factor,int)
 
 
+def _effective_supercell_matrix(base_vectors: np.ndarray, matched_vectors: np.ndarray) -> np.ndarray:
+    """Recover the integer basis after ZSL's in-plane vector reduction.
+
+    ZSLMatch transformations describe the unreduced supercell construction;
+    ``film_sl_vectors``/``substrate_sl_vectors`` may additionally swap vectors
+    or add/subtract one basis vector.  Persist the effective transform that
+    actually reconstructs the returned matched basis.
+    """
+    coefficients = np.asarray(matched_vectors, dtype=float) @ np.linalg.pinv(
+        np.asarray(base_vectors, dtype=float)
+    )
+    integer = np.rint(coefficients).astype(int)
+    if not np.allclose(integer @ base_vectors, matched_vectors, rtol=1e-8, atol=1e-5):
+        raise ValueError("reduced ZSL vectors cannot be reconstructed from integer surface basis")
+    if abs(round(float(np.linalg.det(integer)))) == 0:
+        raise ValueError("reduced ZSL surface transform is singular")
+    return integer
+
+
 def substrate_matches(film: Any, substrate: Any, sub_cfg: Mapping[str, Any],
                       identity: str, substrate_id: str) -> list[dict[str, Any]]:
     from pymatgen.analysis.interfaces.zsl import ZSLGenerator
@@ -315,13 +334,10 @@ def substrate_matches(film: Any, substrate: Any, sub_cfg: Mapping[str, Any],
                 d = inplane_principal_strain(V_f,V_s)
                 if d['film_area_A2'] >= sub_cfg['max_area_A2'] or d['substrate_area_A2'] >= sub_cfg['max_area_A2']:
                     continue
-                t_f = np.asarray(match.film_transformation,int)
-                t_s = np.asarray(match.substrate_transformation,int)
-                # ZSL may reduce bases; compare metric tensors so rotations are fine.
-                if not np.allclose((t_f @ film_vecs)@(t_f @ film_vecs).T,V_f@V_f.T, rtol=1e-6,atol=1e-6):
-                    raise ValueError('ZSL film transformation cannot reconstruct matching geometry')
-                if not np.allclose((t_s @ sub_vecs)@(t_s @ sub_vecs).T,V_s@V_s.T, rtol=1e-6,atol=1e-6):
-                    raise ValueError('ZSL substrate transformation cannot reconstruct matching geometry')
+                zsl_t_f = np.asarray(match.film_transformation,int)
+                zsl_t_s = np.asarray(match.substrate_transformation,int)
+                t_f = _effective_supercell_matrix(film_vecs, V_f)
+                t_s = _effective_supercell_matrix(sub_vecs, V_s)
                 metadata = f'{identity}|{substrate_id}|{fm}|{sm}|{t_f.tolist()}|{t_s.tolist()}'
                 match_id = hashlib.sha256(metadata.encode()).hexdigest()[:20]
                 out.append(dict(d,match_id=match_id,substrate_id=substrate_id,
@@ -329,9 +345,18 @@ def substrate_matches(film: Any, substrate: Any, sub_cfg: Mapping[str, Any],
                     film_orientation_matrix=film_basis.tolist(),
                     substrate_orientation_matrix=sub_basis.tolist(),
                     film_supercell_matrix=t_f.tolist(),substrate_supercell_matrix=t_s.tolist(),
+                    zsl_film_transformation=zsl_t_f.tolist(),zsl_substrate_transformation=zsl_t_s.tolist(),
                     film_supercell_vectors=V_f.tolist(),substrate_supercell_vectors=V_s.tolist(),
                     elastic_energy=None,film_lattice_model='relaxed_sqs'))
     return out
+
+
+_PROPERTY_ALIASES = {
+    'band_gap_eV': ('band_gap_eV', 'alloy_gap_eV', 'gap_eV'),
+    'minimum_mesh_frequency_THz': ('minimum_mesh_frequency_THz', 'phonon_min_THz'),
+    'mixing_enthalpy_meV_per_atom': ('mixing_enthalpy_meV_per_atom', 'mixing_enthalpy_meV_atom'),
+    'energy_above_hull_eV_per_atom': ('energy_above_hull_eV_per_atom',),
+}
 
 
 def _property_summary(candidate: Mapping[str,str], rows: list[dict[str,str]], cfg: dict[str,Any], alloy_records: list[dict[str,str]]) -> dict[str,Any]:
@@ -340,19 +365,38 @@ def _property_summary(candidate: Mapping[str,str], rows: list[dict[str,str]], cf
     props = [r for r in rows if _string(r,'candidate_id') == cid]
     identity_sha={r['structure_id']:_string(r,'sha256').lower() for r in alloy_records if r['candidate_id']==cid and r['reference_set_id']==candidate['reference_set_id'] and _number(r.get('actual_fraction_b'))==_number(candidate.get('actual_fraction_b'))}
     # Expect distinct, structure-SHA-bound entries. Duplicated identity is invalid.
-    seen: set[str] = set()
-    valid = []
+    valid_by_structure: dict[str, dict[str, Any]] = {}
     for r in props:
         sid = _string(r,'structure_id')
-        if not sid or sid in seen:
-            raise ValueError(f'duplicate/empty structure_id in properties for {cid}')
-        seen.add(sid)
         if expected and sid not in expected:
             continue
-        if (_positive_status(r) and _string(r,'structure_sha256').lower()
-            and _string(r,'structure_sha256').lower()==identity_sha.get(sid)
-            and (not _string(r,'reference_set_id') or _string(r,'reference_set_id')==candidate['reference_set_id'])):
-            valid.append(r)
+        if not sid:
+            continue
+        if (not _positive_status(r) or not _string(r,'structure_sha256')
+            or _string(r,'structure_sha256').lower()!=identity_sha.get(sid)
+            or (_string(r,'reference_set_id') and _string(r,'reference_set_id')!=candidate['reference_set_id'])):
+            continue
+        aggregate = valid_by_structure.setdefault(sid, {'structure_id': sid})
+        if _string(r, 'property'):
+            # Documented properties.csv exchange format is long-form:
+            # one candidate/structure/property/value row per measurement.
+            key = _string(r, 'property')
+            target = next((name for name, aliases in _PROPERTY_ALIASES.items() if key in aliases), None)
+            if target is None:
+                continue
+            if target in aggregate:
+                raise ValueError(f'duplicate {target} in properties for {cid}/{sid}')
+            aggregate[target] = r.get('value')
+        else:
+            # Also accept a wide row for compatibility with existing manifests.
+            for target, aliases in _PROPERTY_ALIASES.items():
+                value = next((_string(r, key) for key in aliases if _string(r, key)), '')
+                if not value:
+                    continue
+                if target in aggregate:
+                    raise ValueError(f'duplicate {target} in properties for {cid}/{sid}')
+                aggregate[target] = value
+    valid = list(valid_by_structure.values())
     expected_count = len(expected)
     coverage = expected_count > 0 and {r['structure_id'] for r in valid} == expected
     def col(key: str, require_nonnegative: bool=False) -> list[float]:
@@ -397,7 +441,73 @@ def _safe_json(record: Any) -> str:
     return json.dumps(record,ensure_ascii=False,allow_nan=False,default=lambda x: x.tolist() if isinstance(x,np.ndarray) else str(x))
 
 
-def evaluate(input_dir: Path, config_path: Path, output_dir: Path) -> dict[str,Any]:
+def _stage12_property_rows(candidates: list[dict[str,str]], alloys: list[dict[str,str]], recommendations: list[dict[str,str]]) -> list[dict[str,str]]:
+    """Adapt identity-matched Stage 12 evidence without treating endpoint gaps as alloy gaps."""
+    result: list[dict[str,str]] = []
+    stage12_properties = (
+        ('minimum_mesh_frequency_THz', 'minimum_mesh_frequency_THz', 'phonon_status', 'THz', False),
+        ('mixing_enthalpy_meV_per_atom', 'mixing_enthalpy_meV_per_atom', 'mixing_status', 'meV/atom', False),
+        ('energy_above_hull_eV_per_atom', 'energy_above_hull_eV_per_atom', 'phase_status', 'eV/atom', True),
+    )
+    for candidate in candidates:
+        cid = _string(candidate, 'candidate_id')
+        pair_index = _string(candidate, 'stage12_pair_index')
+        fraction = _number(candidate.get('actual_fraction_b'))
+        expected = set(_string(candidate, 'expected_structure_ids').replace(',', ';').split(';')) - {''}
+        matched = [row for row in recommendations
+                   if _string(row, 'pair_index') == pair_index
+                   and _number(row.get('actual_fraction_b')) is not None
+                   and fraction is not None
+                   and abs(float(_number(row.get('actual_fraction_b'))) - fraction) < 1e-6
+                   and _string(row, 'structure_id') in expected]
+        if len({_string(row, 'structure_id') for row in matched}) != len(matched):
+            raise ValueError(f'ambiguous Stage 12 rows for {cid}; duplicate structure identity')
+        for source in matched:
+            sid = _string(source, 'structure_id')
+            alloy = [row for row in alloys
+                     if _string(row, 'candidate_id') == cid
+                     and _string(row, 'reference_set_id') == _string(candidate, 'reference_set_id')
+                     and _string(row, 'structure_id') == sid
+                     and _number(row.get('actual_fraction_b')) is not None
+                     and fraction is not None
+                     and abs(float(_number(row.get('actual_fraction_b'))) - fraction) < 1e-6]
+            if len(alloy) != 1:
+                continue
+            identity = alloy[0]
+            for property_name, source_key, status_key, unit, require_complete in stage12_properties:
+                value = _string(source, source_key)
+                status = _string(source, status_key).lower()
+                if not value or status not in ('success', 'completed', 'valid', 'ok'):
+                    continue
+                if require_complete and _string(source, 'competing_set_complete').lower() not in ('true', '1', 'yes'):
+                    continue
+                result.append({
+                    'candidate_id': cid, 'structure_id': sid,
+                    'structure_sha256': _string(identity, 'sha256'),
+                    'reference_set_id': _string(candidate, 'reference_set_id'),
+                    'property': property_name, 'value': value, 'unit': unit,
+                    'method': _string(source, 'model_sha256') or 'Stage 12 recommendation evidence',
+                    'status': 'success', 'qc_status': 'pass',
+                })
+            # Only explicit direct alloy-gap fields are accepted. Stage 12's
+            # gap_a_eV/gap_b_eV endpoints are deliberately not interpolated here.
+            for source_key in ('alloy_gap_eV', 'band_gap_eV'):
+                value = _string(source, source_key)
+                if value and _string(source, 'gap_evidence_status').lower() in ('complete', 'success', 'valid'):
+                    result.append({
+                        'candidate_id': cid, 'structure_id': sid,
+                        'structure_sha256': _string(identity, 'sha256'),
+                        'reference_set_id': _string(candidate, 'reference_set_id'),
+                        'property': 'band_gap_eV', 'value': value, 'unit': 'eV',
+                        'method': _string(source, 'gap_method') or 'Stage 12 recommendation evidence',
+                        'status': 'success', 'qc_status': 'pass',
+                    })
+                    break
+    return result
+
+
+def evaluate(input_dir: Path, config_path: Path, output_dir: Path,
+             recommendations_path: Path | None = None) -> dict[str,Any]:
     """Evaluate explicit identity manifests and write traceable Stage 13 artifacts.
 
     Requires pymatgen only when loading real structures / executing geometry.
@@ -409,6 +519,18 @@ def evaluate(input_dir: Path, config_path: Path, output_dir: Path) -> dict[str,A
     ends=_read_csv(input_dir/'endmembers.csv',required=('pair_id','role','reference_set_id','structure_file','sha256','status','qc_status'))
     alloys=_read_csv(input_dir/'alloy_structures.csv',required=('candidate_id','structure_id','seed','actual_fraction_b','reference_set_id','structure_file','sha256','status','qc_status'))
     props=_read_csv(input_dir/'properties.csv')
+    if recommendations_path is not None:
+        stage12_props = _stage12_property_rows(cands, alloys, _read_csv(Path(recommendations_path)))
+        explicit = set()
+        for row in props:
+            if _string(row, 'property'):
+                explicit.add((_string(row, 'candidate_id'), _string(row, 'structure_id'), _string(row, 'property')))
+            else:
+                for property_name, aliases in _PROPERTY_ALIASES.items():
+                    if any(_string(row, key) for key in aliases):
+                        explicit.add((_string(row, 'candidate_id'), _string(row, 'structure_id'), property_name))
+        props.extend(row for row in stage12_props if
+                     (_string(row, 'candidate_id'), _string(row, 'structure_id'), _string(row, 'property')) not in explicit)
     sub_json=input_dir/'substrates.json'
     subs=json.loads(sub_json.read_text(encoding='utf-8')) if sub_json.exists() else []
     if not isinstance(subs,list): raise ValueError('substrates.json must be a list')
@@ -419,6 +541,8 @@ def evaluate(input_dir: Path, config_path: Path, output_dir: Path) -> dict[str,A
         if x is None or not 0 <= x <= 1:
             raise ValueError(f'invalid actual fraction in {c["candidate_id"]}')
     all_paths=[config_path]+[input_dir/f for f in ('candidates.csv','endmembers.csv','alloy_structures.csv','properties.csv','substrates.json') if (input_dir/f).is_file()]
+    if recommendations_path is not None:
+        all_paths.append(Path(recommendations_path))
     fp=hashlib.sha256()
     for p in sorted(all_paths): fp.update(str(p.name).encode()+_sha256(p).encode())
     fp.update(b'ssscreen_geometry_v1')
@@ -491,7 +615,7 @@ def evaluate(input_dir: Path, config_path: Path, output_dir: Path) -> dict[str,A
                             for role,match in representative.items():
                                 if match: structure_matches.append(dict(candidate_id=cid,substrate_id=sid,role=role,match_id=match['match_id'],film_area_A2=match['film_area_A2'],max_abs_principal_strain=match['max_abs_principal_strain']))
                             if matches:
-                                chosen_match=select_consistent_match(matches,sub_cfg['preferred_max_principal_strain'],sub_cfg['alternative_max_principal_strain'])
+                                chosen_match=select_consistent_match(matches)
                                 if chosen_match: relevant.append(chosen_match)
                             else:
                                 # A large SQS surface cell is a scope limitation, not proof of no epitaxy.
@@ -499,8 +623,9 @@ def evaluate(input_dir: Path, config_path: Path, output_dir: Path) -> dict[str,A
                         except (ValueError,OSError,ImportError,TypeError) as exc:
                             any_failed=True
                             failures.append(dict(candidate_id=cid,substrate_id=sid,error=str(exc)))
-                    relevant.sort(key=lambda m:(0 if m['max_abs_principal_strain']<=sub_cfg['preferred_max_principal_strain'] else 1 if m['max_abs_principal_strain']<=sub_cfg['alternative_max_principal_strain'] else 2,m['film_area_A2'],m['max_abs_principal_strain'],m['substrate_id'],m['match_id']))
-                    top.extend(relevant[:int(sub_cfg['top_n'])])
+                    relevant.sort(key=lambda m:(m['max_abs_principal_strain'],m['film_area_A2'],m['substrate_id'],m['match_id']))
+                    # Stage 13 presents three distinct substrate recommendations at most.
+                    top.extend(relevant[:min(3, int(sub_cfg['top_n']))])
                     selected_match=relevant[0] if relevant else None
                     if selected_match:
                         row.update(substrate_principal_strain_pct=100*selected_match['max_abs_principal_strain'],substrate_status=substrate_grade(selected_match['max_abs_principal_strain'],Thresholds(substrate_preferred=sub_cfg['preferred_max_principal_strain'],substrate_alternative=sub_cfg['alternative_max_principal_strain'])),substrate_id=selected_match['substrate_id'],film_miller=str(selected_match['film_miller']),substrate_miller=str(selected_match['substrate_miller']),match_area_A2=selected_match['film_area_A2'],match_id=selected_match['match_id'])
