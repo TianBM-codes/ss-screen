@@ -1,10 +1,10 @@
-"""Stage 13: reproducible *screening-level* photodetector suitability indicators.
+"""Stage 13 detector *materials-level* evidence adapter.
 
-Only band-edge cutoff and wavelength coverage are inferred from band gaps.  No
-responsivity, dark current, NEP, detectivity or response time is fabricated;
-those quantities require external device-level measurements or simulations.
+Legacy instrument columns are intentionally removed. All structural/energy
+values are read from existing evidence; lattice and substrate geometry must
+be computed from real structure manifests with geometry_pipeline. No device
+figures are inferred from gaps or strain.
 """
-
 from __future__ import annotations
 
 import csv
@@ -12,212 +12,202 @@ import math
 from pathlib import Path
 from typing import Mapping
 
-PHOTON_ENERGY_EV_UM = 1.239841984  # hc/e in eV um (standard physical constants)
+PHOTON_ENERGY_EV_UM = 1.239841984
 DEFAULT_TARGET_UM = 2.0
 BAND_PRESETS_UM = {
-    "近红外（NIR）：1.0 μm": 1.0,
-    "短波红外（SWIR）：2.0 μm": 2.0,
-    "中波红外（MWIR）：4.0 μm": 4.0,
-    "长波红外（LWIR）：10.0 μm": 10.0,
+    '近红外（NIR）：1.0 μm': 1.0,
+    '短波红外（SWIR）：2.0 μm': 2.0,
+    '中波红外（MWIR）：4.0 μm': 4.0,
+    '长波红外（LWIR）：10.0 μm': 10.0,
 }
-DEVICE_COLUMNS = (
-    "responsivity_A_W",
-    "dark_current_A",
-    "nep_W_sqrtHz",
-    "rise_time_ms",
-    "area_cm2",
-    "detectivity_jones",
-)
 OUTPUT_COLUMNS = (
-    "candidate_id", "pair_index", "comp_a", "comp_b", "classification",
-    "fraction_b", "gap_eV", "gap_origin", "cutoff_um", "target_um",
-    "band_match", "energy_above_hull_eV_per_atom", "dynamical_status",
-    "hull_signal", *DEVICE_COLUMNS, "device_data_source", "data_origin", "caution",
+    'candidate_id','pair_index','comp_a','comp_b','fraction_b',
+    'gap_eV','gap_origin','gap_equivalent_wavelength_um','target_um','band_match',
+    'lattice_mismatch_pct','lattice_status',
+    'phonon_min_THz','phonon_status',
+    'mixing_enthalpy_meV_atom','mixing_status',
+    'energy_above_hull_meV_atom','hull_status',
+    'substrate_principal_strain_pct','substrate_status',
+    'substrate_id','film_miller','substrate_miller','match_area_A2','match_id',
+    'candidate_grade','geometry_grade','evidence_completeness',
+    'source_structure_id','data_origin','caution',
 )
 
 
 def _number(value: object) -> float | None:
-    """Parse only finite numeric evidence (empty/NaN/Inf are not evidence)."""
-    if value is None or isinstance(value, bool):
-        return None
-    try:
-        result = float(str(value).strip())
-    except (TypeError, ValueError):
-        return None
-    return result if math.isfinite(result) else None
+    if value is None or isinstance(value,bool): return None
+    try: x = float(str(value).strip())
+    except (ValueError,TypeError): return None
+    return x if math.isfinite(x) else None
 
 
-def read_csv(path: Path) -> list[dict[str, str]]:
-    """Return data rows from UTF-8/UTF-8-BOM CSV; no arbitrary code execution."""
-    with path.open("r", encoding="utf-8-sig", newline="") as source:
-        return list(csv.DictReader(source))
+def read_csv(path: Path) -> list[dict[str,str]]:
+    with Path(path).open(encoding='utf-8-sig',newline='') as f:
+        return list(csv.DictReader(f))
 
 
-def _measurement_for(
-    row: Mapping[str, object], measurements: Mapping[str, Mapping[str, object]]
-) -> Mapping[str, object]:
-    key = str(row.get("recommendation_id") or row.get("pair_index") or "").strip()
-    return measurements.get(key, {}) if key else {}
-
-
-def index_measurements(rows: list[dict[str, str]]) -> dict[str, dict[str, str]]:
-    """Accept Stage 13 device.csv with recommendation_id (or pair_index) as key."""
-    indexed = {}
-    for row in rows:
-        key = str(row.get("recommendation_id") or row.get("pair_index") or "").strip()
-        if key:
-            indexed[key] = row
-    return indexed
-
-
-def assess_candidate(
-    row: Mapping[str, object],
-    target_um: float,
-    measurements: Mapping[str, object] | None = None,
-    *,
-    data_origin: str = "工程结果",
-) -> dict[str, object]:
-    """Compute only physically supportable, clearly labelled band-edge estimates.
-
-    Gap priority: explicitly supplied alloy gap > linear interpolation of two
-    endmember gaps with reported alloy fraction.  Interpolation omits bowing,
-    strain and defects, and MUST NOT be confused with measured alloy gap.
-    """
-    target = _number(target_um)
-    if target is None or target <= 0:
-        raise ValueError("目标波长必须为正的有限数值（μm）")
-    measurements = measurements or {}
-    candidate_id = str(row.get("recommendation_id") or row.get("pair_index") or "未编号")
-    fraction = _number(row.get("actual_fraction_b"))
-    if fraction is None:
-        fraction = _number(row.get("target_fraction_b"))
-    if fraction is not None and not (0 <= fraction <= 1):
-        fraction = None
-
-    gap = None
-    origin = "无有效带隙数据"
-    for key in ("alloy_gap_eV", "gap_alloy_eV", "band_gap_eV"):
-        value = _number(row.get(key))
-        if value is not None and value > 0:
-            gap, origin = value, f"输入合金带隙（{key}）"
-            break
-    if gap is None:
-        gap_a, gap_b = _number(row.get("gap_a_eV")), _number(row.get("gap_b_eV"))
-        if (
-            gap_a is not None and gap_a >= 0 and gap_b is not None
-            and gap_b >= 0 and fraction is not None
-        ):
-            estimate = (1 - fraction) * gap_a + fraction * gap_b
-            if estimate > 0:
-                gap, origin = estimate, "端元带隙线性插值（未计弯曲参数，非实测）"
-
-    cutoff = PHOTON_ENERGY_EV_UM / gap if gap is not None else None
-    band_match = (
-        "待补充带隙" if cutoff is None else
-        "带隙覆盖" if target <= cutoff else "带隙不覆盖"
-    )
-    result: dict[str, object] = {
-        "candidate_id": candidate_id,
-        "pair_index": row.get("pair_index", ""),
-        "comp_a": row.get("comp_a", ""),
-        "comp_b": row.get("comp_b", ""),
-        "classification": row.get("classification", ""),
-        "fraction_b": fraction,
-        "gap_eV": gap,
-        "gap_origin": origin,
-        "cutoff_um": cutoff,
-        "target_um": target,
-        "band_match": band_match,
-        "energy_above_hull_eV_per_atom": row.get("energy_above_hull_eV_per_atom", ""),
-        "dynamical_status": row.get("dynamical_status", ""),
-        "hull_signal": row.get("hull_signal", ""),
-        "device_data_source": "未提供",
-        "data_origin": data_origin,
-        "caution": "仅为带隙与证据级预筛；不能证明器件实际响应率、暗电流、噪声或响应速度",
-    }
-    valid_measurement = False
-    for column in DEVICE_COLUMNS:
-        value = _number(measurements.get(column))
-        if value is not None and value >= 0:
-            result[column] = value
-            valid_measurement = True
-        else:
-            result[column] = None
-    # Specific detectivity D* = sqrt(A)/NEP when area in cm^2 and NEP in W/sqrt(Hz).
-    if result["detectivity_jones"] is None:
-        area, nep = result["area_cm2"], result["nep_W_sqrtHz"]
-        if area is not None and area > 0 and nep is not None and nep > 0:
-            result["detectivity_jones"] = math.sqrt(area) / nep
-            valid_measurement = True
-    if valid_measurement:
-        result["device_data_source"] = (
-            "内置虚构器件指标（仅演示）"
-            if data_origin.startswith("内置演示")
-            else "外部提供的器件数据"
-        )
+def index_geometry(rows: list[dict[str,str]]) -> dict[str,dict[str,str]]:
+    """Reject duplicate identity instead of silently replacing a composition."""
+    result: dict[str,dict[str,str]] = {}
+    for r in rows:
+        cid=str(r.get('candidate_id') or '').strip()
+        if not cid: raise ValueError('Geometry candidate_id missing')
+        if cid in result: raise ValueError(f'Duplicate geometry candidate_id: {cid}')
+        result[cid] = r
     return result
 
 
-def assess_rows(
-    rows: list[Mapping[str, object]], target_um: float,
-    measurements: Mapping[str, Mapping[str, object]] | None = None,
-    *, data_origin: str = "工程结果",
-) -> list[dict[str, object]]:
-    lookup = measurements or {}
-    return [
-        assess_candidate(
-            row, target_um, _measurement_for(row, lookup), data_origin=data_origin
-        )
-        for row in rows
-    ]
+def _checked(row: Mapping[str,object], status_key: str, value_key: str, *,
+             nonnegative: bool = False) -> float | None:
+    status=str(row.get(status_key) or '').lower().strip()
+    if status not in ('success','completed','valid','ok'): return None
+    n=_number(row.get(value_key))
+    return n if n is not None and (not nonnegative or n>=0) else None
 
 
-def export_rows(path: Path, rows: list[dict[str, object]]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8-sig", newline="") as output:
-        writer = csv.DictWriter(output, fieldnames=OUTPUT_COLUMNS, extrasaction="ignore")
-        writer.writeheader()
-        for row in rows:
-            writer.writerow(row)
+def assess_candidate(row: Mapping[str,object], target_um: float,
+                     geometry: Mapping[str,object] | None = None, *,
+                     data_origin: str = '工程结果') -> dict[str,object]:
+    target=_number(target_um)
+    if target is None or target<=0: raise ValueError('目标波长须为正的有限数值（μm）')
+    candidate_id=str(row.get('recommendation_id') or row.get('candidate_id') or row.get('pair_index') or '未编号')
+    x=_number(row.get('actual_fraction_b'))
+    if x is None: x=_number(row.get('target_fraction_b'))
+    if x is not None and not 0 <= x <= 1: x=None
+    gap=None;gap_origin='缺少有效合金带隙'
+    for key in ('alloy_gap_eV','gap_alloy_eV','band_gap_eV'):
+        n=_number(row.get(key))
+        if n is not None and n>0:
+            gap=n;gap_origin=f'输入合金带隙（{key}，仍需核验来源与QC）';break
+    if gap is None:
+        a,b=_number(row.get('gap_a_eV')),_number(row.get('gap_b_eV'))
+        if a is not None and a>=0 and b is not None and b>=0 and x is not None:
+            value=(1-x)*a+x*b
+            if value>0:
+                gap=value;gap_origin='端元带隙线性插值（探索性，未验证合金带隙）'
+    geom=geometry or {}
+    # Geometry results are joined by explicit candidate identity and actual composition.
+    linked=bool(geom)
+    gx=_number(geom.get('actual_fraction_b'))
+    if linked and (gx is None or x is None or abs(gx-x)>1e-6):
+        raise ValueError(f'{candidate_id}: geometry actual_fraction_b mismatch')
+    if linked and str(geom.get('candidate_id')) != candidate_id:
+        raise ValueError(f'{candidate_id}: geometry candidate_id mismatch')
+    if linked and str(geom.get('gap_status') or '') == '有效' and _number(geom.get('gap_eV')) is not None and _number(geom.get('gap_eV')) > 0:
+        gap = _number(geom['gap_eV'])
+        gap_origin = '已有合金构型带隙（几何评价表已核对双构型结构SHA与QC）'
+    phonon=_checked(row,'phonon_status','minimum_mesh_frequency_THz')
+    mixing=_checked(row,'mixing_status','mixing_enthalpy_meV_per_atom')
+    hull=_checked(row,'phase_status','energy_above_hull_eV_per_atom',nonnegative=True)
+    # Stage 12 rows carry one structure; two-configuration aggregates from the
+    # geometry evaluator take precedence only when explicitly valid.
+    def gnumber(key: str) -> float | None:
+        return _number(geom.get(key)) if linked else None
+    def display(key: str, fallback: object = None) -> object:
+        value=geom.get(key) if linked else None
+        return value if value not in (None,'') else fallback
+    result: dict[str,object] = {
+        'candidate_id':candidate_id,'pair_index':row.get('pair_index',''),
+        'comp_a':row.get('comp_a',''),'comp_b':row.get('comp_b',''),
+        'fraction_b':x,'gap_eV':gap,'gap_origin':gap_origin,
+        'gap_equivalent_wavelength_um':PHOTON_ENERGY_EV_UM/gap if gap else None,
+        'target_um':target,
+        'band_match':'待补充带隙' if gap is None else '带隙覆盖' if target<=PHOTON_ENERGY_EV_UM/gap else '带隙不覆盖',
+        'lattice_mismatch_pct':gnumber('lattice_mismatch_pct'),
+        'lattice_status':display('lattice_status','待补充'),
+        'phonon_min_THz':gnumber('phonon_min_THz') if gnumber('phonon_min_THz') is not None else phonon,
+        'phonon_status':display('phonon_status', '待补充' if phonon is None else '需结合双构型核验'),
+        'mixing_enthalpy_meV_atom':gnumber('mixing_enthalpy_meV_atom') if gnumber('mixing_enthalpy_meV_atom') is not None else mixing,
+        'mixing_status':display('mixing_status','待补充' if mixing is None else '需结合双构型核验'),
+        'energy_above_hull_meV_atom':gnumber('energy_above_hull_meV_atom') if gnumber('energy_above_hull_meV_atom') is not None else (hull*1000 if hull is not None else None),
+        'hull_status':display('hull_status','待补充' if hull is None else '需结合双构型核验'),
+        'substrate_principal_strain_pct':gnumber('substrate_principal_strain_pct'),
+        'substrate_status':display('substrate_status','待补充'),
+        'substrate_id':display('substrate_id',''),
+        'film_miller':display('film_miller',''),
+        'substrate_miller':display('substrate_miller',''),
+        'match_area_A2':gnumber('match_area_A2'),
+        'match_id':display('match_id',''),
+        'candidate_grade':display('candidate_grade','待补充'),
+        'geometry_grade':display('geometry_grade','几何数据待补充'),
+        'evidence_completeness':display('evidence_completeness','部分缺失'),
+        'source_structure_id':row.get('structure_id',''),
+        'data_origin':data_origin,
+        'caution':'材料级预筛；带隙等效波长不是实测截止波长。单seed衬底几何不证明实际外延或器件响应。',
+    }
+    # A grade from geometry requires validated alloy-gaps; endmember interpolation
+    # must never be used to confer highest priority.
+    if result['candidate_grade']=='优先进一步验证' and '线性插值' in gap_origin:
+        result['candidate_grade']='待补充'
+        result['caution']+=' 合金带隙仅为端元插值。'
+    if data_origin.startswith('内置演示'):
+        result['candidate_grade']='演示数据（不可评级）'
+    return result
 
 
-DEMO_ROWS: tuple[dict[str, str], ...] = (
-    {
-        "recommendation_id": "DEMO-001", "pair_index": "1", "comp_a": "演示端元A",
-        "comp_b": "演示端元B", "classification": "uncertain", "gap_a_eV": "0.38",
-        "gap_b_eV": "0.72", "target_fraction_b": "0.50",
-        "dynamical_status": "not-evaluated", "hull_signal": "not-evaluated",
-    },
-    {
-        "recommendation_id": "DEMO-002", "pair_index": "2", "comp_a": "演示端元C",
-        "comp_b": "演示端元D", "classification": "uncertain", "gap_a_eV": "0.13",
-        "gap_b_eV": "0.23", "target_fraction_b": "0.30",
-        "dynamical_status": "not-evaluated", "hull_signal": "not-evaluated",
-    },
-    {
-        "recommendation_id": "DEMO-003", "pair_index": "3", "comp_a": "演示端元E",
-        "comp_b": "演示端元F", "classification": "uncertain", "gap_a_eV": "1.6",
-        "gap_b_eV": "2.0", "target_fraction_b": "0.70",
-        "dynamical_status": "not-evaluated", "hull_signal": "not-evaluated",
-    },
-)
+def assess_rows(rows: list[Mapping[str,object]], target_um: float,
+                geometry: Mapping[str,Mapping[str,object]] | None = None,
+                *,data_origin: str='工程结果') -> list[dict[str,object]]:
+    """Group Stage 12 by pair + actual x and join geometry only by explicit key.
+
+    Stage 12 recommendation_id is *per structure*, so it must not be used as
+    the sole identity for a pair + composition. A geometry record can bind via
+    stage12_pair_index or exactly matching candidate ID, never by row index.
+    """
+    geometry_rows=list((geometry or {}).values())
+    grouped: dict[tuple[str,str],list[Mapping[str,object]]] = {}
+    for r in rows:
+        pair=str(r.get('pair_index') or '').strip()
+        x=_number(r.get('actual_fraction_b'))
+        if x is None:x=_number(r.get('target_fraction_b'))
+        if pair and x is not None:
+            key=(pair,f'{x:.8f}')
+        else:
+            # Unknown identity is preserved as a standalone row, never merged.
+            key=('__unmapped__',str(r.get('recommendation_id') or r.get('candidate_id') or len(grouped)))
+        grouped.setdefault(key,[]).append(r)
+    used: set[tuple[str,str]] = set()
+    result=[]
+    for g in geometry_rows:
+        pair=str(g.get('stage12_pair_index') or '').strip()
+        x=_number(g.get('actual_fraction_b'))
+        key=(pair,f'{x:.8f}') if pair and x is not None else None
+        if key is not None:
+            if key in used: raise ValueError(f'duplicate stage12_pair_index + fraction mapping: {key}')
+            members=grouped.get(key,[])
+            used.add(key)
+        else:
+            # Only permit exact candidate_id/recommendation_id when no pair map.
+            members=[r for r in rows if str(r.get('recommendation_id') or r.get('candidate_id') or '')==str(g.get('candidate_id'))]
+        source=dict(members[0]) if members else {}
+        source.update({
+            'recommendation_id':g.get('candidate_id'),
+            'pair_index':pair or source.get('pair_index',''),
+            'actual_fraction_b':g.get('actual_fraction_b'),
+            'comp_a':g.get('comp_a') or source.get('comp_a',''),
+            'comp_b':g.get('comp_b') or source.get('comp_b',''),
+        })
+        result.append(assess_candidate(source,target_um,g,data_origin=data_origin))
+    for key,members in grouped.items():
+        if key in used:continue
+        source=dict(members[0])
+        # Do not claim two valid configurations merely because two rows exist;
+        # the required expected_structure_ids / QC / SHA come from manifests.
+        assessed=assess_candidate(source,target_um,data_origin=data_origin)
+        assessed['caution']+=f' Stage12同组记录数：{len(members)}；尚需完整构型身份与QC核验。'
+        result.append(assessed)
+    return result
 
 
-# Fictitious instrument values exclusively for GUI demo mode. Not scientific evidence.
-DEMO_DEVICE_ROWS: tuple[dict[str, str], ...] = (
-    {
-        "recommendation_id": "DEMO-001", "responsivity_A_W": "0.8",
-        "dark_current_A": "1e-9", "nep_W_sqrtHz": "4e-12",
-        "rise_time_ms": "0.9", "area_cm2": "0.01",
-    },
-    {
-        "recommendation_id": "DEMO-002", "responsivity_A_W": "0.6",
-        "dark_current_A": "8e-9", "nep_W_sqrtHz": "2e-11",
-        "rise_time_ms": "2.4", "area_cm2": "0.02",
-    },
-    {
-        "recommendation_id": "DEMO-003", "responsivity_A_W": "0.2",
-        "dark_current_A": "2e-12", "nep_W_sqrtHz": "8e-13",
-        "rise_time_ms": "0.25", "area_cm2": "0.01",
-    },
+def export_rows(path: Path, rows: list[dict[str,object]]) -> None:
+    path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
+    with path.open('w',encoding='utf-8-sig',newline='') as stream:
+        writer=csv.DictWriter(stream,fieldnames=OUTPUT_COLUMNS,extrasaction='ignore')
+        writer.writeheader();writer.writerows(rows)
+
+
+DEMO_ROWS: tuple[dict[str,str],...]=(
+    {'recommendation_id':'DEMO-001','pair_index':'1','comp_a':'演示端元A','comp_b':'演示端元B','gap_a_eV':'0.38','gap_b_eV':'0.72','target_fraction_b':'0.5'},
+    {'recommendation_id':'DEMO-002','pair_index':'2','comp_a':'演示端元C','comp_b':'演示端元D','gap_a_eV':'0.13','gap_b_eV':'0.23','target_fraction_b':'0.3'},
+    {'recommendation_id':'DEMO-003','pair_index':'3','comp_a':'演示端元E','comp_b':'演示端元F','gap_a_eV':'1.6','gap_b_eV':'2.0','target_fraction_b':'0.7'},
 )

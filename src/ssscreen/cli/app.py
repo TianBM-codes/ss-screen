@@ -2301,5 +2301,10 @@ def pair_cmd(
     click.echo(f"Wrote {len(pairs_df)} pairs to {output}")
 
 
+# Stage 13 geometry evaluator is opt-in and does not change legacy CLI behavior.
+from ..geometry_cli import main as geometry_evaluate_cmd
+cli.add_command(geometry_evaluate_cmd)
+
+
 if __name__ == "__main__":
     cli()
