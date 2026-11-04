@@ -6,6 +6,7 @@
 
 | 文件 | 作用 | 关联测试/配置 |
 |---|---|---|
+| [`scripts/replay_mbj_results.py`](../../scripts/replay_mbj_results.py) | 指定冻结结果包，校验SHA/正式身份/QC后回填并重现318配对；不启动新计算 | [318配对快速说明](../../docs/reproducibility/REPLAY_318_ZH.md)、真实独立目录回放验证 |
 | [`scripts/curate_upstream_references.py`](../../scripts/curate_upstream_references.py) | 发现、分类、脱敏、去重、生成和验证 `references/` 历史资料归档 | [`tests/test_reference_curation.py`](../../tests/test_reference_curation.py) |
 | [`scripts/build_full_user_manual.py`](../../scripts/build_full_user_manual.py) | 从中文 Markdown 权威源稿确定性生成正式 A4 Word 手册，并执行结构检查 | [`docs/user-guide/SS-Screen_完整功能版_用户使用手册.md`](../../docs/user-guide/SS-Screen_完整功能版_用户使用手册.md) |
 | [`scripts/build_copyright_manual.py`](../../scripts/build_copyright_manual.py) | 从 V1.0 登记版 Markdown 同源生成 A4 DOCX/PDF，并检查软件名称、版本、必要章节、图片数量和著作权人信息 | [`docs/user-guide/SS-Screen_V1.0_软件著作权登记操作手册.md`](../../docs/user-guide/SS-Screen_V1.0_软件著作权登记操作手册.md) |

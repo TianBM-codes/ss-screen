@@ -9,7 +9,7 @@
 | [`AGENTS.md`](../../AGENTS.md) | 环境激活、读写边界、工作流程、日志规则 | 每次工作第一步；工作规则变化时更新 |
 | [`README.md`](../../README.md) | 科学目标、安装、CLI 示例、当前状态 | 用户用法或能力边界变化时更新 |
 | [`pyproject.toml`](../../pyproject.toml) | 包名、版本、依赖、extras、CLI、Ruff/Black/Pytest 配置 | 依赖、工具或命令入口变化时更新 |
-| [`requirements.txt`](../../requirements.txt) | Ubuntu/Linux 开发安装入口，包含核心包、常用 workflow extras、GUI 和开发工具 | Linux 安装流程或可选依赖变化时更新 |
+| [`requirements/reproduction-20261104/README.md`](../../requirements/reproduction-20261104/README.md) | 三套实测环境的安装说明、版本约束和无路径依赖清单；不是完整离线 wheel 包 | MP 复现环境或依赖快照变化时更新 |
 | [`LICENSE`](../../LICENSE) | MIT 许可文本 | 许可证变化时更新 |
 | [`.gitignore`](../../.gitignore) | 环境、缓存、数据、秘密和大型文件排除 | 新增生成物或本地资产类型时更新 |
 | [`.dockerignore`](../../.dockerignore) | 排除模型、运行数据、资料、秘密和本地构建缓存的容器上下文 | Web 镜像输入边界变化时更新 |
@@ -56,12 +56,13 @@
 
 ## Windows/WSL运行方式
 
-- 项目工作副本位于 `D:\WorkSpace\OtherProjects\ss-screen`；WSL 使用 `/mnt/d/WorkSpace/OtherProjects/ss-screen` 访问同一目录。
+- 当前项目工作副本及 WSL 路径以 [ZMD 总入口](../README.md) 为准；D 盘路径属于历史工作副本，不应复制到接收者配置。
 - 用户在 PyCharm 中用 Windows 解释器运行 `src/ssscreen/gui/app.py`；GUI 将 CLI 命令通过 `wsl.exe` 发往共享仓库中的 `.venv` 或 `.venv-mlp`。
 - 不需要在 `/home/zuolong` 或其他 Linux home 目录创建第二份项目副本。
 
 ## 最近同步
 
+- 2026-11-04：新增三个独立环境的版本约束与 JSON 清单，三个源环境 `pip check` 均通过；README 安装入口改用实际存在的 `pyproject.toml` extras/dev group。根目录 `requirements.txt` 当前不存在，修正导航，不恢复历史文件。复现资产见 [交付指南](../../docs/reproducibility/mp_2944_20261104.md)。
 - 2026-11-04：本机 `.venv-mlp` 补齐 MP API 并通过真实查询；网络/读取兼容版本为 mp-api 0.46.5、python-dateutil 2.9.0.post0、boto3/botocore 1.43.123、PyArrow 20.0.0，计算版本保持一致。凭据仅临时使用不落盘，详见最新日志与外部 `environment_phase.txt`。
 - 2026-11-03：当前 C 盘副本新增 WSL 原生项目独立 `.venv-mlp` 链接（Python 3.11.18、torch 2.5.1+cpu、mace-torch 0.3.14、Phonopy 4.8.6），依赖检查通过。本机 Intel Arc 无 CUDA，计算使用 CPU；用户模型保留原 WSL 路径，详见最新项目日志。
 - 2026-11-03：新本地副本将 `.gitignore` 的 `data/` 限定为根目录 `/data/`，避免忽略 `src/ssscreen/data/` 下的新增源码；补齐已被 CLI 引用但未提交的本地结构导入模块。

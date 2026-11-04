@@ -23,8 +23,8 @@ The core package supports Python 3.10+. Use Python 3.11 or newer for the
 
 ```bash
 pip install -e .
-# Ubuntu development setup for the CLI plus common workflow extras and GUI:
-pip install -r requirements.txt
+# CLI plus structure descriptions, MP access and development tools:
+python -m pip install -e ".[condense,mp]" --group dev
 # To query Materials Project directly with --backend api:
 pip install -e ".[mp]"
 # To use a local Materials Project SQLite snapshot (separate package):
@@ -42,6 +42,16 @@ ss-screen-gui
 pip install torch==2.5.1+cu121 --index-url https://download.pytorch.org/whl/cu121
 pip install -e ".[mlp,phonon]"
 ```
+
+For the validated MP snapshot → 2944 tasks → 318 mBJ pairs workflow, see
+[MP reproduction and external-data handoff](docs/reproducibility/mp_2944_20261104.md).
+To replay only the 318 pairs from a separately supplied data ZIP, follow the
+[Chinese quickstart](docs/reproducibility/REPLAY_318_ZH.md) and use
+`scripts/replay_mbj_results.py`; the original MP database and MACE are not needed.
+The [observed environment constraints](requirements/reproduction-20261104/README.md)
+separate screening, CPU MACE/Phonopy, and Windows GUI environments. Database
+snapshots, computed band gaps, and model weights are separate assets; cloning
+this repository does not download them or run electronic-structure calculations.
 
 ## CLI
 
