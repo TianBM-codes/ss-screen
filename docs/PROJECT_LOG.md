@@ -7,11 +7,12 @@
 - 用本次新分组实际生成79+239=318唯一配对、317端元，规范化组/配对证据与历史参照一致，gap容差1e-12 eV；2930主要字段相同，14项属性保持的周期几何匹配通过。原任务身份不改，PBE fallback关闭。
 - 本轮全链显式使用已绑定原库和每份输入结构的4944描述缓存，fresh_descriptor_count=0；默认新算描述的worker另以真实mp-1001833通过。108项相关测试与新代码格式检查通过，不宣称本轮重算全部描述或全新机器安装已验证。
 - 原PR #8于工作期间合并，已保留其原记录；后续草稿PR为https://github.com/TianBM-codes/ss-screen/pull/9，分支codex/mp-zip-to-318-20261104。最新master仅新增/run忽略规则，已合入且科学源码未变。按用户再次明确要求，PR不含ZIP、DB、wheel或计算数据。
-- 完整数据包主体在外部结果根目录，包含原mp.zip、冻结mBJ原件、读取器及可选描述缓存；正登记固定checkout、最终验证摘要和全包SHA。完整流程说明与ZMD同步。
+- 仓库外完整数据包ss-screen-mp-to-318-data-20261104.zip已完成：367962171字节，SHA256=599f40f3678d209c049f23684a783d7ae8a1012901a7342c93d07ec7ee182534；8980成员CRC/安全路径、8976资产SHA/大小通过，原MP ZIP和mBJ成员字节保留。附中文说明、DELIVERY.json、VALIDATION.json和独立.zip.sha256；固定checkout 84d6299243d22e8d43462f12a73932d59dc954c2与科学源码6cf332c一致。
+- 包及delivery_mp_to_318_verification.json位于C:/Users/19756/Desktop/重要文件/ss-screen-local-results/MP_2944_20261104；不在仓库内。已检查本次PR变更列表，无ZIP/DB/wheel/CSV/df/model数据文件，环境与校验元数据只是文本。完整流程说明、资产索引和ZMD同步。
 
 **决策 / 计划变更：** 原库处理是本次验收主线，历史分组仅作独立参照；旧10.76 MiB包只支持既有结果回放，不代替完整数据交付。
 
-**下一步：** 完成外部ZIP元数据/CRC/SHA核验，交付文件链接并更新PR #9的完成证据。
+**下一步：** 按随包README检出固定代码并运行mp-reproduce；后续PR #9供审阅。数据独立文件交付，不经Git仓库存储。
 
 **阻塞项 / 上游问题：** 本轮完整复现无阻塞；原Stage13基线检查事项仍记录在PR中，MACE/DFT/声子没有重启。
 

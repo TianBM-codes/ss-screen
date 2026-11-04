@@ -67,3 +67,14 @@ been verified. The optional MACE/phonon workflow remains stopped.
 
 Current recipient instructions: [MP ZIP → 318 pairs](MP_ZIP_TO_318_ZH.md).
 The old [replay-only guide](REPLAY_318_ZH.md) remains available for the narrower task.
+
+## External data delivery
+
+`ss-screen-mp-to-318-data-20261104.zip`: 367,962,171 bytes (~351 MiB),
+SHA256 `599f40f3678d209c049f23684a783d7ae8a1012901a7342c93d07ec7ee182534`.
+All 8980 members pass CRC/path checks; all 8976 asset entries pass SHA/size checks.
+Original MP ZIP bytes and frozen mBJ member bytes are preserved. `DELIVERY.json`
+pins checkout `84d6299243d22e8d43462f12a73932d59dc954c2`; its scientific sources
+are identical to validated `6cf332c`. Later checksum documentation does not
+change those sources. The data archive is outside the repository and is not
+part of this PR. A `.zip.sha256` sidecar and local verification JSON accompany it.

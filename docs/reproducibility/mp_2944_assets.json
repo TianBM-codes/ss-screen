@@ -4,6 +4,19 @@
   "files_not_distributed_by_git": true,
   "assets": [
     {
+      "name": "ss-screen-mp-to-318-data-20261104.zip",
+      "required_for": [
+        "recipient-original-mp-zip-to-318-pairs"
+      ],
+      "size_bytes": 367962171,
+      "sha256": "599f40f3678d209c049f23684a783d7ae8a1012901a7342c93d07ec7ee182534",
+      "code_revision": "84d6299243d22e8d43462f12a73932d59dc954c2",
+      "pull_request": "https://github.com/TianBM-codes/ss-screen/pull/9",
+      "zip_members": 8980,
+      "verified_asset_files": 8976,
+      "note": "Complete external-only data delivery: original mp.zip, immutable mBJ result files, reader wheels, optional explicit descriptor cache and Chinese guide. Actual original-database validation passed using the verified cache; groups/tasks/pairing regenerated. Not committed to Git."
+    },
+    {
       "name": "mp.zip",
       "required_for": [
         "mp-zip-to-318-pairs"
