@@ -56,6 +56,7 @@ mp-offline/
 # Local workflow runs contain generated structures and calculation results.
 /work/
 /软著
+/run
 # GUI/CLI project-root workflow outputs.
 /01_dataset/
 /02_composition/
