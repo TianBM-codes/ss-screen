@@ -6,6 +6,10 @@
     {
       "name": "ss-screen-318-pairs-data-20261104.zip",
       "required_for": ["recipient-318-pair-replay"],
+      "size_bytes": 11286887,
+      "sha256": "555570674a99afd5563ce9a9acaeb719b71817d3eff82ead69f05451f2da1655",
+      "code_revision": "8e17080842749cac42ebf4406891282b71f24e79",
+      "pull_request": "https://github.com/TianBM-codes/ss-screen/pull/8",
       "source_zip_sha256": "3904ee370a24d7df22d692c42c4b912fb862af1ede37d4452e7e2df4b49775da",
       "verification": "Use the delivered ZIP SHA256 sidecar; DELIVERY.json pins code revision. Original frozen bundle files remain byte-identical.",
       "note": "Recipient wrapper with a Chinese quickstart and code/PR metadata around the frozen mBJ bundle; no MP database or MACE model. An alternative to obtaining the original mBJ ZIP separately."

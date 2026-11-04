@@ -1,5 +1,15 @@
 # PR preparation — 2026-11-04
 
+Published draft: [TianBM-codes/ss-screen #8](https://github.com/TianBM-codes/ss-screen/pull/8),
+targeting `master` from the existing fork. Scientific/replay source revision pinned
+in the delivered data package: `8e17080842749cac42ebf4406891282b71f24e79`.
+The independent versioned-entrypoint replay completed successfully: 8962 packaged
+files verified, six batches / 2944 rows strictly accepted, 1999 success / 620
+unconverged / 325 failed, zero missing, 79 + 239 = 318 pairs / 317 endpoints.
+The data-only handoff ZIP is 11,286,887 bytes; its checksum is recorded in
+[mp_2944_assets.json](mp_2944_assets.json). No scientific source changed after this
+validation; later documentation updates do not invalidate the pinned source.
+
 Status: the initial pre-publication report was delivered; the user then authorized
 a PR and a separate data ZIP specifically for the 318-pair replay. Publish as a
 draft while the checks below remain unresolved; do not call it merge-ready.
