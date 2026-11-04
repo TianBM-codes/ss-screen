@@ -41,8 +41,13 @@ committed. No VASP, MACE, SQS or phonon calculation is launched by this route.
 - A real fresh one-worker descriptor job for mp-1001833 completed successfully;
   its bytes equal the prior descriptor. All 14 previously identified representation
   differences pass the property-preserving periodic correspondence check.
-- Full fixed-code MP ZIP validation status is recorded in the final delivery's
-  `DELIVERY.json`. Its selected mode is an explicit verified descriptor cache:
+- Full fixed-code MP ZIP validation **passed**: 46675 prefiltered rows, 4948
+  candidates, 491/1358 groups, 949/1995 tasks, all 2944 mBJ records strictly
+  accepted (1999 success, 620 unconverged, 325 failed), 79+239=318 pairs / 317
+  endpoints. Normalized pair/group evidence equals the historical reference,
+  with gaps within 1e-12 eV. The 2930 equal primary representations and 14
+  property-preserving periodic matches all pass. `DELIVERY.json` records the
+  fixed checkout and artifact checksums. The selected mode is an explicit verified descriptor cache:
   the database/candidates/groups/tasks/pairing are regenerated, while 4944 descriptions
   are reused. This is not a claim of recalculating all 4944 descriptions in this run.
 - The earlier replay-only entry was independently verified for 2944 states,
