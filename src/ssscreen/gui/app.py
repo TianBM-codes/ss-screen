@@ -83,8 +83,8 @@ if __package__ in {None, ""}:
         font_size,
         font_stylesheet,
     )
-    from ssscreen.gui.icons import app_icon, stage_icon
     from ssscreen.gui.detector_page import DetectorAssessmentPage
+    from ssscreen.gui.icons import app_icon, stage_icon
     from ssscreen.gui.metadata import (
         COMMANDS,
         PATH_PRESETS,
@@ -115,8 +115,8 @@ else:
         font_size,
         font_stylesheet,
     )
-    from .icons import app_icon, stage_icon
     from .detector_page import DetectorAssessmentPage
+    from .icons import app_icon, stage_icon
     from .metadata import COMMANDS, PATH_PRESETS, STAGES, CommandPresentation, option_label_zh
     from .project_file import create_project_file, extract_project_file, inspect_project_file
     from .visualization import (
@@ -3821,6 +3821,83 @@ def _compact_value(value: object, *, max_len: int = 96) -> str:
     return text[: max_len - 1] + "…"
 
 
+_RECOMMENDATION_LABELS_ZH = {
+    "promising": "优先验证",
+    "uncertain": "待确认",
+    "low-priority": "低优先级",
+    "stable": "稳定",
+    "unstable": "不稳定",
+    "metastable_within_cutoff": "阈值内亚稳态",
+    "uncertain_incomplete_competing_set": "待确认（竞争相不完整）",
+    "api": "在线接口",
+    "offline": "离线数据库",
+    "gap": "带隙",
+    "mixing": "混合焓",
+    "phonon": "声子",
+    "phase": "竞争相",
+    "defects": "缺陷",
+    "mlp": "机器学习势",
+    "a": "端元 A",
+    "b": "端元 B",
+    "missing": "缺失",
+    "failed": "失败",
+    "not_converged": "未收敛",
+    "missing_source": "缺少数据来源",
+    "ambiguous_records": "存在多条歧义记录",
+    "pair_method_conflict": "配对与带隙计算方法不一致",
+    "ambiguous_method": "计算方法存在歧义",
+    "missing_method": "缺少计算方法",
+    "value_mismatch": "数值不一致",
+    "directness_mismatch": "直接或间接带隙标记不一致",
+    "both_endmembers_indirect": "两个端元均为间接带隙",
+    "above_low_priority_threshold": "超过低优先级阈值",
+    "borderline": "处于边界范围",
+    "nac_not_applied": "未应用非解析修正",
+    "incomplete_competing_set": "竞争相集合不完整",
+    "offline_snapshot_scope": "仅覆盖离线数据库快照",
+    "unknown_signal": "未知判据",
+    "risky": "存在风险",
+    "model_sha256_mismatch": "模型校验值不一致",
+    "complete_or_revalidate_high_fidelity_endpoint_gaps": "补齐或重新验证高精度端元带隙",
+    "run_compatible_sqs_relaxation_and_mixing_enthalpy": "使用一致设置完成合金弛豫和混合焓计算",
+    "run_converged_phonon_screening": "完成收敛的声子筛查",
+    "complete_same_mlip_competing_phase_hull": "使用同一机器学习势补齐竞争相凸包",
+    "complete_consistent_defect_screening": "使用一致设置完成缺陷筛查",
+    "recompute_stability_evidence_with_one_mlp_model": "使用同一模型重新计算稳定性证据",
+    "verify_imaginary_modes_with_larger_supercells_or_dft": "使用更大超胞或 DFT 复核虚频",
+    "verify_high_mixing_penalty_before_further_investment": "进一步研究前先复核较高混合焓",
+    "test_additional_sqs_compositions_and_energy_convergence": "比较更多合金组分并检查能量收敛",
+    "verify_competing_phases_and_hull_with_consistent_dft": "使用一致的 DFT 设置复核竞争相和凸包",
+    "verify_borderline_hull_distance_with_consistent_dft": "使用一致的 DFT 设置复核边界凸包距离",
+    "perform_consistent_high_fidelity_dft_validation": "使用一致设置开展高精度 DFT 验证",
+    "test_multiple_sqs_compositions_and_supercell_convergence": "比较多个 SQS 组分并检查超胞收敛",
+    "consider_defect_screening_for_priority_candidates": "对优先候选开展缺陷筛查",
+    "deprioritize_unless_the_negative_signal_is_resolved": "负面信号解决前降低研究优先级",
+    "resolve_missing_or_conflicting_evidence_before_ranking": "排序前补齐缺失证据并解决证据冲突",
+}
+
+
+def _recommendation_label_zh(value: object) -> str:
+    """Translate display labels while retaining unrecognized source values."""
+    text = "" if value is None else str(value)
+    return _RECOMMENDATION_LABELS_ZH.get(
+        text, "：".join(_RECOMMENDATION_LABELS_ZH.get(part, part) for part in text.split(":"))
+    )
+
+
+def _recommendation_list_zh(value: object) -> str:
+    """Render the recommendation CSV's JSON code lists as Chinese text."""
+    if value is None or value == "":
+        return "—"
+    try:
+        entries = json.loads(str(value))
+    except (TypeError, ValueError):
+        return _recommendation_label_zh(value)
+    if not isinstance(entries, list):
+        return _recommendation_label_zh(value)
+    return "；".join(_recommendation_label_zh(entry) for entry in entries) or "—"
+
+
 class RecommendationReportPage(QWidget):
     """Readable Stage 12 report and evidence view for presentation/use."""
 
@@ -3839,7 +3916,7 @@ class RecommendationReportPage(QWidget):
         title.setObjectName("pageTitle")
         header.addWidget(title)
         header.addStretch(1)
-        self.badge = QLabel("Stage 12")
+        self.badge = QLabel("阶段 12")
         self.badge.setObjectName("stateBadge")
         header.addWidget(self.badge)
         root.addLayout(header)
@@ -3852,7 +3929,7 @@ class RecommendationReportPage(QWidget):
         subtitle.setObjectName("pageDescription")
         root.addWidget(subtitle)
 
-        summary_box = QGroupBox("Summary / 汇总")
+        summary_box = QGroupBox("汇总")
         summary_form = QFormLayout(summary_box)
         summary_form.setContentsMargins(8, 10, 8, 8)
         self.generated_label = QLabel("-")
@@ -3882,23 +3959,23 @@ class RecommendationReportPage(QWidget):
         self.recommendation_table = QTableWidget(0, 17)
         self.recommendation_table.setHorizontalHeaderLabels(
             [
-                "Rank",
-                "Class",
-                "Evidence",
-                "Pair",
-                "x(B)",
-                "Gap A/B (eV)",
-                "Mixing meV/atom",
-                "Phonon",
-                "Min freq THz",
-                "Hull eV/atom",
-                "Hull signal",
-                "MP backend",
-                "Structure ID",
-                "SQS file",
-                "Endmembers",
-                "Risks",
-                "Next steps",
+                "排名",
+                "推荐分类",
+                "证据等级",
+                "端元配对",
+                "B 组分比例",
+                "端元 A/B 带隙 (eV)",
+                "混合焓 (meV/原子)",
+                "声子稳定性",
+                "最低频率 (THz)",
+                "凸包距离 (eV/原子)",
+                "相稳定性判定",
+                "MP 数据来源",
+                "结构编号",
+                "合金结构文件",
+                "端元结构文件",
+                "风险提示",
+                "下一步建议",
             ]
         )
         self.recommendation_table.verticalHeader().setVisible(False)
@@ -3908,11 +3985,11 @@ class RecommendationReportPage(QWidget):
         self.recommendation_table.setMinimumHeight(260)
         self.recommendation_table.horizontalHeader().setStretchLastSection(True)
         for column, width in enumerate(
-            [46, 92, 70, 120, 58, 110, 118, 88, 92, 98, 82, 80, 210, 230, 230, 220, 240]
+            [56, 100, 90, 120, 100, 170, 165, 110, 150, 170, 130, 130, 210, 230, 230, 260, 280]
         ):
             self.recommendation_table.setColumnWidth(column, width)
         table_layout.addWidget(self.recommendation_table)
-        self.tabs.addTab(table_page, "推荐候选 / Candidates")
+        self.tabs.addTab(table_page, "推荐候选")
 
         report_page = QWidget()
         report_layout = QVBoxLayout(report_page)
@@ -3961,10 +4038,18 @@ class RecommendationReportPage(QWidget):
         self.generated_label.setText(str(summary.get("generated_at") or "-"))
         self.count_label.setText(str(summary.get("recommendation_count") or "0"))
         self.class_label.setText(
-            json.dumps(summary.get("classification_counts") or {}, ensure_ascii=False)
+            "；".join(
+                f"{_recommendation_label_zh(label)}：{count}"
+                for label, count in (summary.get("classification_counts") or {}).items()
+            )
+            or "—"
         )
         self.evidence_label.setText(
-            json.dumps(summary.get("evidence_level_counts") or {}, ensure_ascii=False)
+            "；".join(
+                f"{label}：{count}"
+                for label, count in (summary.get("evidence_level_counts") or {}).items()
+            )
+            or "—"
         )
 
         recommendations = _read_csv_dicts(self._path("12_recommend/recommendations.csv"))
@@ -4019,8 +4104,14 @@ class RecommendationReportPage(QWidget):
             row_index = self.recommendation_table.rowCount()
             self.recommendation_table.insertRow(row_index)
             for column, value in enumerate(values):
-                item = QTableWidgetItem(_compact_value(value))
-                item.setToolTip("" if value is None else str(value))
+                display = value
+                if column in (1, 7, 10, 11):
+                    display = _recommendation_label_zh(value)
+                elif column in (15, 16):
+                    display = _recommendation_list_zh(value)
+                item = QTableWidgetItem(_compact_value(display))
+                item.setToolTip("" if display is None else str(display))
+                item.setData(Qt.UserRole, value)
                 self.recommendation_table.setItem(row_index, column, item)
 
         report_path = self._path("12_recommend/recommendation_report.md")
@@ -4582,6 +4673,7 @@ class MainWindow(QMainWindow):
 
         # Stage 13 is a local GUI assessment, not a Click/DFT computation.
         self.detector_assessment_page = DetectorAssessmentPage(self.project_root)
+        self.detector_assessment_page.run_requested.connect(self.run_command)
         self.stack.addWidget(self.detector_assessment_page)
 
         self.document_scroll = QScrollArea()
@@ -5230,10 +5322,10 @@ class MainWindow(QMainWindow):
             elif sid == "13":
                 self.detector_assessment_page.refresh()
                 self.stack.setCurrentWidget(self.detector_assessment_page)
-                self.document_label.setText(f"{project.name} / 探测器性能评估")
+                self.document_label.setText(f"{project.name} / 固溶体候选评价")
                 self.inspector.set_selection(
-                    item_type="应用适配性评估",
-                    name="Stage 13：探测器性能评估（展示/预筛）",
+                    item_type="候选评价",
+                    name="Stage 13：固溶体候选几何评价与材料级预筛",
                     path=str(project.path / directory),
                     status=status if count == 0 else f"{status} · {count} 项",
                 )
@@ -6131,6 +6223,10 @@ class MainWindow(QMainWindow):
         if exit_code == 0 and " recommend " in f" {finished_command} ":
             self.recommendation_report_page.refresh()
             self.stack.setCurrentWidget(self.recommendation_report_page)
+
+        if exit_code == 0 and " geometry-evaluate " in f" {finished_command} ":
+            self.detector_assessment_page.refresh()
+            self.stack.setCurrentWidget(self.detector_assessment_page)
 
     def _write_run_audit(self, record: RunRecord) -> None:
         path = self.project_root() / "logs" / "gui_commands.jsonl"

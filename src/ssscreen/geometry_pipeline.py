@@ -18,6 +18,11 @@ from typing import Any, Mapping
 
 import numpy as np
 
+from .material_assessment import (
+    EVALUATION_TABLE_MD, MINIMUM_GAP_CONFIGURATIONS, assess_endpoint_gap_range,
+    summarize_material_evidence,
+)
+
 from .geometry_core import (
     Thresholds, inplane_principal_strain, lattice_diagnostics, lattice_grade,
     miller_indices, representative_matches, select_consistent_match, substrate_grade,
@@ -56,7 +61,7 @@ DEFAULT_CONFIG = {
         'symprec_A':0.01,
         'preferred_max_principal_strain':0.01,
         'alternative_max_principal_strain':0.03,
-        'top_n':5,
+        'top_n':3,
     },
     'existing_property_thresholds': {
         'imaginary_frequency_tolerance_THz':0.1,
@@ -68,11 +73,13 @@ DEFAULT_CONFIG = {
     'execution': {'workers':1,'resume':True,'compress_details':True},
 }
 
-EVALUATION_TABLE_MD = '| 项目 | 优先候选条件 | 中间区间或待核验条件 |\n|---|---|---|\n| 合金带隙 | 两个有效构型均落入目标区间 | 构型结果跨越目标边界，或只有探索性计算 |\n| **晶格常数匹配（新增）** | **统一晶胞和晶轴对应关系后，最大晶格长度失配≤3%，且晶胞角度检查通过** | **3%–5% 可作备选；>5% 标记较大失配风险；无法建立可靠晶胞对应关系时标为“待核验”** |\n| 声子 | 无低于 −0.1 THz 的显著虚频，且计算质检通过 | 临界软模、未收敛或采样不足时需复核 |\n| 混合焓 | ≤25 meV/atom | 25–50 meV/atom；>50 降低优先级 |\n| 凸包上能 | ≤25 meV/atom | 25–100 meV/atom；>100 降低优先级 |\n| 衬底主应变 | 选定代表 SQS 存在最大绝对面内主工程应变≤1%的匹配方案 | 1%–3% 可作备选；搜索范围内无解标为“未找到”；代表构型缺失或无效时标为“待补充” |'
 
 MAIN_COLUMNS = (
     'candidate_id', 'pair_id', 'stage12_pair_index', 'comp_a', 'comp_b', 'actual_fraction_b', 'reference_set_id',
+    'gap_a_eV','gap_b_eV','endpoint_gap_min_eV','endpoint_gap_max_eV','endpoint_gap_range_eV',
+    'target_um','target_gap_eV','band_match','gap_rule','endpoint_gap_origin',
     'gap_eV', 'gap_range_eV', 'gap_status', 'gap_target_status',
+    'gap_valid_configuration_count', 'expected_configuration_count',
     'lattice_mismatch_pct', 'lattice_angle_difference_deg', 'lattice_status',
     'phonon_min_THz', 'phonon_status', 'mixing_enthalpy_meV_atom', 'mixing_range_meV_atom',
     'mixing_status', 'energy_above_hull_meV_atom', 'hull_status',
@@ -289,16 +296,42 @@ def _plane_vectors(structure: Any, miller: tuple[int,int,int]) -> tuple[np.ndarr
     return vectors,np.asarray(slab_gen.slab_scale_factor,int)
 
 
+def _effective_supercell_matrix(base_vectors: np.ndarray, matched_vectors: np.ndarray) -> np.ndarray:
+    """Recover the integer basis after ZSL's in-plane vector reduction.
+
+    ZSLMatch transformations describe the unreduced supercell construction;
+    ``film_sl_vectors``/``substrate_sl_vectors`` may additionally swap vectors
+    or add/subtract one basis vector.  Persist the effective transform that
+    actually reconstructs the returned matched basis.
+    """
+    coefficients = np.asarray(matched_vectors, dtype=float) @ np.linalg.pinv(
+        np.asarray(base_vectors, dtype=float)
+    )
+    integer = np.rint(coefficients).astype(int)
+    if not np.allclose(integer @ base_vectors, matched_vectors, rtol=1e-8, atol=1e-5):
+        raise ValueError("reduced ZSL vectors cannot be reconstructed from integer surface basis")
+    if abs(round(float(np.linalg.det(integer)))) == 0:
+        raise ValueError("reduced ZSL surface transform is singular")
+    return integer
+
+
 def substrate_matches(film: Any, substrate: Any, sub_cfg: Mapping[str, Any],
                       identity: str, substrate_id: str) -> list[dict[str, Any]]:
     from pymatgen.analysis.interfaces.zsl import ZSLGenerator
+    from pymatgen.core.surface import get_symmetrically_distinct_miller_indices
     zsl = ZSLGenerator(max_area_ratio_tol=sub_cfg['max_area_ratio_tol'],
                        max_area=sub_cfg['max_area_A2'],
                        max_length_tol=sub_cfg['max_length_tol'],
                        max_angle_tol=sub_cfg['max_angle_tol'],
                        bidirectional=False)
-    film_planes = miller_indices(int(sub_cfg['film_max_miller']))
-    substrate_planes = miller_indices(int(sub_cfg['substrate_max_miller']))
+    # Geometric plane families in each actual input lattice; the two sides
+    # are enumerated independently, without requiring equal Miller indices.
+    film_planes = get_symmetrically_distinct_miller_indices(
+        film, int(sub_cfg['film_max_miller'])
+    )
+    substrate_planes = get_symmetrically_distinct_miller_indices(
+        substrate, int(sub_cfg['substrate_max_miller'])
+    )
     out: list[dict[str, Any]] = []
     for fm in film_planes:
         film_vecs, film_basis = _plane_vectors(film, fm)
@@ -315,13 +348,10 @@ def substrate_matches(film: Any, substrate: Any, sub_cfg: Mapping[str, Any],
                 d = inplane_principal_strain(V_f,V_s)
                 if d['film_area_A2'] >= sub_cfg['max_area_A2'] or d['substrate_area_A2'] >= sub_cfg['max_area_A2']:
                     continue
-                t_f = np.asarray(match.film_transformation,int)
-                t_s = np.asarray(match.substrate_transformation,int)
-                # ZSL may reduce bases; compare metric tensors so rotations are fine.
-                if not np.allclose((t_f @ film_vecs)@(t_f @ film_vecs).T,V_f@V_f.T, rtol=1e-6,atol=1e-6):
-                    raise ValueError('ZSL film transformation cannot reconstruct matching geometry')
-                if not np.allclose((t_s @ sub_vecs)@(t_s @ sub_vecs).T,V_s@V_s.T, rtol=1e-6,atol=1e-6):
-                    raise ValueError('ZSL substrate transformation cannot reconstruct matching geometry')
+                zsl_t_f = np.asarray(match.film_transformation,int)
+                zsl_t_s = np.asarray(match.substrate_transformation,int)
+                t_f = _effective_supercell_matrix(film_vecs, V_f)
+                t_s = _effective_supercell_matrix(sub_vecs, V_s)
                 metadata = f'{identity}|{substrate_id}|{fm}|{sm}|{t_f.tolist()}|{t_s.tolist()}'
                 match_id = hashlib.sha256(metadata.encode()).hexdigest()[:20]
                 out.append(dict(d,match_id=match_id,substrate_id=substrate_id,
@@ -329,48 +359,83 @@ def substrate_matches(film: Any, substrate: Any, sub_cfg: Mapping[str, Any],
                     film_orientation_matrix=film_basis.tolist(),
                     substrate_orientation_matrix=sub_basis.tolist(),
                     film_supercell_matrix=t_f.tolist(),substrate_supercell_matrix=t_s.tolist(),
+                    zsl_film_transformation=zsl_t_f.tolist(),zsl_substrate_transformation=zsl_t_s.tolist(),
                     film_supercell_vectors=V_f.tolist(),substrate_supercell_vectors=V_s.tolist(),
-                    elastic_energy=None,film_lattice_model='relaxed_sqs'))
+                    elastic_energy=None,film_lattice_model='relaxed_sqs',
+                    strain_convention='fixed_substrate_deformed_film',
+                    plane_enumeration='symmetrically_distinct_input_lattice'))
     return out
+
+
+_PROPERTY_ALIASES = {
+    'band_gap_eV': ('band_gap_eV', 'alloy_gap_eV', 'gap_eV'),
+    'minimum_mesh_frequency_THz': ('minimum_mesh_frequency_THz', 'phonon_min_THz'),
+    'mixing_enthalpy_meV_per_atom': ('mixing_enthalpy_meV_per_atom', 'mixing_enthalpy_meV_atom'),
+    'energy_above_hull_eV_per_atom': ('energy_above_hull_eV_per_atom',),
+}
 
 
 def _property_summary(candidate: Mapping[str,str], rows: list[dict[str,str]], cfg: dict[str,Any], alloy_records: list[dict[str,str]]) -> dict[str,Any]:
     cid = candidate['candidate_id']
     expected = set(_string(candidate,'expected_structure_ids').replace(',',';').split(';'))-{''}
     props = [r for r in rows if _string(r,'candidate_id') == cid]
-    identity_sha={r['structure_id']:_string(r,'sha256').lower() for r in alloy_records if r['candidate_id']==cid and r['reference_set_id']==candidate['reference_set_id'] and _number(r.get('actual_fraction_b'))==_number(candidate.get('actual_fraction_b'))}
+    identity_sha={r['structure_id']:_string(r,'sha256').lower() for r in alloy_records if r['candidate_id']==cid and r['reference_set_id']==candidate['reference_set_id'] and _number(r.get('actual_fraction_b'))==_number(candidate.get('actual_fraction_b')) and _positive_status(r)}
     # Expect distinct, structure-SHA-bound entries. Duplicated identity is invalid.
-    seen: set[str] = set()
-    valid = []
+    valid_by_structure: dict[str, dict[str, Any]] = {}
     for r in props:
         sid = _string(r,'structure_id')
-        if not sid or sid in seen:
-            raise ValueError(f'duplicate/empty structure_id in properties for {cid}')
-        seen.add(sid)
         if expected and sid not in expected:
             continue
-        if (_positive_status(r) and _string(r,'structure_sha256').lower()
-            and _string(r,'structure_sha256').lower()==identity_sha.get(sid)
-            and (not _string(r,'reference_set_id') or _string(r,'reference_set_id')==candidate['reference_set_id'])):
-            valid.append(r)
+        if not sid:
+            continue
+        if (not _positive_status(r) or not _string(r,'structure_sha256')
+            or _string(r,'structure_sha256').lower()!=identity_sha.get(sid)
+            or (_string(r,'reference_set_id') and _string(r,'reference_set_id')!=candidate['reference_set_id'])):
+            continue
+        aggregate = valid_by_structure.setdefault(sid, {'structure_id': sid})
+        if _string(r, 'property'):
+            # Documented properties.csv exchange format is long-form:
+            # one candidate/structure/property/value row per measurement.
+            key = _string(r, 'property')
+            target = next((name for name, aliases in _PROPERTY_ALIASES.items() if key in aliases), None)
+            if target is None:
+                continue
+            if target == 'energy_above_hull_eV_per_atom' and _string(r,'competing_set_complete').lower() in ('false','0','no'):
+                continue
+            if target in aggregate:
+                raise ValueError(f'duplicate {target} in properties for {cid}/{sid}')
+            aggregate[target] = r.get('value')
+        else:
+            # Also accept a wide row for compatibility with existing manifests.
+            for target, aliases in _PROPERTY_ALIASES.items():
+                if target == 'energy_above_hull_eV_per_atom' and _string(r,'competing_set_complete').lower() in ('false','0','no'):
+                    continue
+                value = next((_string(r, key) for key in aliases if _string(r, key)), '')
+                if not value:
+                    continue
+                if target in aggregate:
+                    raise ValueError(f'duplicate {target} in properties for {cid}/{sid}')
+                aggregate[target] = value
+    valid = list(valid_by_structure.values())
     expected_count = len(expected)
     coverage = expected_count > 0 and {r['structure_id'] for r in valid} == expected
     def col(key: str, require_nonnegative: bool=False) -> list[float]:
         values = [_number(r.get(key)) for r in valid]
         return [v for v in values if v is not None and (not require_nonnegative or v>=0)]
     gaps = col('band_gap_eV',True)
-    gaps = [v for v in gaps if v>0]
     freqs = col('minimum_mesh_frequency_THz')
     mixes = col('mixing_enthalpy_meV_per_atom')
-    hull_valid = [r for r in valid if _string(r,'competing_set_complete').lower() not in ('false','0','no')]
-    hulls = [_number(r.get('energy_above_hull_eV_per_atom')) for r in hull_valid]
+    hulls = [_number(r.get('energy_above_hull_eV_per_atom')) for r in valid]
     hulls = [v for v in hulls if v is not None and v>=0]
     par = cfg['existing_property_thresholds']
     def fmt_range(vals: list[float]) -> str:
         return f'{min(vals):.8g}～{max(vals):.8g}' if vals else ''
     result = {
         'gap_eV': max(gaps) if gaps else None, 'gap_range_eV':fmt_range(gaps),
-        'gap_status':'有效' if coverage and len(gaps)==expected_count else '待补充',
+        'gap_status':('有效' if coverage and len(gaps)==expected_count and len(gaps)>=MINIMUM_GAP_CONFIGURATIONS
+                      else '探索性计算' if gaps else '待补充'),
+        'gap_valid_configuration_count':len(gaps),
+        'expected_configuration_count':expected_count,
         'phonon_min_THz':min(freqs) if freqs else None,
         'phonon_status':'待补充' if not coverage or len(freqs)!=expected_count else ('显著虚频' if min(freqs)<-par['imaginary_frequency_tolerance_THz'] else '通过'),
         'mixing_enthalpy_meV_atom':max(mixes) if mixes else None,
@@ -379,10 +444,30 @@ def _property_summary(candidate: Mapping[str,str], rows: list[dict[str,str]], cf
         'energy_above_hull_meV_atom':max(hulls)*1000 if hulls else None,
         'hull_status':'待补充' if not coverage or len(hulls)!=expected_count else ('优先' if max(hulls)*1000<=par['preferred_max_hull_meV_atom'] else '备选' if max(hulls)*1000<=par['high_hull_meV_atom'] else '高风险'),
     }
-    gap_target = cfg['gap_target_eV']
-    result['gap_target_status'] = ('目标区间未设置' if gap_target is None else
-            '待补充' if result['gap_status']!='有效' else
-            '优先' if all(gap_target[0]<=g<=gap_target[1] for g in gaps) else '跨越或偏离目标区间')
+    return result
+
+
+def _endpoint_gap_summary(candidate: Mapping[str,str], recommendations: list[dict[str,str]],
+                          cfg: dict[str,Any]) -> dict[str,Any]:
+    """Join pair-level endpoint gaps by identity, independent of alloy properties."""
+    wavelength = cfg['detector_context']['target_wavelength_um']
+    if all(_number(candidate.get(key)) is not None for key in ('gap_a_eV','gap_b_eV')):
+        return assess_endpoint_gap_range(candidate['gap_a_eV'], candidate['gap_b_eV'], wavelength)
+    fraction = _number(candidate.get('actual_fraction_b'))
+    pair = _string(candidate,'stage12_pair_index')
+    matched = [r for r in recommendations
+               if pair and _string(r,'pair_index') == pair
+               and fraction is not None and _number(r.get('actual_fraction_b')) is not None
+               and abs(float(r['actual_fraction_b'])-fraction)<1e-6
+               and all(not _string(candidate,key) or _string(r,key)==_string(candidate,key)
+                       for key in ('comp_a','comp_b'))]
+    gaps = {(_number(r.get('gap_a_eV')), _number(r.get('gap_b_eV'))) for r in matched}
+    if len(gaps)==1:
+        a,b = gaps.pop()
+        return assess_endpoint_gap_range(a,b,wavelength)
+    result = assess_endpoint_gap_range(None,None,wavelength)
+    if len(gaps)>1:
+        result.update(gap_target_status='待核验',band_match='端元带隙来源冲突')
     return result
 
 
@@ -397,7 +482,73 @@ def _safe_json(record: Any) -> str:
     return json.dumps(record,ensure_ascii=False,allow_nan=False,default=lambda x: x.tolist() if isinstance(x,np.ndarray) else str(x))
 
 
-def evaluate(input_dir: Path, config_path: Path, output_dir: Path) -> dict[str,Any]:
+def _stage12_property_rows(candidates: list[dict[str,str]], alloys: list[dict[str,str]], recommendations: list[dict[str,str]]) -> list[dict[str,str]]:
+    """Adapt identity-matched Stage 12 evidence without treating endpoint gaps as alloy gaps."""
+    result: list[dict[str,str]] = []
+    stage12_properties = (
+        ('minimum_mesh_frequency_THz', 'minimum_mesh_frequency_THz', 'phonon_status', 'THz', False),
+        ('mixing_enthalpy_meV_per_atom', 'mixing_enthalpy_meV_per_atom', 'mixing_status', 'meV/atom', False),
+        ('energy_above_hull_eV_per_atom', 'energy_above_hull_eV_per_atom', 'phase_status', 'eV/atom', True),
+    )
+    for candidate in candidates:
+        cid = _string(candidate, 'candidate_id')
+        pair_index = _string(candidate, 'stage12_pair_index')
+        fraction = _number(candidate.get('actual_fraction_b'))
+        expected = set(_string(candidate, 'expected_structure_ids').replace(',', ';').split(';')) - {''}
+        matched = [row for row in recommendations
+                   if _string(row, 'pair_index') == pair_index
+                   and _number(row.get('actual_fraction_b')) is not None
+                   and fraction is not None
+                   and abs(float(_number(row.get('actual_fraction_b'))) - fraction) < 1e-6
+                   and _string(row, 'structure_id') in expected]
+        if len({_string(row, 'structure_id') for row in matched}) != len(matched):
+            raise ValueError(f'ambiguous Stage 12 rows for {cid}; duplicate structure identity')
+        for source in matched:
+            sid = _string(source, 'structure_id')
+            alloy = [row for row in alloys
+                     if _string(row, 'candidate_id') == cid
+                     and _string(row, 'reference_set_id') == _string(candidate, 'reference_set_id')
+                     and _string(row, 'structure_id') == sid
+                     and _number(row.get('actual_fraction_b')) is not None
+                     and fraction is not None
+                     and abs(float(_number(row.get('actual_fraction_b'))) - fraction) < 1e-6]
+            if len(alloy) != 1:
+                continue
+            identity = alloy[0]
+            for property_name, source_key, status_key, unit, require_complete in stage12_properties:
+                value = _string(source, source_key)
+                status = _string(source, status_key).lower()
+                if not value or status not in ('success', 'completed', 'valid', 'ok'):
+                    continue
+                if require_complete and _string(source, 'competing_set_complete').lower() not in ('true', '1', 'yes'):
+                    continue
+                result.append({
+                    'candidate_id': cid, 'structure_id': sid,
+                    'structure_sha256': _string(identity, 'sha256'),
+                    'reference_set_id': _string(candidate, 'reference_set_id'),
+                    'property': property_name, 'value': value, 'unit': unit,
+                    'method': _string(source, 'model_sha256') or 'Stage 12 recommendation evidence',
+                    'status': 'success', 'qc_status': 'pass',
+                })
+            # Only explicit direct alloy-gap fields are accepted. Stage 12's
+            # gap_a_eV/gap_b_eV endpoints are deliberately not interpolated here.
+            for source_key in ('alloy_gap_eV', 'band_gap_eV'):
+                value = _string(source, source_key)
+                if value and _string(source, 'gap_evidence_status').lower() in ('complete', 'success', 'valid'):
+                    result.append({
+                        'candidate_id': cid, 'structure_id': sid,
+                        'structure_sha256': _string(identity, 'sha256'),
+                        'reference_set_id': _string(candidate, 'reference_set_id'),
+                        'property': 'band_gap_eV', 'value': value, 'unit': 'eV',
+                        'method': _string(source, 'gap_method') or 'Stage 12 recommendation evidence',
+                        'status': 'success', 'qc_status': 'pass',
+                    })
+                    break
+    return result
+
+
+def evaluate(input_dir: Path, config_path: Path, output_dir: Path,
+             recommendations_path: Path | None = None, *, target_wavelength_um: float | None = None) -> dict[str,Any]:
     """Evaluate explicit identity manifests and write traceable Stage 13 artifacts.
 
     Requires pymatgen only when loading real structures / executing geometry.
@@ -405,10 +556,27 @@ def evaluate(input_dir: Path, config_path: Path, output_dir: Path) -> dict[str,A
     """
     input_dir, config_path, output_dir = Path(input_dir),Path(config_path),Path(output_dir)
     cfg=_config(config_path)
+    if target_wavelength_um is not None:
+        if _number(target_wavelength_um) is None or target_wavelength_um<=0:
+            raise ValueError('target_wavelength_um must be positive and finite')
+        cfg['detector_context']['target_wavelength_um']=float(target_wavelength_um)
     cands=_read_csv(input_dir/'candidates.csv',required=('candidate_id','pair_id','actual_fraction_b','reference_set_id','expected_structure_ids'))
     ends=_read_csv(input_dir/'endmembers.csv',required=('pair_id','role','reference_set_id','structure_file','sha256','status','qc_status'))
     alloys=_read_csv(input_dir/'alloy_structures.csv',required=('candidate_id','structure_id','seed','actual_fraction_b','reference_set_id','structure_file','sha256','status','qc_status'))
     props=_read_csv(input_dir/'properties.csv')
+    recommendations = _read_csv(Path(recommendations_path)) if recommendations_path is not None else []
+    if recommendations_path is not None:
+        stage12_props = _stage12_property_rows(cands, alloys, recommendations)
+        explicit = set()
+        for row in props:
+            if _string(row, 'property'):
+                explicit.add((_string(row, 'candidate_id'), _string(row, 'structure_id'), _string(row, 'property')))
+            else:
+                for property_name, aliases in _PROPERTY_ALIASES.items():
+                    if any(_string(row, key) for key in aliases):
+                        explicit.add((_string(row, 'candidate_id'), _string(row, 'structure_id'), property_name))
+        props.extend(row for row in stage12_props if
+                     (_string(row, 'candidate_id'), _string(row, 'structure_id'), _string(row, 'property')) not in explicit)
     sub_json=input_dir/'substrates.json'
     subs=json.loads(sub_json.read_text(encoding='utf-8')) if sub_json.exists() else []
     if not isinstance(subs,list): raise ValueError('substrates.json must be a list')
@@ -419,9 +587,13 @@ def evaluate(input_dir: Path, config_path: Path, output_dir: Path) -> dict[str,A
         if x is None or not 0 <= x <= 1:
             raise ValueError(f'invalid actual fraction in {c["candidate_id"]}')
     all_paths=[config_path]+[input_dir/f for f in ('candidates.csv','endmembers.csv','alloy_structures.csv','properties.csv','substrates.json') if (input_dir/f).is_file()]
+    if recommendations_path is not None:
+        all_paths.append(Path(recommendations_path))
     fp=hashlib.sha256()
     for p in sorted(all_paths): fp.update(str(p.name).encode()+_sha256(p).encode())
-    fp.update(b'ssscreen_geometry_v1')
+    fp.update(b'ssscreen_geometry_v2_distinct_planes')
+    fp.update(_safe_json({'gap_rule':'endpoint_range_covers_photon_energy',
+                        'target_wavelength_um':cfg['detector_context']['target_wavelength_um']}).encode())
     fingerprint=fp.hexdigest()
     output_dir.mkdir(parents=True,exist_ok=True)
     main=[]; lattice=[]; top=[]; structure_matches=[]; failures=[]; all_matches=[]
@@ -432,6 +604,7 @@ def evaluate(input_dir: Path, config_path: Path, output_dir: Path) -> dict[str,A
         row.update(candidate_id=cid,pair_id=pair,stage12_pair_index=c.get('stage12_pair_index',''),comp_a=c.get('comp_a',''),comp_b=c.get('comp_b',''),
                    actual_fraction_b=float(c['actual_fraction_b']),reference_set_id=ref)
         row.update(_property_summary(c,props,cfg,alloys))
+        row.update(_endpoint_gap_summary(c,recommendations,cfg))
         lat_result={'lattice_status':'数据缺失'}
         endpoint_rows=[r for r in ends if r['pair_id']==pair and r['reference_set_id']==ref]
         if len([r for r in endpoint_rows if r['role']=='A']) == 1 and len([r for r in endpoint_rows if r['role']=='B'])==1:
@@ -491,7 +664,7 @@ def evaluate(input_dir: Path, config_path: Path, output_dir: Path) -> dict[str,A
                             for role,match in representative.items():
                                 if match: structure_matches.append(dict(candidate_id=cid,substrate_id=sid,role=role,match_id=match['match_id'],film_area_A2=match['film_area_A2'],max_abs_principal_strain=match['max_abs_principal_strain']))
                             if matches:
-                                chosen_match=select_consistent_match(matches,sub_cfg['preferred_max_principal_strain'],sub_cfg['alternative_max_principal_strain'])
+                                chosen_match=select_consistent_match(matches)
                                 if chosen_match: relevant.append(chosen_match)
                             else:
                                 # A large SQS surface cell is a scope limitation, not proof of no epitaxy.
@@ -499,8 +672,9 @@ def evaluate(input_dir: Path, config_path: Path, output_dir: Path) -> dict[str,A
                         except (ValueError,OSError,ImportError,TypeError) as exc:
                             any_failed=True
                             failures.append(dict(candidate_id=cid,substrate_id=sid,error=str(exc)))
-                    relevant.sort(key=lambda m:(0 if m['max_abs_principal_strain']<=sub_cfg['preferred_max_principal_strain'] else 1 if m['max_abs_principal_strain']<=sub_cfg['alternative_max_principal_strain'] else 2,m['film_area_A2'],m['max_abs_principal_strain'],m['substrate_id'],m['match_id']))
-                    top.extend(relevant[:int(sub_cfg['top_n'])])
+                    relevant.sort(key=lambda m:(m['max_abs_principal_strain'],m['film_area_A2'],m['substrate_id'],m['match_id']))
+                    # Stage 13 presents three distinct substrate recommendations at most.
+                    top.extend(relevant[:min(3, int(sub_cfg['top_n']))])
                     selected_match=relevant[0] if relevant else None
                     if selected_match:
                         row.update(substrate_principal_strain_pct=100*selected_match['max_abs_principal_strain'],substrate_status=substrate_grade(selected_match['max_abs_principal_strain'],Thresholds(substrate_preferred=sub_cfg['preferred_max_principal_strain'],substrate_alternative=sub_cfg['alternative_max_principal_strain'])),substrate_id=selected_match['substrate_id'],film_miller=str(selected_match['film_miller']),substrate_miller=str(selected_match['substrate_miller']),match_area_A2=selected_match['film_area_A2'],match_id=selected_match['match_id'])
@@ -514,15 +688,8 @@ def evaluate(input_dir: Path, config_path: Path, output_dir: Path) -> dict[str,A
         elif geo_lat in ('优先','备选') and geo_sub in ('优先','备选'): row['geometry_grade']='几何备选'
         elif geo_lat in ('数据缺失','待核验','计算失败') or geo_sub in ('待补充','计算失败'): row['geometry_grade']='几何数据待补充'
         else: row['geometry_grade']='几何需复核'
-        dims=('gap_target_status','lattice_status','phonon_status','mixing_status','hull_status','substrate_status')
-        pending=any(row[d] in ('待补充','数据缺失','待核验','计算失败','目标区间未设置') for d in dims)
-        risk=any(row[d] in ('较大失配风险','显著虚频','高风险','较高应变','跨越或偏离目标区间','范围内未找到','表面原胞超面积上限') for d in dims)
-        if pending: row['candidate_grade']='待补充'
-        elif risk: row['candidate_grade']='备选/需复核'
-        elif all(row[d] in ('优先','通过') for d in dims): row['candidate_grade']='优先进一步验证'
-        else: row['candidate_grade']='备选/需复核'
-        row['evidence_completeness']='完整' if not pending else '部分缺失'
-        row['recommendation_reason']='；'.join(f'{d}={row[d]}' for d in dims)+'；衬底仅使用单代表构型，不证明可实际外延或器件性能'
+        row.update(summarize_material_evidence(row))
+        row['recommendation_reason']+='；衬底仅使用单代表构型，不证明可实际外延或器件性能'
         main.append(row)
     _write_csv(output_dir/'candidate_evaluation.csv',main,MAIN_COLUMNS)
     _write_csv(output_dir/'lattice_matches.csv',lattice,('candidate_id','pair_id','reference_set_id','lattice_status','reason','max_length_mismatch','max_angle_difference_deg','symmetric_principal_mismatch','transform_b','site_mapping','mapping_residual_A','mapping_count'))
@@ -531,7 +698,7 @@ def evaluate(input_dir: Path, config_path: Path, output_dir: Path) -> dict[str,A
     with gzip.open(output_dir/'match_details.jsonl.gz','wt',encoding='utf-8') as fh:
         for match in all_matches:
             fh.write(_safe_json(match)+'\n')
-    summary=dict(schema_version=2,config_fingerprint=fingerprint,candidate_count=len(main),matching_solutions=len(all_matches),failures=failures,algorithm='ssscreen_geometry_v1',scope='single_representative_configuration')
+    summary=dict(schema_version=2,config_fingerprint=fingerprint,candidate_count=len(main),matching_solutions=len(all_matches),failures=failures,algorithm='ssscreen_geometry_v2_distinct_planes',scope='single_representative_configuration')
     (output_dir/'summary.json').write_text(_safe_json(summary),encoding='utf-8')
     report=['# Stage 13固溶体候选评价','',
             f'候选数：{len(main)}；已找到几何匹配解：{len(all_matches)}。','',

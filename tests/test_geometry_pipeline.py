@@ -3,11 +3,43 @@ from pathlib import Path
 import json
 import csv
 
+import numpy as np
 import pytest
-from ssscreen.geometry_pipeline import _config,evaluate
+from ssscreen.geometry_pipeline import _config,_effective_supercell_matrix,evaluate
 from ssscreen.detector import assess_rows,index_geometry,read_csv
 
 FIXTURES=Path(__file__).parent/'data'/'stage13_geometry'
+
+
+def test_substrate_search_uses_distinct_planes_and_signed_film_strain(tmp_path):
+    from pymatgen.core import Lattice, Structure
+    from ssscreen.geometry_pipeline import substrate_matches
+
+    film = Structure(Lattice.cubic(4), ['Na'], [[0, 0, 0]])
+    substrate = Structure(Lattice.cubic(4.04), ['Na'], [[0, 0, 0]])
+    path = tmp_path / 'config.json'
+    path.write_text(json.dumps({'schema_version': 2, 'substrate': {'max_area_A2': 30}}))
+    config = _config(path)['substrate']
+    matches = substrate_matches(film, substrate, config, 'test-film', 'test-substrate')
+    families = {(1, 0, 0), (1, 1, 0), (1, 1, 1)}
+    assert matches
+    assert {tuple(m['film_miller']) for m in matches} == families
+    assert {tuple(m['substrate_miller']) for m in matches} == families
+    assert all(m['principal_strains'] == pytest.approx([.01, .01]) for m in matches)
+    assert all(m['strain_convention'] == 'fixed_substrate_deformed_film' for m in matches)
+    compressed = substrate_matches(substrate, film, config, 'test-film-reverse', 'test-substrate')
+    assert compressed
+    assert all(m['principal_strains'] == pytest.approx([4 / 4.04 - 1] * 2) for m in compressed)
+
+
+def test_effective_supercell_matrix_reconstructs_reduced_zsl_basis():
+    base=np.array([[4.,0.,0.],[0.,4.,0.]])
+    # The returned ZSL basis can differ from its original area-multiple matrix
+    # after the Zur reduction swaps vectors or adds/subtracts one row.
+    reduced=np.array([[2,2],[0,2]])@base
+    transform=_effective_supercell_matrix(base,reduced)
+    assert np.array_equal(transform,[[2,2],[0,2]])
+    assert np.allclose(transform@base,reduced)
 
 
 def test_offline_pipeline_never_invents_geometry(tmp_path):
@@ -33,7 +65,8 @@ def test_offline_pipeline_never_invents_geometry(tmp_path):
 
 def test_explicit_stage12_pair_and_x_join():
     result=[{'candidate_id':'XYZ','stage12_pair_index':'4','actual_fraction_b':'0.5',
-             'gap_eV':'0.4','gap_status':'有效','candidate_grade':'待补充'}]
+             'gap_eV':'0.4','gap_status':'有效','gap_valid_configuration_count':'2',
+             'candidate_grade':'待补充'}]
     stage12=[{'recommendation_id':'per-structure-1','pair_index':'4','actual_fraction_b':'0.5',
               'structure_id':'s101'},
              {'recommendation_id':'per-structure-2','pair_index':'4','actual_fraction_b':'0.5',
@@ -41,7 +74,8 @@ def test_explicit_stage12_pair_and_x_join():
     assessed=assess_rows(stage12,2.0,index_geometry(result))
     assert len(assessed)==1
     assert assessed[0]['candidate_id']=='XYZ'
-    assert assessed[0]['gap_eV']==0.4
+    assert assessed[0]['alloy_gap_eV']==0.4
+    assert assessed[0]['band_match']=='端元带隙缺失'
 
 
 def test_config_rejects_unsupported_substitution(tmp_path):

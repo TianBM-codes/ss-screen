@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "recorded_on": "2026-11-04",
+  "files_not_distributed_by_git": true,
+  "assets": [
+    {
+      "name": "ss-screen-318-pairs-data-20261104.zip",
+      "required_for": ["recipient-318-pair-replay"],
+      "size_bytes": 11286887,
+      "sha256": "555570674a99afd5563ce9a9acaeb719b71817d3eff82ead69f05451f2da1655",
+      "code_revision": "8e17080842749cac42ebf4406891282b71f24e79",
+      "pull_request": "https://github.com/TianBM-codes/ss-screen/pull/8",
+      "source_zip_sha256": "3904ee370a24d7df22d692c42c4b912fb862af1ede37d4452e7e2df4b49775da",
+      "verification": "Use the delivered ZIP SHA256 sidecar; DELIVERY.json pins code revision. Original frozen bundle files remain byte-identical.",
+      "note": "Recipient wrapper with a Chinese quickstart and code/PR metadata around the frozen mBJ bundle; no MP database or MACE model. An alternative to obtaining the original mBJ ZIP separately."
+    },
+    {
+      "name": "mp/default.db",
+      "required_for": ["database-screening", "offline-competing-phase-export"],
+      "size_bytes": 2220736512,
+      "sha256": "d54bca48d1e00bdfd8db7c1e5a7b5844ccb755b948335930f09fe85444a7ebb8",
+      "note": "Transport may be compressed; verify the decompressed database hash."
+    },
+    {
+      "name": "mp-offline-dependencies-20261103",
+      "required_for": ["database-screening", "offline-competing-phase-export"],
+      "verification": "Verify the supplied SHA256SUMS; includes reader wheel and three dependency wheels, not a full environment.",
+      "reader_wheel": "mp_offline-0.1.0-py2.py3-none-any.whl",
+      "reader_wheel_sha256": "d68ad80a9997192074c0126338e1551f56e2997fbdcd1bcf84966258cfc4bf8f"
+    },
+    {
+      "name": "mp-2944-reproduction-files-20261103",
+      "required_for": ["historical-protocol-screening"],
+      "files": {
+        "05_gap_preparation/audit/envmatch_canonical.py": "310916e6490ec5d87321c2f5b7a1a1491483b0591d98e62411ac767499b95f65",
+        "05_gap_preparation/audit/match_audit.py": "cbdc395b557b05c7ee388b3c68291f7bda30c2c1ba0e672464b327b2e5733a5d",
+        "05_gap_preparation/excluded_materials.json": "c19ddfb372f1891f6045c12df86dc6d3ffbbc033a5165363c871046ac2f7f664"
+      }
+    },
+    {
+      "name": "mp-2944-mbj-results-20261104.zip",
+      "required_for": ["mbj-result-replay"],
+      "size_bytes": 11283960,
+      "sha256": "3904ee370a24d7df22d692c42c4b912fb862af1ede37d4452e7e2df4b49775da",
+      "expected": {"records": 2944, "success": 1999, "not_converged": 620, "failed": 325, "missing": 0, "binary_pairs": 79, "ternary_pairs": 239, "unique_endpoints": 317},
+      "note": "Contains replay_results.py, original structures, task identities, method metadata, QC and selection records; no original XML or POTCAR."
+    },
+    {
+      "name": "task_bundle_portable_v2.zip",
+      "required_for": [],
+      "size_bytes": 6184892,
+      "sha256": "d3ef5dba27c6555d15f95533d7533fe577216340f8d4d4bceeb5e04529629b67",
+      "note": "Optional locally exported pending-task reference, not computed mBJ results."
+    },
+    {
+      "name": "mace-mpa-0-medium.model",
+      "required_for": ["mace-stability-computation"],
+      "size_bytes": 79462305,
+      "sha256": "75428afe3a1d7d8062e19bcaabd5c433623cabf308242ec9fb493e38604fb638",
+      "note": "Obtain through an authorized model distribution route; not needed for MP screening or parsed mBJ replay."
+    }
+  ]
+}

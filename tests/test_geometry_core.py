@@ -39,10 +39,18 @@ def test_shear_and_area_limit_choice():
     matches=[dict(match_id='large_area_small_strain',film_area_A2=60,max_abs_principal_strain=.003),
              dict(match_id='small_area_larger_strain',film_area_A2=20,max_abs_principal_strain=.008)]
     chosen=select_consistent_match(matches)
-    assert chosen['match_id']=='small_area_larger_strain'
+    assert chosen['match_id']=='large_area_small_strain'
     reps=representative_matches(matches)
     assert reps['min_strain']['match_id']=='large_area_small_strain'
     assert reps['min_area']['match_id']=='small_area_larger_strain'
+
+
+def test_equal_strain_prefers_smaller_area():
+    matches = [
+        dict(match_id='large', film_area_A2=60, max_abs_principal_strain=.003),
+        dict(match_id='small', film_area_A2=20, max_abs_principal_strain=.003),
+    ]
+    assert select_consistent_match(matches)['match_id'] == 'small'
 
 
 def test_millers_and_thresholds():

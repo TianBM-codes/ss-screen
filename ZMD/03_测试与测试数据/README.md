@@ -2,7 +2,7 @@
 
 真实目录：[`tests/`](../../tests/)、[`web/backend/tests/`](../../web/backend/tests/) 和 [`web/frontend/tests/`](../../web/frontend/tests/)
 
-当前有 23 个 Python 测试文件（含 `conftest.py`）；参数化展开后完整测试为 174 项。
+当前有 27 个 Python 测试文件（另有`conftest.py`）；参数化展开后完整测试数随分支更新。
 Web 基线另有 54 项后端 pytest、1 项 Vitest 和 20 项 Playwright 四宽度测试。
 
 ## 测试文件映射
@@ -14,6 +14,7 @@ Web 基线另有 54 项后端 pytest、1 项 Vitest 和 20 项 Playwright 四宽
 | [`test_condense_archive.py`](../../tests/test_condense_archive.py) | 原子写入、skip/resume、失败记录、index 和 archive validation |
 | [`test_data_mp.py`](../../tests/test_data_mp.py) | MP 文档标准化、真实 SQLAlchemy Row 解包、offline deprecated/字段投影/SHA provenance、API 凭据发现、默认超时和失败页重试 |
 | [`test_data_wbm.py`](../../tests/test_data_wbm.py) | WBM extxyz 规范化及严格 gap/hull、行数与 ID 对齐校验 |
+| [`test_data_structures.py`](../../tests/test_data_structures.py) | 本地 POSCAR/CIF/JSON/VASP 导入、CSV/TSV metadata、重复 ID 拒绝、默认值合法性、默认属性 provenance 及真实 CLI 导入 |
 | [`test_envmatch.py`](../../tests/test_envmatch.py) | `X` 替换、环境提取、分组和 StructureGroup 序列化 |
 | [`test_filters.py`](../../tests/test_filters.py) | 元素排除、gap 多样性、大小和价态过滤 |
 | [`test_grouping.py`](../../tests/test_grouping.py) | 二元/三元组成模板和 PBE gap 附加 |
@@ -28,6 +29,9 @@ Web 基线另有 54 项后端 pytest、1 项 Vitest 和 20 项 Playwright 四宽
 | [`test_stability_phonon.py`](../../tests/test_stability_phonon.py) | 自动超胞、位移/力/收集端到端、MACE 能量、续算、模型冲突和虚频阈值 |
 | [`test_stability_competing.py`](../../tests/test_stability_competing.py) | API key 不落盘、离线子体系查询/快照 SHA、MP 查询失败、竞争相 provenance、凸包负裕量和不完整竞争集拒算 |
 | [`test_stability_recommendation.py`](../../tests/test_stability_recommendation.py) | 完整/缺失证据分类、L2--L6、模型 SHA 冲突、可选/强制缺陷和阈值校验 |
+| [`test_geometry_core.py`](../../tests/test_geometry_core.py)、[`test_geometry_pipeline.py`](../../tests/test_geometry_pipeline.py) | 晶格/二维主应变、Miller 面、代表匹配、身份/SHA/性质来源校验；含ZSL约化超胞变换回归 |
+| [`test_detector.py`](../../tests/test_detector.py) | Stage 13端元带隙区间覆盖判断、目标光子能量换算、禁止插值为合金带隙及证据导出 |
+| [`test_material_assessment.py`](../../tests/test_material_assessment.py) | 六指标阈值、端元闭区间/零带隙/缺失、波长变化、CLI参数传递、身份冲突、QC/SHA、风险与缺失及导出兼容 |
 | [`test_e2e_pipeline.py`](../../tests/test_e2e_pipeline.py) | Stage 1--11 轻量 CLI 文件链、跨阶段 ID/schema、确定性替身和双运行复现 |
 | [`test_reference_curation.py`](../../tests/test_reference_curation.py) | 历史资料发现、脱敏、别名、manifest 和 tamper 检测 |
 | [`test_project_config.py`](../../tests/test_project_config.py) | 开发依赖和 CI 配置约束 |
@@ -71,6 +75,11 @@ npm --prefix web/frontend run test:e2e
 
 ## 最近同步
 
+- 2026-11-04：按最终端元范围规则调整回归，三份聚焦测试共42项通过；真实Qt验证1 μm未覆盖、2 μm覆盖、波长修改立即重评、当前值传给CLI、三次刷新和CSV导出。合金带隙缺失不阻塞综合分级。
+- 2026-11-04：`test_detector.py`、`test_material_assessment.py`、`test_geometry_core.py` 共31项通过；新增模块/测试通过 Black 与 Ruff。真实 Qt 页面核对六项指标、中文状态、连续三次刷新、导出及演示不可评级。未运行缺少历史夹具的完整流水线套件，也未重跑材料或衬底计算。
+- 2026-11-04：7 项几何聚焦测试通过，涵盖端元晶格、应变符号、ZSL 整数变换、对称不等价晶面、应变优先/同应变小面积；纠正旧面积优先断言。真实 2556 个匹配另做独立本征值/结构 SHA/排名核验，Windows Qt 加载与连续刷新验证通过。本次未声称完整测试套件通过。
+- 2026-11-03：修复Stage 13性质长格式读取和Stage 12→Stage 13联结；真实CaSe–CaTe CLI重跑确认已有声子、混合焓及凸包值回填。未运行自动化测试。
+- 2026-11-03：Stage 13几何CLI合成最小算例通过（1候选、106匹配、0失败）；ZSL有效超胞矩阵回归测试通过。合成输出保存在忽略目录`work/stage13_minimal_smoke_2026-11-03/`，未运行完整测试套件或GUI。
 - 2026-10-15：字号测试补查“视图”位于工程工具栏且不创建独立菜单栏；保留字号选择、记忆与恢复验证。
 - 2026-10-15：更新字号回归测试，通过菜单操作验证单选状态、持久化和恢复默认，6项Windows Qt测试通过。
 - 2026-10-14：Windows Qt 字体测试在100%、125%、150%、200%缩放分别6项通过；WSL核心174项通过，
@@ -113,3 +122,5 @@ npm --prefix web/frontend run test:e2e
 - 2026-07-30：新增 6 个 Stage 8 热力学测试，并扩展 CLI、SQS 与弛豫元数据覆盖；连同 icet 组分边界回归，完整收集为 115 项。
 - 2026-07-30：新增 7 个 Stage 7 弛豫测试并扩展 CLI、SQS 和依赖契约覆盖；当时完整收集为 106 项。
 - 2026-07-22：根据当前测试收集结果和测试文件建立初始索引。
+
+- 2026-11-04 GitHub同步验证：修正Stage12关联测试的旧带隙字段及有效构型输入；聚焦93通过/1缺失几何夹具失败。全套因.venv缺ase收集中断，未宣称全绿；新增两个模块及其测试Ruff/Black通过。

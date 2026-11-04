@@ -151,9 +151,8 @@ def miller_indices(max_index: int) -> list[tuple[int,int,int]]:
     return sorted(millers)
 
 
-def select_consistent_match(matches: list[dict[str, object]], preferred: float = 0.01,
-                            alternative: float = 0.03) -> dict[str, object] | None:
-    """Choose ONE match: threshold pass first, then smallest film area.
+def select_consistent_match(matches: list[dict[str, object]]) -> dict[str, object] | None:
+    """Choose ONE match by minimum maximum absolute principal strain.
 
     Never combine the area of one match with the strain of another.
     """
@@ -161,8 +160,7 @@ def select_consistent_match(matches: list[dict[str, object]], preferred: float =
         return None
     def key(m: dict[str, object]) -> tuple:
         strain = float(m['max_abs_principal_strain'])
-        bucket = 0 if strain <= preferred else 1 if strain <= alternative else 2
-        return (bucket, float(m['film_area_A2']), strain, str(m['match_id']))
+        return (strain, float(m['film_area_A2']), str(m['match_id']))
     return min(matches, key=key)
 
 

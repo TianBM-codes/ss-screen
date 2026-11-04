@@ -18,10 +18,13 @@ small direct-gap member.
 
 ## Install
 
+The core package supports Python 3.10+. Use Python 3.11 or newer for the
+`condense` extra: its required `matminer>=0.10.1` dependency requires Python 3.11+.
+
 ```bash
 pip install -e .
-# Ubuntu development setup for the CLI plus common workflow extras and GUI:
-pip install -r requirements.txt
+# CLI plus structure descriptions, MP access and development tools:
+python -m pip install -e ".[condense,mp]" --group dev
 # To query Materials Project directly with --backend api:
 pip install -e ".[mp]"
 # To use a local Materials Project SQLite snapshot (separate package):
@@ -39,6 +42,16 @@ ss-screen-gui
 pip install torch==2.5.1+cu121 --index-url https://download.pytorch.org/whl/cu121
 pip install -e ".[mlp,phonon]"
 ```
+
+For the validated MP snapshot → 2944 tasks → 318 mBJ pairs workflow, see
+[MP reproduction and external-data handoff](docs/reproducibility/mp_2944_20261104.md).
+To replay only the 318 pairs from a separately supplied data ZIP, follow the
+[Chinese quickstart](docs/reproducibility/REPLAY_318_ZH.md) and use
+`scripts/replay_mbj_results.py`; the original MP database and MACE are not needed.
+The [observed environment constraints](requirements/reproduction-20261104/README.md)
+separate screening, CPU MACE/Phonopy, and Windows GUI environments. Database
+snapshots, computed band gaps, and model weights are separate assets; cloning
+this repository does not download them or run electronic-structure calculations.
 
 ## CLI
 
@@ -219,6 +232,12 @@ ss-screen recommend \
   --report recommendation_report.md \
   --summary recommendation_summary.json
 
+# Stage 13: compare endmember lattices and search local substrate matches
+ss-screen geometry-evaluate \
+  --input 13_geometry/input \
+  --config 13_geometry/config.json \
+  --output 13_geometry
+
 # Legacy notebook-style gap CSVs are still accepted:
 ss-screen pair --groups group_df.json --gaps mbj_gaps.csv --output mbj_result.csv
 ```
@@ -281,6 +300,13 @@ opaque aggregate scientific score. Defect evidence can be supplied when
 available and is optional unless `--require-defects` is selected. The default
 mixing-enthalpy and same-MLIP hull thresholds are configurable triage values,
 not universal stability criteria.
+Stage 13 compares endmember lattice correspondence and evaluates one explicitly
+selected relaxed alloy SQS (default seed101) against a user-supplied local
+substrate library. It reports ZSL supercell matches and in-plane principal
+engineering strain, while reusing existing property evidence without launching
+DFT/MLP/phonon calculations. Its finite search is geometric screening evidence,
+not proof of epitaxy, synthesizability, or device performance; see
+`docs/lattice_substrate_matching_development.md`.
 
 ## Documentation
 
@@ -289,6 +315,7 @@ not universal stability criteria.
 - `docs/algorithm_gap_backfill_pairing.md` — external gap contract and pair algorithm
 - `docs/algorithm_competing_phase_hull.md` — Stage 10 MP/MLIP hull contract
 - `docs/algorithm_recommendation.md` — Stage 11 recommendation and evidence contract
+- `docs/lattice_substrate_matching_development.md` — Stage 13 lattice, substrate matching, strain, and file contract
 - `AGENTS.md` — operating rules for AI assistants (read-only boundaries)
 - `references/README.md` — curated historical notebooks/source with executed results
 - `references/manifest.json` — machine-readable provenance, hashes, aliases, redactions, and exclusions

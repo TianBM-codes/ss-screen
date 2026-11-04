@@ -132,7 +132,7 @@ STAGES: tuple[tuple[str, str, str], ...] = (
     ("10", "声子谱", "10_phonon"),
     ("11", "竞争相 / 凸包", "11_phase"),
     ("12", "综合推荐", "12_recommend"),
-    ("13", "探测器性能评估", "13_detector"),
+    ("13", "候选材料评价", "13_geometry"),
 )
 
 

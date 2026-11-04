@@ -224,6 +224,19 @@ or `low-priority` without an opaque aggregate score. Optional defect evidence
 can raise the level to L6; missing defects are only required when explicitly
 configured. **Implemented.**
 
+Stage 13 geometry assessment is implemented in `geometry_core.py`,
+`geometry_pipeline.py`, and `geometry_cli.py`, exposed as
+`ss-screen geometry-evaluate`, with an input-bundle driven GUI page. It compares
+endmember lattices with explicit site/basis correspondence and evaluates one
+selected relaxed alloy SQS (default seed101) against a user-supplied local
+substrate library using ZSL supercells and 2D principal engineering strain.
+Existing property evidence is read-only in this stage. On 2026-11-04 the local
+CaSe/CaTe seed7 run completed the real CLI and Windows GUI path against ten
+MP-sourced substrate phases, with 2,556 matches independently checked for
+integer transforms, signed strain and ranking. This validates that configured
+geometry workflow; alloy band gaps, multiple configurations and elastic energies
+remain outside that run's evidence.
+
 ### Milestone 4 — Defect ranking (future execution design)
 - Elemental-reference builder; `SimpleVacancyWorkChain` driver;
   cation/anion-aware ranking; CSV schema.

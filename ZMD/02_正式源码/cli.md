@@ -40,6 +40,7 @@
 | `stability convex-hull` | 严格同源能量凸包、分解和完整性审计 | [`stability/competing.py`](../../src/ssscreen/stability/competing.py) |
 | `stability phase-diagram` | MP API/离线查询、MACE 弛豫和凸包端到端入口 | [`stability/competing.py`](../../src/ssscreen/stability/competing.py) |
 | `recommend` | 汇总 Stage 5、8--10 和可选缺陷证据，生成三类推荐、L2--L6、报告和 summary | [`stability/recommendation.py`](../../src/ssscreen/stability/recommendation.py) |
+| `geometry-evaluate` | 端元晶格对应、代表合金SQS的本地衬底ZSL匹配、面内主应变及候选评价报告 | [`geometry_cli.py`](../../src/ssscreen/geometry_cli.py)、[`geometry_pipeline.py`](../../src/ssscreen/geometry_pipeline.py) |
 | `group` | 兼容的一步式分组入口 | grouping、structure matching 和 filters |
 
 ## 维护规则
@@ -50,6 +51,9 @@
 
 ## 最近同步
 
+- 2026-11-04：`geometry-evaluate`新增 `--target-wavelength-um` 覆盖配置波长；GUI传入当前用户值。端元带隙按候选身份从Stage12或候选清单取得，使用闭区间覆盖规则，衬底算法不变。CLI参数传递和端元分级回归已验证。
+- 2026-11-03：`geometry-evaluate`新增可选`--recommendations`，按候选身份导入Stage 12已有性质并由Stage 13结构SHA校验。
+- 2026-11-03：合并PR #7的Stage 13 `geometry-evaluate`入口；消费显式身份清单，输出匹配、应变、摘要和报告产物。
 - 2026-09-11：新增 `dataset structures`，支持从本地 POSCAR/CIF 文件夹或单文件生成 Stage 1 DataFrame；
   GUI 数据源页可调用该命令作为本地结构初筛入口。
 - 2026-09-07：恢复并保留真实 CLI 入口，新增独立 `ss-screen-gui`；GUI 集成不改变
