@@ -10,7 +10,7 @@
 
 ## 交付文件
 
-从 PR #8 对应提交获取代码，安装依赖；数据单独交付为
+从 PR #9 对应提交获取代码，安装依赖；数据单独交付为
 `ss-screen-mp-to-318-data-20261104.zip`，解压到仓库外。布局：
 
 ```text
@@ -28,7 +28,7 @@ PR尚未合并时，不能直接把默认分支当作交付版本。可先获取
 ```bash
 git clone https://github.com/TianBM-codes/ss-screen.git
 cd ss-screen
-git fetch origin pull/8/head
+git fetch origin pull/9/head
 git checkout <DELIVERY.json里的code_revision>
 ```
 

@@ -6,6 +6,8 @@
 
 ### 2026-11-04 — 原MP ZIP完整复现入口
 
+- 发布状态：原PR #8已被合并，本轮使用后续草稿PR #9和codex/mp-zip-to-318-20261104分支；主分支/run忽略规则保留，原库指南获取命令同步pull/9/head。
+
 - 新增mp_reproduction/mbj_replay模块、mp-reproduce CLI及MP_ZIP_TO_318_ZH.md；将canonical替换后排序纳入真实envmatch，加入缓存绑定、原始位点属性保持、ZIP/manifest完整性回归。108项测试及新代码Ruff/Black通过。
 - 真实修复版原库验证正在独立v2目录运行；首次生成的491/1358组、2944任务与历史mBJ回放已通过，位点标签/对称映射误报已修复并在14原件上验证。完整数据包含原mp.zip，旧10.76 MiB包仅用于回放；更新源码/CLI/pair/data/脚本/测试/文档/环境导航及项目日志。
 

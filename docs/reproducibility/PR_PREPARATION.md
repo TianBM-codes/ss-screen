@@ -1,8 +1,10 @@
-# PR #8 — original MP ZIP to 318 pairs
+# PR #9 — original MP ZIP to 318 pairs
 
-Draft PR: https://github.com/TianBM-codes/ss-screen/pull/8, targeting
+Draft PR: https://github.com/TianBM-codes/ss-screen/pull/9, targeting
 `TianBM-codes/ss-screen:master` from the existing
-`jiazuolong/ss-screen:codex/mp-318-replay-20261104` branch. It is not merged.
+`jiazuolong/ss-screen:codex/mp-zip-to-318-20261104` branch. It is not merged. PR #8 was merged during this work; its original
+replay-only title/body are preserved. This follow-up includes current master
+with its `/run` ignore rule.
 
 ## Final implementation
 
@@ -48,8 +50,9 @@ committed. No VASP, MACE, SQS or phonon calculation is launched by this route.
 
 ## Existing draft limitations
 
-The PR also includes two previously unmerged local source commits (`a7f0bb2`,
-`7444d3d`) with structure-import and Stage 13 changes. Prior Stage 13/configuration
+The repository baseline already includes the structure-import and Stage 13
+changes from merged PR #8. Those changes are not new in this follow-up.
+Prior Stage 13/configuration
 checks had 66 passes and one missing-fixture failure
 (`tests/data/stage13_geometry/config.json`). Selected legacy changed files had
 60 Ruff findings and seven files needing Black formatting. Those unrelated
