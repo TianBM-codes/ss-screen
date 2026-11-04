@@ -62,6 +62,8 @@
 
 ## 最近同步
 
+- 2026-11-04：README和筛选环境说明新增原MP ZIP完整入口，需condense extra与外部mp_offline读取器；10.76 MiB回放包不能替代MP原库。命令及数据布局见[MP_ZIP_TO_318_ZH.md](../../docs/reproducibility/MP_ZIP_TO_318_ZH.md)。
+
 - 2026-11-04：新增三个独立环境的版本约束与 JSON 清单，三个源环境 `pip check` 均通过；README 安装入口改用实际存在的 `pyproject.toml` extras/dev group。根目录 `requirements.txt` 当前不存在，修正导航，不恢复历史文件。复现资产见 [交付指南](../../docs/reproducibility/mp_2944_20261104.md)。
 - 2026-11-04：本机 `.venv-mlp` 补齐 MP API 并通过真实查询；网络/读取兼容版本为 mp-api 0.46.5、python-dateutil 2.9.0.post0、boto3/botocore 1.43.123、PyArrow 20.0.0，计算版本保持一致。凭据仅临时使用不落盘，详见最新日志与外部 `environment_phase.txt`。
 - 2026-11-03：当前 C 盘副本新增 WSL 原生项目独立 `.venv-mlp` 链接（Python 3.11.18、torch 2.5.1+cpu、mace-torch 0.3.14、Phonopy 4.8.6），依赖检查通过。本机 Intel Arc 无 CUDA，计算使用 CPU；用户模型保留原 WSL 路径，详见最新项目日志。

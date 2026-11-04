@@ -19,6 +19,13 @@ from screening constraints because its original wheel must be delivered separate
 
 ## Screening and mBJ replay
 
+For **MP ZIP → regenerated groups → 318 pairs**, follow the
+[full database quickstart](../../docs/reproducibility/MP_ZIP_TO_318_ZH.md).
+Install `.[condense]` with the screening constraints, plus the separately supplied
+`mp_offline` wheel. This route does not need the live `mp` extra, GUI or MLP.
+It uses the original database and the external mBJ results together; the
+replay-only instructions immediately below have a narrower scope.
+
 For **only the 318-pair replay**, the core package is sufficient. In a Python 3.11
 environment, use `python -m pip install -c requirements/reproduction-20261104/screen-wsl-py311.constraints.txt -e .`.
 The optional `condense`, `mp`, GUI and MLP extras are not required for this route.

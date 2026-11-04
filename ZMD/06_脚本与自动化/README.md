@@ -33,6 +33,8 @@
 
 ## 最近同步
 
+- 2026-11-04（原库到318对）：`scripts/replay_mbj_results.py` 改为调用安装包中的 `ssscreen.mbj_replay.main`，保持原参数；完整数据库路线使用 `ss-screen mp-reproduce`，不依赖外部exec/猴子补丁脚本。
+
 - 2026-09-02：发布前用 Black 机械格式化资料整理脚本及其测试，行为与文件职责不变；完整相关
   测试、Ruff和Black通过。
 - 2026-08-24：资产构建器新增独立的 VASP 方法身份 gap-export 演示，生成输入、执行、任务/结构和模板检查四张截图；不运行VASP。
