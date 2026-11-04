@@ -51,6 +51,8 @@
 
 ## 最近同步
 
+- 2026-11-04（原库到318对）：新增 `mp-reproduce --mp-zip --mbj-bundle --output-dir`，见[完整原库入口](../../docs/reproducibility/MP_ZIP_TO_318_ZH.md)及[输入/几何测试](../../tests/test_mp_reproduction.py)。`--descriptor-cache`仅显式复用描述，不复用最终分组；不启动DFT/MACE。
+
 - 2026-11-04：`geometry-evaluate`新增 `--target-wavelength-um` 覆盖配置波长；GUI传入当前用户值。端元带隙按候选身份从Stage12或候选清单取得，使用闭区间覆盖规则，衬底算法不变。CLI参数传递和端元分级回归已验证。
 - 2026-11-03：`geometry-evaluate`新增可选`--recommendations`，按候选身份导入Stage 12已有性质并由Stage 13结构SHA校验。
 - 2026-11-03：合并PR #7的Stage 13 `geometry-evaluate`入口；消费显式身份清单，输出匹配、应变、摘要和报告产物。

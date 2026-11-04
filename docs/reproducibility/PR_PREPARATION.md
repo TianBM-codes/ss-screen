@@ -1,73 +1,61 @@
-# PR preparation — 2026-11-04
+# PR #8 — original MP ZIP to 318 pairs
 
-Published draft: [TianBM-codes/ss-screen #8](https://github.com/TianBM-codes/ss-screen/pull/8),
-targeting `master` from the existing fork. Scientific/replay source revision pinned
-in the delivered data package: `8e17080842749cac42ebf4406891282b71f24e79`.
-The independent versioned-entrypoint replay completed successfully: 8962 packaged
-files verified, six batches / 2944 rows strictly accepted, 1999 success / 620
-unconverged / 325 failed, zero missing, 79 + 239 = 318 pairs / 317 endpoints.
-The data-only handoff ZIP is 11,286,887 bytes; its checksum is recorded in
-[mp_2944_assets.json](mp_2944_assets.json). No scientific source changed after this
-validation; later documentation updates do not invalidate the pinned source.
+Draft PR: https://github.com/TianBM-codes/ss-screen/pull/8, targeting
+`TianBM-codes/ss-screen:master` from the existing
+`jiazuolong/ss-screen:codex/mp-318-replay-20261104` branch. It is not merged.
 
-Status: the initial pre-publication report was delivered; the user then authorized
-a PR and a separate data ZIP specifically for the 318-pair replay. Publish as a
-draft while the checks below remain unresolved; do not call it merge-ready.
+## Final implementation
 
-Target: `TianBM-codes/ss-screen`, base `master` (`64d7e56` when inspected).
-Publication branch: `codex/mp-318-replay-20261104`, based on local HEAD `7444d3d`.
-Two existing local commits (`a7f0bb2`, `7444d3d`) are ahead of the target base.
-The proposed PR must include their source changes as well as the current
-reproducibility documentation; it is not a documentation-only PR.
+The recipient can now run `ss-screen mp-reproduce --mp-zip ... --mbj-bundle ...
+--output-dir ...` to read the original database, regenerate composition candidates,
+descriptions, groups and pending tasks, verify existing mBJ results, and pair the
+**new groups**. Frozen groups serve only as a separate acceptance reference.
+The original 10.76 MiB replay-only package cannot replace the original MP database.
 
-## Proposed title
+The dated protocol verifies the exact ZIP/database hashes, preserves four explicit
+historical exclusions and 30/45-atom cutoffs, and checks material membership,
+property-preserving periodic geometry, normalized pair/group evidence and gap values.
+Formal calculation identities and new pending identities remain separate.
+Spectator environment fingerprints are sorted after variable-element substitution,
+porting the audited canonical rule into tested source instead of an external patch.
 
-Add local workflow updates and reproducible 318-pair mBJ replay
+Robocrys descriptions are fresh by default. An optional descriptor cache is
+explicit and bound to the database, material IDs, every input structure and each
+file's bytes. Cache use and the number of newly calculated descriptors are reported.
+The shared `ssscreen.mbj_replay` module retains the older replay-only script entry.
+Manifest verification uses eight bounded I/O threads; every checksum is still checked.
+Correspondence constrains original site properties and labels, avoiding generated
+supercell labels and species-only permutations that exchange different moments.
 
-## Proposed body
+Code and observed environment constraints are in Git. The original `mp.zip`,
+frozen mBJ bundle, offline reader wheels and optional descriptor cache are delivered
+in one external ZIP. Neither data nor virtual environments/model weights are
+committed. No VASP, MACE, SQS or phonon calculation is launched by this route.
 
-The local workflow needs a usable structure-import implementation, updated
-Stage 13 endpoint/substrate assessment and a documented way for another machine
-to process the same MP data. This change supplies those source/GUI updates and
-records the three separate screening, CPU MLP and Windows GUI environments.
-The versioned `scripts/replay_mbj_results.py` and Chinese quickstart provide a
-core-only route to replay 318 pairs from the separately delivered immutable data.
+## Validation
 
-The handoff guide distinguishes screening the exact MP database from replaying
-existing mBJ results. It specifies the offline reader, canonical matching protocol,
-four historical exclusions, external asset checksums and expected acceptance
-counts. The README now installs from existing pyproject extras instead of a
-missing root requirements.txt. Data, model weights and virtual environments are
-not included. Environment inventories are observed versions, not a tested
-fresh-machine lockfile or complete offline distribution.
+- 108 focused MP/ZIP/cache/geometry/grouping/gap/CLI tests pass.
+- New/changed reproduction modules, wrapper and tests pass Ruff/Black.
+- A real fresh one-worker descriptor job for mp-1001833 completed successfully;
+  its bytes equal the prior descriptor. All 14 previously identified representation
+  differences pass the property-preserving periodic correspondence check.
+- Full fixed-code MP ZIP validation status is recorded in the final delivery's
+  `DELIVERY.json`. Its selected mode is an explicit verified descriptor cache:
+  the database/candidates/groups/tasks/pairing are regenerated, while 4944 descriptions
+  are reused. This is not a claim of recalculating all 4944 descriptions in this run.
+- The earlier replay-only entry was independently verified for 2944 states,
+  1999 success / 620 unconverged / 325 failed, and 318 pairs / 317 endpoints.
 
-Validation:
+## Existing draft limitations
 
-- All three observed environments passed `pip check`.
-- MP filtering/grouping/pairing/gap export/feedback/VASP collector tests: 56 passed.
-- Structure import, detector, geometry, material assessment and project-config
-  tests: 66 passed, 1 failed because `tests/data/stage13_geometry/config.json`
-  is absent. The missing historical fixture was not recreated without inspection.
-- Selected changed core/test files: Ruff reports 60 issues; Black requires seven
-  files to be formatted. These are unresolved checks, not suppressed failures.
-- Prior actual local mBJ replay accepted all 2944 records with zero rejected or
-  missing rows: 1999 success, 620 unconverged, 325 failed. Historical and local
-  grouping both yielded 318 pairs / 317 endpoints with matching normalized
-  identities and gaps within 1e-12 eV. This preparation did not rerun computations.
+The PR also includes two previously unmerged local source commits (`a7f0bb2`,
+`7444d3d`) with structure-import and Stage 13 changes. Prior Stage 13/configuration
+checks had 66 passes and one missing-fixture failure
+(`tests/data/stage13_geometry/config.json`). Selected legacy changed files had
+60 Ruff findings and seven files needing Black formatting. Those unrelated
+limitations are retained, not silently suppressed or described as green CI.
+A fresh-machine install and a complete offline scientific wheel set have not
+been verified. The optional MACE/phonon workflow remains stopped.
 
-## Publication and readiness
-
-The target repository is public. The app connection has no direct push permission.
-The existing local Git login has a writable `jiazuolong/ss-screen` fork of the
-target, so use that fork's publication branch to open a PR against
-`TianBM-codes/ss-screen:master`. No new credentials are required or stored.
-Repository visibility does not distribute
-external data automatically, and a PR does not update master until it is merged.
-
-Resolve the missing-fixture test and formatting checks before describing the PR
-as ready to merge. A fresh installation on a separate environment has not been
-verified. The optional MACE/phonon workflow remains stopped at the user's request.
-
-Recipient assets and commands: [handoff guide](mp_2944_20261104.md),
-[asset manifest](mp_2944_assets.json),
-[environment guide](../../requirements/reproduction-20261104/README.md).
+Current recipient instructions: [MP ZIP → 318 pairs](MP_ZIP_TO_318_ZH.md).
+The old [replay-only guide](REPLAY_318_ZH.md) remains available for the narrower task.

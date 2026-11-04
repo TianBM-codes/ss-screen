@@ -47,6 +47,8 @@
 
 ## 最近同步
 
+- 2026-11-04：新增上层[mp_reproduction编排](../../src/ssscreen/mp_reproduction.py)，复用现有mp/condense加载器；原ZIP安全解压、数据库SHA、显式缓存逐输入结构SHA绑定。既有data模块接口不变。
+
 - 2026-09-11：新增 `structures.py` 和 `dataset structures` 入口，用于把本地 POSCAR/CIF 文件夹规范化为
   Stage 1 DataFrame；已用 `data/CaS_CaSe_CaTe_POSCAR` 完成前中段 smoke。
 - 2026-09-01：WBM loader 新增可选严格模式，拒绝空输入、summary 行数/ID 错位、重复材料 ID，

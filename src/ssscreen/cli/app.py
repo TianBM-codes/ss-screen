@@ -2302,6 +2302,41 @@ def pair_cmd(
     click.echo(f"Wrote {len(pairs_df)} pairs to {output}")
 
 
+@cli.command("mp-reproduce")
+@click.option("--mp-zip", required=True, type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--mbj-bundle", required=True, type=click.Path(exists=True, file_okay=False, path_type=Path))
+@click.option("--output-dir", required=True, type=click.Path(path_type=Path))
+@click.option("--workers", default=4, show_default=True, type=click.IntRange(min=1))
+@click.option(
+    "--descriptor-cache",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="Explicitly reuse verified descriptors; otherwise calculate them afresh.",
+)
+def mp_reproduce_cmd(
+    mp_zip: Path,
+    mbj_bundle: Path,
+    output_dir: Path,
+    workers: int,
+    descriptor_cache: Path | None,
+) -> None:
+    """Reproduce the dated MP ZIP -> 318-pair workflow (Linux/WSL Python 3.11).
+
+    Requires the separately supplied frozen mBJ bundle. Recomputes composition
+    candidates and groups from the database; never launches DFT or MACE.
+    """
+    import json
+
+    from ..mp_reproduction import reproduce_mp_zip
+
+    try:
+        result = reproduce_mp_zip(
+            mp_zip, mbj_bundle, output_dir, workers=workers, descriptor_cache=descriptor_cache
+        )
+    except (ValueError, ImportError, FileNotFoundError) as exc:
+        raise click.ClickException(str(exc)) from exc
+    click.echo(json.dumps(result, ensure_ascii=False, indent=2))
+
+
 # Stage 13 geometry evaluator is opt-in and does not change legacy CLI behavior.
 from ..geometry_cli import main as geometry_evaluate_cmd
 cli.add_command(geometry_evaluate_cmd)

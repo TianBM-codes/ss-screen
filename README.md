@@ -43,8 +43,12 @@ pip install torch==2.5.1+cu121 --index-url https://download.pytorch.org/whl/cu12
 pip install -e ".[mlp,phonon]"
 ```
 
-For the validated MP snapshot → 2944 tasks → 318 mBJ pairs workflow, see
-[MP reproduction and external-data handoff](docs/reproducibility/mp_2944_20261104.md).
+To start with the original **MP ZIP** and recompute candidates/groups before
+producing the 318 mBJ pairs, use `ss-screen mp-reproduce --mp-zip ... --mbj-bundle ... --output-dir ...`.
+Follow [MP ZIP → 318 pairs](docs/reproducibility/MP_ZIP_TO_318_ZH.md): this route
+needs the original database, offline reader, and existing mBJ results. It calculates
+robocrys descriptors afresh by default; a separately verified cache is opt-in.
+The [historical protocol notes](docs/reproducibility/mp_2944_20261104.md) explain provenance.
 To replay only the 318 pairs from a separately supplied data ZIP, follow the
 [Chinese quickstart](docs/reproducibility/REPLAY_318_ZH.md) and use
 `scripts/replay_mbj_results.py`; the original MP database and MACE are not needed.
