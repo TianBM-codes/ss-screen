@@ -18,6 +18,7 @@ from ..detector import (
     index_geometry, read_csv,
 )
 from ..material_assessment import EVALUATION_TABLE_MD
+from .project_file import read_stage13_wavelength
 
 
 class DetectorAssessmentPage(QWidget):
@@ -141,6 +142,27 @@ class DetectorAssessmentPage(QWidget):
 
     def refresh(self) -> None:
         self._demo_mode=False
+        saved_target = read_stage13_wavelength(self._resolve(self.geometry_config.text()))
+        if (
+            saved_target is not None
+            and self.target.minimum() <= saved_target <= self.target.maximum()
+        ):
+            target_blocked = self.target.blockSignals(True)
+            band_blocked = self.band.blockSignals(True)
+            try:
+                self.target.setValue(saved_target)
+                preset = next(
+                    (label for label, value in BAND_PRESETS_UM.items() if value == saved_target),
+                    None,
+                )
+                if preset is None:
+                    preset = '自定义目标波长'
+                    if self.band.findText(preset) < 0:
+                        self.band.addItem(preset)
+                self.band.setCurrentText(preset)
+            finally:
+                self.target.blockSignals(target_blocked)
+                self.band.blockSignals(band_blocked)
         path=self._resolve(self.recommend_path.text())
         try: self._source_rows=read_csv(path) if path.is_file() else []
         except (OSError,UnicodeError,ValueError) as exc:

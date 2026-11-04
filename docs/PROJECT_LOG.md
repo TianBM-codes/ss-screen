@@ -1,3 +1,127 @@
+## 2026-11-04 — Stage13八行GPU算例完成并打包
+
+**本次工作目标：** 按用户要求将Stage13总结表扩展到约8行，目标波长20μm，使用GPU并保留可调试中间结果，不操作GUI。
+
+**已完成：**
+- 固定源码84d6299、MACE CUDA:0/float64完成8个真实候选：8/8弛豫成功、22/22弛豫记录通过QC、3,028/3,028声子位移力记录完成；声子后处理8/8稳定、0失败。
+- 竞争相122条：121成功、1未收敛；严格凸包6个有完整结果，2个因缺失相保留缺证据。Stage11推荐为5 promising、1 uncertain、2 low-priority。
+- Stage13几何搜索完成3,233个匹配；生成8行20μm表格PNG/PDF和BATCH_VERIFICATION.json，独立SVD/整数超胞校验通过。
+- 生成并回读校验外部工程包 `MP318_First8_GPU_Stage13_20um.ssproject`（6648文件，SHA256=8eb1b685e5db7e3af3bddf4aed5e0ed53e2e02d0bd16324455bf8383943b08b6），GUI未操作；中间目录与日志完整保留。
+
+**决策 / 计划变更：** 不复制单一材料填充表格；8行均为原318配对顺序中的真实候选。未收敛、缺失凸包证据和“待补充/需复核”等级原样保留，不填零。
+
+**下一步：** 用户可直接打开外部 `.ssproject` 或查看 `stage13_first8_20um.png`；如需修改阈值，可从 `mp_first8_20um` 中间目录继续。
+
+**阻塞项 / 上游问题：** 无。科学结果为固定MP快照与MACE近似计算，不等同于实验或器件性能结论。
+
+## 2026-11-04 — Stage13扩展到8行GPU算例（已启动）
+
+**本次工作目标：** 按用户要求将Stage13单行扩展到约8行，沿用20μm并另存工程，不操作GUI。
+
+**已完成：**
+- 按本轮318配对CSV原顺序选择前8对：PdLi–LiPt、NbP–NbN、NbAs–NbN、IrP3–RhP3、ScP–P1Y、RhAs3–IrAs3、RhAs2–PdAs2、PtAs2–PdAs2；不按成功与否事后挑选。
+- 外部first8_driver.py/run_first8.sh已启动，输出mp_first8_20um/和first8.log，执行会话35696。run_state.json记录阶段；全部输入、逐任务records、失败状态和日志保留。目标20μm、组分0.5、2x2x2随机替换，seed按正式生成器从101确定性派生。
+- 复用原首对3条弛豫和31竞争相记录，仍由正式入口校验输入/模型/设置指纹；其余运行独立批量GPU流程。固定科学源码84d6299，MACE cuda:0/float64、fmax0.01、最多500步；同模型混合焓/严格离线凸包、默认声子和Stage13均在新目录。
+- 用户询问进度时已明确答复：当时仍为1/8全流程完成，新增尚未开始；随后已实际启动新批量，不把准备阶段算作计算完成。
+
+**决策 / 计划变更：** 不复制旧结果充行数，真实新增材料对；未收敛、失败和缺证据仍保留在8行表中。旧单例及工程包不改，不恢复历史暂停任务。
+
+**下一步：** 监控35696会话、first8.log和run_state.json，报告SQS弛豫/竞争相/声子实际完成数量；结束后构建8行20μm新ssproject并校验。
+
+**阻塞项 / 上游问题：** 暂无阻塞；8对后续计算尚未完成，不能宣称8行全指标已完成。
+## 2026-11-04 — 20μm综合评估与独立工程包
+
+**本次工作目标：** 用户指定20μm，计算综合等级并另存ssproject，不操作GUI。
+
+**已完成：**
+- 在授权外部根目录创建GUI_MP318_PdLi_LiPt_GPU_20um，复用既有GPU性质与结构；固定84d6299 CLI以20μm重新运行Stage13几何/综合评价，仍为28匹配、无失败，未重跑MACE或声子。
+- 20μm对应0.0619920992eV，低于端元闭区间下限0.0638eV，带隙项次优；其余五项均优先/通过，证据完整，综合等级备选/需复核。Stage12 promising/L5为不含目标波长的稳定性推荐，不能代替本次Stage13结论。
+- 新包D:/WorkSpace/OtherProjects/ss-screen-results/gpu-stage13-20261104/MP318_PdLi_LiPt_GPU_Stage13_20um.ssproject，4779384字节、235文件，SHA256=6a9fdcb9a74156c9e574e4ee8ba192ccd7500c3bdd03f939f6d59ce98c4bd665；解包校验、保存的20μm及综合等级核对通过，20um_PROJECT_VERIFICATION.json保存核验。原工程不改，旧无目标波长的图在新包baseline_without_target目录明确保留。
+- 修复GUI读取工程时始终沿用2μm默认值的问题：project_file.read_stage13_wavelength校验配置目标，detector_page.refresh恢复保存波长与自定义标签；不改变科学阈值。本次未启动或操作GUI，当前已运行窗口需要重启以加载新代码。
+- 新增工程20μm打包/回读及无效配置回归；39项project_file/material_assessment测试通过，新增helper/测试Ruff与Black通过，GUI源文件编译通过。修正新工程输入CSV路径相对于清单目录，使CLI可实际重新读取。
+
+**决策 / 计划变更：** 波长覆盖是端元区间规则，不使用插值；20μm略超出该材料对覆盖的最长波长，保持次优，不放宽阈值。
+
+**下一步：** 用户重启GUI后自行打开新20um工程；不再由助手操作窗口。
+
+**阻塞项 / 上游问题：** 无。GUI波长恢复修复在当前工作树，固定84d6299科学工作树不改；未创建Git提交。
+## 2026-11-04 — 结果工程已保存并在Windows GUI读取
+
+**本次工作目标：** 将本轮318配对与首对GPU结果保存为GUI工程并实际加载。
+
+**已完成：**
+- 已授权外部根目录D:/WorkSpace/OtherProjects/ss-screen-results/gpu-stage13-20261104中生成MP318_PdLi_LiPt_GPU_Stage13.ssproject：4778426字节、234文件、未压缩14757321字节，SHA256=0a34893479095c7affff57748505605e021d5dcdd169f7663e0ca32eca061f84；正式project_file创建/解包逐成员校验通过，GUI_PROJECT_VERIFICATION.json保存核验。
+- build_gui_project.py构建GUI_MP318_PdLi_LiPt_GPU目录，含318配对、2944结果状态、单例SQS/弛豫/混合焓/声子/竞争相/Stage13/图；81文件路径适配为相对路径，记录PORTABILITY.json。原始数据库、环境、模型和前段1–4大文件不打入轻量结果包，权威目录与原数据保留。
+- 固定84d6299的正式recommend入口从既有结果生成mp_example/12_recommend，1条promising/L5，未重跑材料计算。
+- 核对PyCharm项目解释器为C:/SoftWare/Python/python.exe（3.11.6，ssscreen导入当前源码）；用同解释器pythonw启动实际GUI，经打开工程文件按钮加载ssproject并校验，缓存置于授权根目录gui_runtime_cache。已进入从包加载的Stage13页面并保留窗口。
+- computer-use实际核对界面：端元范围0.0638–0.2258eV、晶格失配2.4598%、声子通过、混合焓−1.2699meV/atom、凸包0、Al2O3/SrTiO3/ZnSe带符号主应变正确。未修改科学/GUI源码，未创建提交。
+
+**决策 / 计划变更：** GUI默认2.0μm（0.6199eV），因此端元范围未覆盖；用户可自行调整，之前未指定目标波长的基线报告不变。GUI概览前段1–4未开始表示轻量包未包含对应文件，不表示原库复现未执行。
+
+**下一步：** 用户直接查看已打开Stage13，或日后通过GUI打开保存的ssproject。
+
+**阻塞项 / 上游问题：** 无阻塞；最初隐藏启动使Qt窗口不可见，结束本次自建实例后改用可见pythonw启动成功。轻量结果包不代替原始数据库/模型和重新计算环境。
+## 2026-11-04 — MP固定版本318复现及首对GPU至Stage13完成
+
+**本次工作目标：** 按用户原始说明复现318对，使用GPU运行来自本次候选的一个算例，交付Stage13结果图并保存中间结果供调试。
+
+**已完成：**
+- 固定工作树.reproduction-84d6299的HEAD为84d6299243d22e8d43462f12a73932d59dc954c2，科学源码无改动；独立Python3.11.16环境按指定约束安装，pip check通过。原MP ZIP＋真实mBJ＋4944描述缓存实际验收passed=true，318对（79二元/239三元）与317端元，结果保存在用户已授权外部根目录D:/WorkSpace/OtherProjects/ss-screen-results/gpu-stage13-20261104/mp318_fixed84d6299。
+- 从本轮首对PdLi–LiPt（mp-2744/mp-11807）生成seed101、组分0.5、2x2x2随机替换合金（16原子，非优化SQS）。本机RTX4060/cuda:0、MACE-MPA-0、float64、全晶胞FIRE、fmax0.01、最多500步：候选/端元3/3成功且QC通过；同设置31/31离线MP竞争相弛豫成功。正式mixing-enthalpy输出−1.2699426106 meV/atom；严格同模型凸包上能0eV/atom，相对原竞争相凸包−1.2699426106 meV/atom，仅对指定离线快照完整。
+- 默认Phonopy流程使用128原子声子超胞、0.01Å位移、20x20x20网格；29/29 GPU力任务成功，最小频率−7.1798e−8THz，容差0.1THz内无显著虚频；未加NAC，不代表超胞/采样或有限温收敛已验证。
+- Stage13新结构几何评价完成：端元最大晶格失配2.4597579433%，角差通过；10种本地有MP来源衬底、Miller上限1、面积上限100Å²，28个匹配、无失败。前三衬底Al2O3/SrTiO3/ZnSe最大绝对主应变0.2037965631%/0.4730963934%/1.8919569575%。28匹配独立SVD主应变和整数变换复核通过。
+- 中文图mp_example/stage13_results.png及PDF、英文图、全部阶段输入/结构/records/CSV/声子谱/力常数/参数/脚本/日志保留；中间结果与调试入口.md、两套环境版本、wheel清单、FINAL_VERIFICATION.json（passed=true）已保存。图已实际打开检查。用户希望保存中间结果，已明确保留原基线和失败记录，后续改参用新输出目录。
+
+**决策 / 计划变更：** 未指定目标波长，因此Stage13端元范围覆盖项与综合等级为待补充；不擅自填入波长，不宣称合金实算带隙、器件性能或实际外延已验证。mp-reproduce本身无断点续跑；后续MACE/声子力可按逐任务指纹复用。未创建Git提交。
+
+**下一步：** 用户可查看结果图/调试索引，指定目标波长或在新目录修改几何/计算参数；完整复现和本次单算例计算均已结束。
+
+**阻塞项 / 上游问题：** 固定版本合金输出的4个位点未知magmom写为NaN，被Stage13严格JSON读取器拒绝。为保留指定源码和原计算结果，外部适配器仅将这些非有限位点元数据转换为null，生成派生JSON；元素、晶格、分数/笛卡尔坐标逐项完全相同，原/派生SHA与位点列表写入13_geometry/structure_normalization_audit.json。首次失败输入/报告单独保留，恢复后28匹配无失败。正式源码未修，后续可另加序列化回归修复。
+## 2026-11-04 — 固定84d6299原库复现318配对通过，继续MP候选GPU算例
+
+**本次工作目标：** 按用户原始说明完成固定版本、原始mp.zip与描述缓存模式的完整复现，再生成来自本轮MP候选的Stage13结果图。
+
+**已完成：**
+- .reproduction-84d6299工作树HEAD固定84d6299243d22e8d43462f12a73932d59dc954c2，源码无差异；独立.venv为Python3.11.16，按指定约束安装condense及包内mp_offline，pip check无依赖冲突，导入路径确认指向固定源码。
+- 用户授权外部根目录 D:/WorkSpace/OtherProjects/ss-screen-results/gpu-stage13-20261104；mp318_fixed84d6299/summary.json实际passed=true，pipeline_state=finished。46675原库记录、4948组成材料、4944缓存描述、491/1358分组、2944任务；严格回放1999成功/620未收敛/325失败，79+239=318对、317端元。2930主要字段相同、14严格周期几何匹配；无PBE fallback，fresh_descriptor_count=0。
+- run_mp_example.sh已启动，只从本轮pairs_unique.csv选择首对PdLi–LiPt（mp-2744/mp-11807，mBJ端元gap0.2258/0.0638eV），不使用旧CaSe–CaTe替代。外部mp_example.log保存运行过程。
+
+**决策 / 计划变更：** 为完整呈现Stage13，后续单算例改用GPU float64、fmax0.01进行端元/随机合金弛豫及同设置竞争相弛豫，执行默认Phonopy声子，再绑定新结构SHA汇总几何/衬底与性质。随机替换seed101、2x2x2，不能表述为优化SQS；所有性质仅按实测成功状态导入。
+
+**下一步：** 监控mp_example.log与93642执行会话；验证新GPU弛豫、离线竞争相、声子及13_geometry，生成并查看mp_example/stage13_results.png/PDF。外部run_mp_example.sh与mp_example_driver.py为入口。
+
+**阻塞项 / 上游问题：** 原库318复现无阻塞；后续GPU算例仍运行中。尚未生成本轮Stage13图；此前额外旧CaSe–CaTe GPU结果不作本轮验收。
+## 2026-11-04 — 按固定版本执行完整 MP 复现（运行中）
+
+**本次工作目标：** 严格按用户提供的完整包说明，从原始 mp.zip 经描述缓存模式重现318配对；再从本轮候选选择一个GPU/Stage13算例。
+
+**已完成：**
+- 用户明确授权仓库外 D:/WorkSpace/OtherProjects/ss-screen-results/gpu-stage13-20261104 写入；完整包已解压到其 assets/，压缩包SHA与交付记录一致。
+- 用Git独立工作树 .reproduction-84d6299 检出固定提交84d6299243d22e8d43462f12a73932d59dc954c2；Windows Git核对HEAD且源码无差异，原开发工作树保持不切换。该本地工作树已加入 .git/info/exclude，不进入提交。
+- 为固定版本新建项目 .venv（Python3.11.16），按screen-wsl-py311.constraints.txt安装condense及包内mp_offline；WSL下载慢，Windows按相同PyPI版本预下载并校验wheel，WSL通过本地find-links安装，仍保留原约束。安装正在运行，尚未宣布验收通过。
+- 外部run_fixed_reproduction.sh、fixed_reproduction.log保存正式流程；正式输出指定尚未创建的mp318_fixed84d6299/，显式使用原始mp.zip、真实mBJ结果和4944描述缓存。
+- 外部mp_example_driver.py/run_mp_example.sh已准备：只有正式summary通过后才选择本次pairs_unique.csv首对、生成seed101的2x2x2随机替换合金、GPU弛豫同模型三结构，计算混合焓、衬底几何和结果图。未将历史声子/凸包绑定到新结构。
+
+**决策 / 计划变更：** 用户指出此前执行偏离说明，已纠正：旧CaSe–CaTe数据不替代本次MP复现。此前额外执行的CaSe–CaTe三项GPU弛豫已成功，保存在外部08_relax/，但不计入正式验收；此前当前开发版本mp318/因缺读取器依赖失败，也保留且不计入验收。后续算例必须来自本轮318候选。
+
+**下一步：** 继续监控固定环境安装/复现，核验pip check、passed=true、79+239配对/317端元，再启动run_mp_example.sh并核验图。
+
+**阻塞项 / 上游问题：** 暂无须用户输入；当前瓶颈为Windows共享盘依赖安装速度。WSL下Git无法解析Windows工作树.git中的盘符，版本已由Windows Git验证；不修改固定源码。
+## 2026-11-04 — 本机 GPU Stage 13 算例运行前核验
+
+**本次工作目标：** 从完整 MP 数据包运行算例，以 GPU 执行适用计算并交付 Stage 13 结果图。
+
+**已完成：**
+- 核验本机路径为 D:/WorkSpace/OtherProjects/ss-screen；修正 ZMD/README.md 残留的其他电脑路径。
+- WSL Ubuntu 的项目 .venv 与 .venv-mlp 均为 Python 3.11.16 且导入当前 ssscreen；MLP Torch 2.5.1+cu121，CUDA 可用，RTX 4060（8188 MiB）实际张量求和返回 32.0。
+- 找到 run/ss-screen-mp-to-318-data-20261104.zip，SHA256=599f40f3678d209c049f23684a783d7ae8a1012901a7342c93d07ec7ee182534，与交付记录一致；本地 data/mace-mpa-0-medium.model 存在。
+- 找到 work/stage13_real_CaSe_CaTe_2026-11-03 的历史 CaSe–CaTe seed7 输入及 372 匹配结果；这不是本轮重算结果。未启动 MACE、声子或完整 MP 复现。
+
+**决策 / 计划变更：** Stage 13 几何计算本身使用 CPU；GPU 用于前置 MACE 弛豫/声子力。建议先用单个 CaSe–CaTe 算例生成结果图，不宣称 318 对均已完成后续验证。
+
+**下一步：** 待用户指定或授权仓库外输出目录后，解压完整包、运行复现并准备单算例 GPU 计算和 Stage 13 图。
+
+**阻塞项 / 上游问题：** AGENTS.md 要求计算输出放在仓库外，同时仓库外默认只读；已请求用户明确授权 D:/WorkSpace/OtherProjects/ss-screen-results/gpu-stage13-20261104，目前尚未收到答复。
 ## 2026-11-04 — 原MP ZIP完整验收通过，后续PR #9
 
 **本次工作目标：** 完成原MP ZIP到318配对的完整程序验收；代码/环境提PR，数据独立ZIP交付且不提交仓库。
@@ -3217,3 +3341,18 @@
 **下一步：** PyCharm启动最新GUI，并加载`work/stage13_real_CaSe_CaTe_2026-11-03/output/candidate_evaluation.csv`确认最终行数据。
 
 **阻塞项 / 上游问题：** 当前主表改动已完成；需要在界面将几何评价路径切换到上述真实输出目录才能显示匹配结果。
+## 2026-11-04 — GUI导入结果包的前置阶段状态显示修正
+
+**本次工作目标：** 处理结果型 `.ssproject` 导入后 Stage 01–04 显示“未开始”的误导问题。
+
+**已完成：**
+- 修改 `src/ssscreen/gui/app.py` 的阶段状态判断：当某阶段目录缺失、但任一后续阶段已有产物时，显示“有产物”而非“未开始”；真实存在的目录仍显示原有计数。
+- 保留原 `.ssproject`；中止体积较大的全阶段重新打包，不新增大型归档。
+- Windows Python 编译检查与临时工程状态判断通过。
+
+**决策 / 计划变更：** 结果展示包不强制嵌入 427 MB 原始 `mp.df`；GUI 用后续结果存在性表达“前置阶段已由快照代表”，避免把“未随包携带”误报为“未执行”。
+
+**下一步：** 重启 GUI 后重新导入现有 `MP318_First8_GPU_Stage13_20um.ssproject` 即可看到前置阶段状态更新。
+
+**阻塞项 / 上游问题：** 无。
+

@@ -98,3 +98,5 @@ python -m ssscreen.geometry_cli \
 3. Python源包使用官方`pymatgen.analysis.interfaces.zsl.ZSLGenerator`接口搜索。安装版本可能引入API差异，请在WSL实际安装版本执行离线解析测试和微型结构搜索后才用于真实科研。
 4. Stage 12推荐CSV不含结构SHA，不能单独证明结构身份。适配器只有在pair index、实际组分和structure ID与Stage 13清单一致时，才利用`alloy_structures.csv`中的结构SHA导入成功性质；缺少或不匹配的记录仍标为待补充。端元带隙区间覆盖是筛选估计，可能受合金带隙弯曲（bowing）、相变及非单调变化影响；需要高精度合金计算验证。
 5. 默认波长2 μm可由用户更改；CLI若未设置波长则待补充。旧 `gap_target_eV` 保留配置兼容，但不参与当前端元范围判据。证据“完整”表示所需六项已有结果，不代表结果有利、材料稳定或器件性能已验证。
+
+读取工程结果时，页面从所选几何配置的 detector_context.target_wavelength_um 恢复保存的正数有限波长；非预设值显示为自定义目标波长。新版本首次使用须重启GUI。

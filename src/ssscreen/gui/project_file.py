@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import tempfile
 import zipfile
@@ -14,6 +15,19 @@ from typing import Any
 PROJECT_FORMAT = "ss-screen-project"
 PROJECT_FORMAT_VERSION = 1
 STAGE_PREFIXES = tuple(f"{index:02d}_" for index in range(1, 14))
+
+
+def read_stage13_wavelength(config_path: str | Path) -> float | None:
+    """Read a saved positive wavelength without requiring the Qt runtime."""
+    try:
+        payload = json.loads(Path(config_path).read_text(encoding="utf-8-sig"))
+    except (OSError, ValueError):
+        return None
+    context = payload.get("detector_context") if isinstance(payload, dict) else None
+    value = context.get("target_wavelength_um") if isinstance(context, dict) else None
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    return float(value) if math.isfinite(value) and value > 0 else None
 
 
 def _sha256(path: Path) -> str:

@@ -4831,6 +4831,24 @@ class MainWindow(QMainWindow):
     def _stage_status(self, root: Path, directory: str) -> tuple[str, int]:
         path = root / directory
         if not path.exists():
+            # Imported result-only projects may intentionally omit large early
+            # stage directories while retaining later, authoritative outputs.
+            # In that case the stage is not "未开始" scientifically; it is an
+            # upstream stage represented by the downstream result snapshot.
+            stage_index = next(
+                (index for index, (_sid, _name, item) in enumerate(STAGES) if item == directory),
+                None,
+            )
+            if stage_index is not None:
+                for _sid, _name, later_directory in STAGES[stage_index + 1 :]:
+                    if not later_directory:
+                        continue
+                    later_path = root / later_directory
+                    try:
+                        if later_path.is_dir() and any(later_path.iterdir()):
+                            return "有产物", 0
+                    except OSError:
+                        continue
             return "未开始", 0
         try:
             count = sum(1 for _ in path.iterdir())
