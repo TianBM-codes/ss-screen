@@ -2,7 +2,7 @@
 
 > ZMD 是本仓库的路径导航与知识索引层。正式代码、测试、项目文档和历史资料仍以真实目录中的文件为准，ZMD 不复制这些内容。
 
-**工作区根路径：** `D:\WorkSpace\OtherProjects\ss-screen`（Windows GUI；WSL 通过 `/mnt/d/WorkSpace/OtherProjects/ss-screen` 访问同一目录）
+**当前本地副本根路径：** `C:\Users\19756\Desktop\重要文件\ss-screen-local`；WSL 通过 `/mnt/c/Users/19756/Desktop/重要文件/ss-screen-local` 访问同一目录。历史记录中的 D 盘工作副本和环境不能用于判断本机状态；当前 `.venv` 与 `.venv-mlp` 分别链接到 WSL 内的项目独立 Python 3.11 环境（后者用于 CPU MACE/声子），详见最新项目日志。
 
 **初始同步日期：** 2026-07-22
 

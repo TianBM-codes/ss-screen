@@ -10,13 +10,14 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView,QComboBox,QDoubleSpinBox,QFileDialog,QFormLayout,QGroupBox,
     QHBoxLayout,QHeaderView,QLabel,QLineEdit,QMessageBox,QPushButton,QTableWidget,
-    QTableWidgetItem,QTextBrowser,QVBoxLayout,QWidget,
+    QTableWidgetItem,QTabWidget,QTextBrowser,QVBoxLayout,QWidget,
 )
 
 from ..detector import (
     BAND_PRESETS_UM, DEFAULT_TARGET_UM, DEMO_ROWS, assess_rows, export_rows,
     index_geometry, read_csv,
 )
+from ..material_assessment import EVALUATION_TABLE_MD
 
 
 class DetectorAssessmentPage(QWidget):
@@ -25,12 +26,13 @@ class DetectorAssessmentPage(QWidget):
     run_requested = Signal(list, str)
 
     COLUMNS=(
-        ('candidate_material','候选材料'),('gap_a_eV','端元A带隙'),
-        ('gap_b_eV','端元B带隙'),('target_um','目标波长'),
-        ('target_gap_eV','目标能量'),('gap_candidate_status','带隙候选判断'),
-        ('lattice_mismatch_pct','晶格失配'),
+        ('candidate_material','候选材料'),('endpoint_gap_range_eV','端元带隙范围'),
+        ('lattice_mismatch_pct','晶格常数匹配'),
+        ('phonon_min_THz','声子谱'),
+        ('mixing_enthalpy_meV_atom','混合焓'),
+        ('energy_above_hull_meV_atom','凸包上能'),
         ('substrate_recommendations','推荐衬底及薄膜面内主应变'),
-        ('candidate_grade','候选等级优先'),
+        ('material_grade','综合评价'),
     )
 
     def __init__(self, project_provider, parent: QWidget | None = None) -> None:
@@ -63,7 +65,7 @@ class DetectorAssessmentPage(QWidget):
         self.target.setSuffix(' μm');self.target.setValue(DEFAULT_TARGET_UM)
         self.band.currentTextChanged.connect(self._preset_changed)
         wavelength.addWidget(self.band,1);wavelength.addWidget(self.target)
-        form.addRow('目标波长',wavelength);root.addWidget(controls)
+        form.addRow('用户目标波长',wavelength);root.addWidget(controls)
         actions=QHBoxLayout()
         for label,func in (
             ('读取工程结果',self.refresh),('加载内置演示数据',self.load_demo),
@@ -77,14 +79,14 @@ class DetectorAssessmentPage(QWidget):
         self.summary=QLabel('-');self.summary.setStyleSheet('font-weight:600;padding:5px 0')
         root.addWidget(self.summary)
         self.table=QTableWidget(0,len(self.COLUMNS))
-        # Give long bilingual headers two lines without changing their data keys.
+        # Keep units in the header and evidence status beside each value.
         wrapped_headers={
-            'gap_a_eV': '端元A带隙\n(eV)',
-            'gap_b_eV': '端元B带隙\n(eV)',
-            'target_um': '目标波长\n(μm)',
-            'target_gap_eV': '目标能量\n(eV)',
-            'lattice_mismatch_pct': '晶格失配\n(%)',
-            'substrate_recommendations': '推荐衬底及薄膜面内主应变\n(%)',
+            'endpoint_gap_range_eV': '端元带隙范围\n(eV)',
+            'lattice_mismatch_pct': '晶格常数匹配\n(%)',
+            'phonon_min_THz': '声子谱最低频率\n(THz)',
+            'mixing_enthalpy_meV_atom': '混合焓\n(meV/atom)',
+            'energy_above_hull_meV_atom': '凸包上能\n(meV/atom)',
+            'substrate_recommendations': '推荐衬底及薄膜主应变\n(%)',
         }
         self.table.setHorizontalHeaderLabels([
             wrapped_headers.get(key,title) for key,title in self.COLUMNS
@@ -108,7 +110,7 @@ class DetectorAssessmentPage(QWidget):
         header.setFixedHeight(max(48,header.fontMetrics().height()*2+12))
         self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.table.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
-        minimum_widths=(150,112,112,105,112,145,120,390,135)
+        minimum_widths=(125,155,120,145,120,120,280,130)
         metrics=header.fontMetrics()
         for index,((key,title),minimum) in enumerate(zip(self.COLUMNS,minimum_widths)):
             shown=wrapped_headers.get(key,title)
@@ -117,9 +119,15 @@ class DetectorAssessmentPage(QWidget):
             self.table.horizontalHeaderItem(index).setToolTip(title)
 
         self.table.itemSelectionChanged.connect(self._detail)
-        root.addWidget(self.table,3)
-        self.details=QTextBrowser();self.details.setMaximumHeight(150)
+        self.tabs=QTabWidget()
+        self.tabs.addTab(self.table,'候选评价')
+        self.criteria=QTextBrowser();self.criteria.setOpenExternalLinks(False)
+        self.criteria.setMarkdown(EVALUATION_TABLE_MD)
+        self.tabs.addTab(self.criteria,'评价条件')
+        root.addWidget(self.tabs,3)
+        self.details=QTextBrowser();self.details.setMaximumHeight(220)
         self.details.setOpenExternalLinks(False);root.addWidget(self.details,1)
+        self.target.valueChanged.connect(self.recompute)
 
     def _root(self) -> Path:
         return Path(self.project_provider()).expanduser().resolve()
@@ -153,7 +161,8 @@ class DetectorAssessmentPage(QWidget):
                 '缺失数据不会自动填零或从演示行生成。')
             return
         out=self._resolve(self.geometry_path.text()).parent
-        argv=['geometry-evaluate','--input',str(path),'--config',str(config),'--output',str(out)]
+        argv=['geometry-evaluate','--input',str(path),'--config',str(config),'--output',str(out),
+              '--target-wavelength-um',str(self.target.value())]
         recommendations=self._resolve(self.recommend_path.text())
         if recommendations.is_file():
             argv.extend(['--recommendations',str(recommendations)])
@@ -213,34 +222,50 @@ class DetectorAssessmentPage(QWidget):
                 formatted.append(f'{rank}. {substrate}：{strain_text}%')
             row['substrate_recommendations']='\n'.join(formatted) if formatted else '—'
         covered=sum(r['band_match']=='端元范围覆盖' for r in self._results)
-        evaluated=sum(r['substrate_principal_strain_pct'] is not None for r in self._results)
-        self.summary.setText(f"数据来源：{'虚构演示' if self._demo_mode else '工程文件'}  |  候选 {len(self._results)}  |  端元范围覆盖目标 {covered}  |  已有衬底几何证据 {evaluated}")
+        priority=sum(r['material_grade']=='优先进一步验证' for r in self._results)
+        lower=sum(r['material_grade']=='降低优先级' for r in self._results)
+        self.summary.setText(f"数据来源：{'虚构演示' if self._demo_mode else '工程文件'}  |  候选 {len(self._results)}  |  综合优先 {priority}  |  降低优先级 {lower}  |  端元范围覆盖目标 {covered}")
+        status_keys={
+            'endpoint_gap_range_eV':'gap_target_status','lattice_mismatch_pct':'lattice_status',
+            'phonon_min_THz':'phonon_status','mixing_enthalpy_meV_atom':'mixing_status',
+            'energy_above_hull_meV_atom':'hull_status',
+        }
         self.table.setRowCount(len(self._results))
         for i,row in enumerate(self._results):
             for j,(key,_) in enumerate(self.COLUMNS):
                 v=row.get(key)
                 if v is None or v=='':
                     shown='—'
-                elif key in ('gap_a_eV','gap_b_eV','target_gap_eV'):
-                    shown=f'{float(v):.4f} eV'
-                elif key=='target_um':
-                    shown=f'{float(v):.1f} μm'
-                elif key=='lattice_mismatch_pct':
-                    shown=f'{float(v):.4f}%'
+                elif key in status_keys and key!='endpoint_gap_range_eV':
+                    shown=f'{float(v):.4f}'
                 elif isinstance(v,float):
                     shown=f'{v:.5g}'
                 else:
                     shown=str(v)
+                status=str(row.get(status_keys.get(key,'')) or '')
+                if key=='endpoint_gap_range_eV':
+                    shown+=f"\n目标 {float(row['target_gap_eV']):.4f}\n{row['band_match']}"
+                elif key in status_keys:
+                    shown+='\n'+status
+                elif key=='material_grade':
+                    status=str(v)
+                    shown+='\n'+str(row.get('evidence_completeness') or '')
                 item=QTableWidgetItem(shown)
-                item.setToolTip(str(v) if v not in (None,'') else '缺少可追溯的有效数据')
-                if key=='candidate_grade':
-                    item.setForeground(Qt.darkGreen if v=='优先' else Qt.darkYellow)
-                if key=='gap_candidate_status':
-                    item.setForeground(Qt.darkGreen if v=='满足带隙候选' else Qt.darkYellow)
-                if key=='band_match' and v=='端元范围覆盖':item.setForeground(Qt.darkGreen)
+                item.setToolTip(shown)
+                if status in ('显著虚频','高风险','降低优先级','较大失配风险'):
+                    item.setForeground(Qt.darkRed)
+                elif status in ('优先','通过','优先进一步验证'):
+                    item.setForeground(Qt.darkGreen)
+                elif status:
+                    item.setForeground(Qt.darkYellow)
+                if key=='material_grade':
+                    item.setToolTip(str(row.get('material_reason') or shown))
                 self.table.setItem(i,j,item)
         self.details.setHtml('<p>选中候选，查看几何、稳定性证据、match ID及数据来源。</p>')
-        if self._results:self.table.selectRow(0)
+        if self._results:
+            self.table.selectRow(0)
+            # Refresh may retain the same selection without emitting a signal.
+            self._detail()
 
     def _detail(self) -> None:
         selected=self.table.selectedItems()
@@ -251,18 +276,28 @@ class DetectorAssessmentPage(QWidget):
         def safe(key: str) -> str:
             val=row.get(key)
             return html.escape(str(val if val not in (None,'') else '—'))
+        def number(key: str) -> str:
+            val=row.get(key)
+            return f'{float(val):.4f}' if val not in (None,'') else '—'
         self.details.setHtml(
             '<p><b>端元A带隙：</b>'+safe('gap_a_eV')+' eV　<b>端元B带隙：</b>'+safe('gap_b_eV')+
             ' eV　<b>端元带隙范围：</b>'+safe('endpoint_gap_min_eV')+'–'+safe('endpoint_gap_max_eV')+
             ' eV　<b>目标光子能量：</b>'+safe('target_gap_eV')+' eV　<b>范围评估：</b>'+safe('band_match')+'</p>'
-            '<p><b>带隙候选判断：</b>'+safe('gap_candidate_status')+'　<b>候选等级优先：</b>'+safe('candidate_grade')+
-            '　<b>来源：</b>'+safe('gap_origin')+
+            '<p><b>带隙候选判断：</b>'+safe('gap_candidate_status')+'　<b>带隙范围优先级：</b>'+safe('candidate_grade')+
+            '　<b>来源：</b>'+safe('endpoint_gap_origin')+
             '　<b>数据：</b>'+safe('data_origin')+'</p>'
-            '<p><b>晶格：</b>'+safe('lattice_status')+'　<b>声子：</b>'+safe('phonon_status')+
-            '　<b>混合焓：</b>'+safe('mixing_status')+'　<b>凸包：</b>'+safe('hull_status')+'</p>'
+            '<p><b>晶格：</b>'+safe('lattice_status')+'　<b>最低声子频率：</b>'+number('phonon_min_THz')+' THz（'+safe('phonon_status')+'）'+
+            '　<b>混合焓：</b>'+number('mixing_enthalpy_meV_atom')+' meV/原子（'+safe('mixing_status')+'）'+
+            '　<b>凸包上能：</b>'+number('energy_above_hull_meV_atom')+' meV/原子（'+safe('hull_status')+'）</p>'
             '<p><b>衬底：</b>'+safe('substrate_id')+'　<b>晶面：</b>'+safe('film_miller')+' / '+safe('substrate_miller')+
             '　<b>匹配面积(Å²)：</b>'+safe('match_area_A2')+'　<b>match ID：</b>'+safe('match_id')+'</p>'
-            '<p><b>几何等级：</b>'+safe('geometry_grade')+'　<b>限制：</b>'+safe('caution')+'</p>'
+            '<p><b>带隙条件：</b>min(EgA, EgB) ≤ 1.239841984 / λ(μm) ≤ max(EgA, EgB)。'
+            '当前波长 '+number('target_um')+' μm；'+safe('gap_target_status')+'。仅使用端元带隙范围。</p>'
+            '<p><b>综合评价：</b>'+safe('material_grade')+'　<b>证据完整性：</b>'+safe('evidence_completeness')+
+            '　'+safe('material_reason')+'</p>'
+            '<p><b>几何等级：</b>'+safe('geometry_grade')+
+            '　<b>应变约定：</b>衬底固定，薄膜变形；正值拉伸、负值压缩。未计算共同松弛及弹性应变能。</p>'
+            '<p><b>限制：</b>'+safe('caution')+'</p>'
         )
 
     def export(self) -> None:

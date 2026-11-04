@@ -26,6 +26,7 @@
 
 ## 能力边界
 
+- 2026-11-03 新克隆副本修复：补齐上游漏提交的 `structures.py`，并将 `.gitignore` 的 `data/` 改为 `/data/`。导入拒绝重复材料 ID、无效 gap/hull 和未知 metadata ID；provenance 保存输入 SHA-256 与使用默认值的字段，明确默认值不是计算证据。
 - WBM 当前只消费已经构建好的 extxyz；原始 step 数据到 extxyz 的完整重建尚未迁移。
 - 本地结构数据入口只从 POSCAR/CIF 等文件获得结构；若无 metadata，band gap 和 e_hull 只能使用显式默认值，
   适合流程联调，不等同于真实 MP/WBM 数据证据。

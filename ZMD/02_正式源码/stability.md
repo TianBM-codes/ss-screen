@@ -66,6 +66,8 @@ ss-screen recommend --help
 
 ## 最近同步
 
+- 2026-11-04：本机 API 查询返回 26 个竞争相，全部同模型/设置弛豫成功；严格凸包距离 0.354128 eV/atom，分解为 MP 来源 CaSe/CaTe 各 0.5。综合推荐 low-priority、L5；结构哈希、模型设置与分解能量/组成独立核验通过。科学实现未改，详见最新项目日志。
+- 2026-11-03：本机用户提供的 WSL 模型 SHA 核对一致，CPU/float64 实际完成 3 个弛豫、1 个混合焓和 3 个声子结果；混合焓 +31.227 meV/atom，三个结构均有显著虚频。13/13 力任务成功，凸包缺竞争相来源；产物和科学边界见最新项目日志及仓库外 `STABILITY_REPORT.md`，本次未改科学实现。
 - 2026-09-18：`PhononSettings.max_input_force` 默认值由 `0.01` 调整为 `0.02 eV/Angstrom`；CLI 与 GUI
   的声子任务统一继承该默认值。
 - 2026-08-03：新增 Stage 11 综合推荐模块和顶层命令，输出逐 SQS CSV、Markdown 报告和可选 JSON summary。

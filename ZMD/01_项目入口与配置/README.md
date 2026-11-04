@@ -24,6 +24,7 @@
 - GUI 入口：`ss-screen-gui = ssscreen.gui.launcher:main`
 - 核心依赖：pymatgen、pandas、numpy、monty、click、tqdm
 - 常用 extras：`mp`、`wbm`、`condense`、`sqs`、`gui`、`mlp`、`phonon`
+- 核心支持 Python 3.10+，但 `[condense]` 的 `matminer>=0.10.1` 要求 Python 3.11+；本地 POSCAR→结构描述完整流程应使用 3.11 或更高版本。
 - `[mp]` 固定已验证的 `mp-api>=0.46.4,<0.47`；Stage 10 在线命令每次隐藏提示密钥且不落盘
 - Stage 1 在线 MP 全量结构查询使用120秒单请求超时、500条稳定分页和单页3次重试；请求设置写入 provenance，密钥仅从标准配置发现且不落盘
 - 离线 MP 使用 separately installed 的 `mp_offline 0.1.0` 和显式 SQLite 路径；当前环境验证 SQLAlchemy 2.0.51，数据库不进入仓库
@@ -61,6 +62,9 @@
 
 ## 最近同步
 
+- 2026-11-04：本机 `.venv-mlp` 补齐 MP API 并通过真实查询；网络/读取兼容版本为 mp-api 0.46.5、python-dateutil 2.9.0.post0、boto3/botocore 1.43.123、PyArrow 20.0.0，计算版本保持一致。凭据仅临时使用不落盘，详见最新日志与外部 `environment_phase.txt`。
+- 2026-11-03：当前 C 盘副本新增 WSL 原生项目独立 `.venv-mlp` 链接（Python 3.11.18、torch 2.5.1+cpu、mace-torch 0.3.14、Phonopy 4.8.6），依赖检查通过。本机 Intel Arc 无 CUDA，计算使用 CPU；用户模型保留原 WSL 路径，详见最新项目日志。
+- 2026-11-03：新本地副本将 `.gitignore` 的 `data/` 限定为根目录 `/data/`，避免忽略 `src/ssscreen/data/` 下的新增源码；补齐已被 CLI 引用但未提交的本地结构导入模块。
 - 2026-09-27：`.gitignore` 新增 `/gui-matterviz/node_modules/`；MatterViz 的 Svelte 源码、
   `package.json`、锁文件和构建配置继续跟踪，约 162 MB 的可重装 npm 依赖不进入版本库。
 - 2026-09-11：WSL 下新增被忽略的 `.venv-mlp/`，安装 `torch 2.5.1+cu121`、`mace-torch 0.3.14`、

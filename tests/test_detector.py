@@ -31,7 +31,8 @@ def test_conservative_status_and_conversion():
     assert result['mixing_enthalpy_meV_atom']==12
     assert result['phonon_min_THz']==-.03
     assert result['energy_above_hull_meV_atom']==15
-    assert result['candidate_grade']=='待补充'
+    assert result['candidate_grade']=='次优'
+    assert result['material_grade']=='待补充'
 
 
 def test_geometry_matches_exact_id_and_composition():
@@ -72,6 +73,7 @@ def test_endpoint_range_coverage_is_priority_without_alloy_gap():
     assert result['alloy_gap_eV'] is None
     assert result['band_match']=='端元范围覆盖'
     assert result['candidate_grade']=='优先'
+    assert result['material_grade']=='待补充'
 
 
 def test_nonfinite_and_zero_gap():

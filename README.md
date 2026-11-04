@@ -18,6 +18,9 @@ small direct-gap member.
 
 ## Install
 
+The core package supports Python 3.10+. Use Python 3.11 or newer for the
+`condense` extra: its required `matminer>=0.10.1` dependency requires Python 3.11+.
+
 ```bash
 pip install -e .
 # Ubuntu development setup for the CLI plus common workflow extras and GUI:
